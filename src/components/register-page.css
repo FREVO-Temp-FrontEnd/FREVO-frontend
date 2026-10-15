@@ -1,0 +1,463 @@
+.register-shell {
+  display: grid;
+  grid-template-columns: 52% 48%;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.register-shell::-webkit-scrollbar {
+  display: none;
+}
+
+.register-story {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--peach);
+  padding: clamp(48px, 4.5vw, 76px) clamp(40px, 4.5vw, 72px);
+}
+
+.register-story-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 660px;
+}
+
+.register-story h1 {
+  font-size: clamp(48px, 4.6vw, 72px);
+  line-height: .99;
+  letter-spacing: -.065em;
+  font-weight: 900;
+}
+
+.register-story h1 span {
+  color: var(--orange);
+}
+
+.register-story-copy p {
+  max-width: 480px;
+  margin-top: 20px;
+  font-size: clamp(18px, 1.4vw, 22px);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.register-art {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  width: min(580px, 92%);
+  max-height: calc(100% - 320px);
+  object-fit: contain;
+  transform: translateX(-50%);
+}
+
+.register-panel {
+  display: flex;
+  align-items: flex-start;
+  height: 100%;
+  max-height: 100dvh;
+  overflow-y: auto;
+  padding: clamp(28px, 3vh, 44px) clamp(36px, 5vw, 84px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.register-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.register-panel-inner {
+  width: min(100%, 540px);
+  margin: 0 auto;
+}
+
+.register-logo-link {
+  display: inline-block;
+  border-radius: 6px;
+}
+
+.register-logo {
+  width: clamp(146px, 14vw, 192px);
+  height: auto;
+}
+
+.register-form-area {
+  margin-top: 16px;
+}
+
+.register-form-area h2 {
+  font-size: clamp(30px, 2.7vw, 42px);
+  line-height: 1.05;
+  letter-spacing: -.055em;
+  font-weight: 900;
+}
+
+.register-subtitle {
+  margin-top: 6px;
+  color: #686c69;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.register-role-group {
+  margin-top: 16px;
+}
+
+.register-role-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #525752;
+}
+
+.register-role-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.register-role-btn {
+  height: 42px;
+  padding: 0 14px;
+  border: 1.5px solid #c8cdca;
+  border-radius: 999px;
+  background: #fff;
+  color: #525752;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: all .15s ease;
+}
+
+.register-role-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.register-role-btn.active {
+  border: 2px solid var(--ink);
+  background: var(--peach);
+  color: var(--ink);
+  font-weight: 800;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.register-form {
+  margin-top: 16px;
+}
+
+.register-field + .register-field {
+  margin-top: 12px;
+}
+
+.register-field > label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.register-field input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1.5px solid #c8cdca;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 15px;
+  box-shadow: none;
+}
+
+.register-field input::placeholder {
+  color: #929793;
+}
+
+.register-field input:hover {
+  border-color: #8d9690;
+}
+
+.register-field input:focus-visible {
+  border-color: var(--orange);
+  outline: 3px solid #f4490b3b;
+  outline-offset: 1px;
+}
+
+.register-field input[aria-invalid="true"] {
+  border-color: #b42318;
+}
+
+.register-error {
+  margin-top: 5px;
+  color: #a42117;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.register-password-wrap {
+  position: relative;
+}
+
+.register-password-wrap input {
+  padding-right: 50px;
+}
+
+.register-reveal {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #626965;
+  transform: translateY(-50%);
+}
+
+.register-reveal:hover {
+  color: var(--ink);
+  background: #f3f4f2;
+}
+
+.register-terms {
+  margin-top: 14px;
+}
+
+.register-terms-label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #525752;
+  font-size: 13.5px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.register-terms-label [data-slot="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border: 1.5px solid #89908b;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+}
+
+.register-terms-label [data-slot="checkbox"][data-state="checked"] {
+  border-color: var(--orange);
+  background: var(--orange);
+}
+
+.register-text-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ba3b14;
+  font-size: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-text-link:hover {
+  color: #8f2c10;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.register-submit {
+  width: 100%;
+  height: 52px;
+  margin-top: 18px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--orange);
+  color: var(--ink);
+  font-size: 16.5px;
+  font-weight: 900;
+  box-shadow: 4px 5px 0 var(--ink);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.register-submit:hover {
+  background: #ff5e22;
+  transform: translate(1px, 1px);
+  box-shadow: 3px 4px 0 var(--ink);
+}
+
+.register-submit:active {
+  transform: translate(4px, 5px);
+  box-shadow: none;
+}
+
+.register-notice {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid #f7c3aa;
+  border-radius: 8px;
+  background: #fff4ef;
+  color: #8c3819;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.register-login {
+  margin-top: 18px;
+  color: #686c69;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 1100px) {
+  .register-shell {
+    grid-template-columns: 48% 52%;
+  }
+  .register-story {
+    padding-left: 36px;
+    padding-right: 24px;
+  }
+  .register-story h1 {
+    font-size: clamp(40px, 4.8vw, 56px);
+  }
+  .register-art {
+    width: 96%;
+  }
+  .register-panel {
+    padding: 28px 24px;
+  }
+}
+
+@media (min-width: 761px) and (max-height: 850px) {
+  .register-story {
+    padding-top: 36px;
+    padding-bottom: 24px;
+  }
+  .register-story h1 {
+    font-size: clamp(40px, 4vw, 52px);
+  }
+  .register-story-copy p {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+  .register-art {
+    bottom: 10px;
+    max-height: calc(100% - 220px);
+  }
+  .register-panel {
+    padding-top: 24px;
+    padding-bottom: 20px;
+  }
+  .register-logo {
+    width: 140px;
+  }
+  .register-form-area {
+    margin-top: 12px;
+  }
+  .register-form-area h2 {
+    font-size: clamp(28px, 2.5vw, 36px);
+  }
+  .register-subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+  .register-role-group {
+    margin-top: 12px;
+  }
+  .register-role-btn {
+    height: 38px;
+    font-size: 13px;
+  }
+  .register-form {
+    margin-top: 12px;
+  }
+  .register-field + .register-field {
+    margin-top: 10px;
+  }
+  .register-field > label {
+    margin-bottom: 3px;
+    font-size: 13px;
+  }
+  .register-field input {
+    height: 44px;
+    font-size: 14px;
+  }
+  .register-terms {
+    margin-top: 10px;
+  }
+  .register-submit {
+    height: 46px;
+    margin-top: 14px;
+    font-size: 15.5px;
+  }
+  .register-login {
+    margin-top: 14px;
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 760px) {
+  .register-shell {
+    display: block;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .register-story {
+    display: none;
+  }
+  .register-panel {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    min-height: 100dvh;
+    padding: 32px 20px 40px;
+    align-items: flex-start;
+  }
+  .register-panel-inner {
+    max-width: 500px;
+  }
+  .register-logo {
+    width: 170px;
+  }
+  .register-form-area {
+    margin-top: 24px;
+  }
+  .register-form-area h2 {
+    font-size: clamp(32px, 7vw, 42px);
+  }
+}
+
+@media (max-width: 420px) {
+  .register-panel {
+    padding: 24px 16px 36px;
+  }
+  .register-logo {
+    width: 150px;
+  }
+  .register-form-area {
+    margin-top: 20px;
+  }
+  .register-subtitle {
+    font-size: 14px;
+  }
+  .register-role-options {
+    grid-template-columns: 1fr;
+  }
+  .register-form {
+    margin-top: 18px;
+  }
+  .register-login {
+    margin-top: 24px;
+    font-size: 13.5px;
+  }
+}
