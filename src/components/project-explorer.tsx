@@ -1,8 +1,13 @@
-"use client";
-
-import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { projects, type Project } from "@/lib/projects";
+import { Link, useNavigate, useParams } from "react-router";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { createApplication, getProjects, isDemoMode } from "@/lib/api";
+import type { Project } from "@/lib/projects";
 
 type SortMode = "newest" | "budget" | "deadline";
 
@@ -56,7 +61,7 @@ function ProjectCard({
     <article className={`project-card ${selected ? "selected" : ""}`}>
       <button className="card-main" type="button" aria-pressed={selected} aria-label={project.title} onClick={() => onSelect(project.id)}>
         <span className="card-top flex items-center">
-          <span className={`category-pill ${project.type}`}>{project.category}</span>
+          <Badge className={`category-pill ${project.type}`}>{project.category}</Badge>
           {applied && <span className="applied-pill">✓ Đã ứng tuyển</span>}
           <span className="age">{project.age} ngày trước</span>
         </span>
@@ -102,7 +107,7 @@ function ProjectDetail({
         <section className="detail-section"><h3>SẢN PHẨM BÀN GIAO</h3><ul className="deliverables">{project.deliverables.map(item => <li key={item}>{item}</li>)}</ul></section>
       </div>
       <div className="detail-actions flex items-center">
-        {applied ? <p className="applied-message">✓ Bạn đã ứng tuyển dự án này</p> : <button className="primary-button" type="button" onClick={() => onApply(project.id)}>Ứng tuyển dự án</button>}
+        {applied ? <p className="applied-message">✓ Bạn đã ứng tuyển dự án này</p> : <Button className="primary-button" type="button" onClick={() => onApply(project.id)}>Ứng tuyển dự án</Button>}
         <BookmarkButton project={project} saved={saved} onToggle={onSave} />
       </div>
     </article>
@@ -110,12 +115,16 @@ function ProjectDetail({
 }
 
 export default function ProjectExplorer() {
+  const navigate = useNavigate();
+  const { projectId } = useParams();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minimumBudget, setMinimumBudget] = useState(0);
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("newest");
-  const [selectedId, setSelectedId] = useState("coffee");
   const [saved, setSaved] = useState(() => new Set(["spa"]));
   const [applied, setApplied] = useState(() => new Set(["bakery"]));
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -123,8 +132,18 @@ export default function ProjectExplorer() {
   const [proposal, setProposal] = useState("");
   const [portfolio, setPortfolio] = useState("");
   const [toast, setToast] = useState("");
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getProjects()
+      .then(data => { if (active) { setProjects(data); setLoadError(false); } })
+      .catch(() => { if (active) setLoadError(true); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const visible = useMemo(() => {
     const term = normalized(query.trim());
@@ -134,9 +153,9 @@ export default function ProjectExplorer() {
       (!remoteOnly || project.remote) &&
       (!term || normalized([project.title, project.company, project.city, project.category, ...project.skills].join(" ")).includes(term))
     ).sort((a, b) => sortMode === "budget" ? b.max - a.max : sortMode === "deadline" ? deadlineTime(a.deadline) - deadlineTime(b.deadline) : a.age - b.age);
-  }, [query, selectedCategories, minimumBudget, remoteOnly, sortMode]);
+  }, [projects, query, selectedCategories, minimumBudget, remoteOnly, sortMode]);
 
-  const selected = visible.find(project => project.id === selectedId) ?? visible[0];
+  const selected = visible.find(project => project.id === (projectId ?? "coffee")) ?? visible[0];
   const applyingProject = projects.find(project => project.id === applyingId);
   const hasFilters = selectedCategories.length > 0 || minimumBudget > 0 || remoteOnly;
 
@@ -155,7 +174,7 @@ export default function ProjectExplorer() {
   }
 
   function selectProject(id: string) {
-    setSelectedId(id);
+    navigate(`/projects/${id}`);
     if (window.matchMedia("(max-width: 720px)").matches) {
       requestAnimationFrame(() => {
         document.getElementById("detail-region")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
@@ -168,22 +187,31 @@ export default function ProjectExplorer() {
     setApplyingId(id);
     setProposal("");
     setPortfolio("");
-    dialogRef.current?.showModal();
+    setSubmitError("");
   }
 
   function closeApplication() {
-    dialogRef.current?.close();
+    setApplyingId(null);
   }
 
-  function submitApplication(event: React.FormEvent<HTMLFormElement>) {
+  async function submitApplication(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!applyingId || !event.currentTarget.reportValidity()) return;
-    setApplied(previous => new Set(previous).add(applyingId));
-    closeApplication();
-    setToast("Đã mô phỏng gửi ứng tuyển. Không có dữ liệu nào được gửi đi.");
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(""), 4000);
-    requestAnimationFrame(() => document.getElementById("detail-title")?.focus({ preventScroll: true }));
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await createApplication({ projectId: applyingId, proposal, portfolioUrl: portfolio });
+      setApplied(previous => new Set(previous).add(applyingId));
+      closeApplication();
+      setToast(isDemoMode ? "Đã mô phỏng gửi ứng tuyển. Không có dữ liệu nào được gửi đi." : "Ứng tuyển đã được gửi thành công.");
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      toastTimer.current = setTimeout(() => setToast(""), 4000);
+      requestAnimationFrame(() => document.getElementById("detail-title")?.focus({ preventScroll: true }));
+    } catch {
+      setSubmitError("Không gửi được ứng tuyển. Vui lòng thử lại.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -191,7 +219,7 @@ export default function ProjectExplorer() {
       <a className="skip-link" href="#main">Đi đến nội dung chính</a>
       <header className="site-header flex items-center justify-between">
         <div className="header-left flex items-center">
-          <Image className="logo" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" priority />
+          <Link to="/" aria-label="FREVO - Khám phá dự án"><img className="logo" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" /></Link>
           <span className="header-divider" aria-hidden="true" />
           <span className="screen-name">Khám phá dự án</span>
         </div>
@@ -200,7 +228,7 @@ export default function ProjectExplorer() {
           <button className="avatar" type="button" aria-label="Tài khoản của Minh Anh">MA</button>
         </div>
       </header>
-      <p className="prototype-note">Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.</p>
+      {isDemoMode && <p className="prototype-note">Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.</p>}
 
       <div className="page-grid grid">
         <aside className={`filter-rail ${filtersOpen ? "open" : ""}`} aria-label="Bộ lọc dự án">
@@ -208,12 +236,12 @@ export default function ProjectExplorer() {
           <div id="filters-panel" className="filters-panel">
             <div className="filters-heading"><h2>Bộ lọc</h2><button type="button" disabled={!hasFilters} onClick={() => { setSelectedCategories([]); setMinimumBudget(0); setRemoteOnly(false); }}>Xóa bộ lọc</button></div>
             <fieldset className="filter-group category-group"><legend>LĨNH VỰC</legend>
-              {categories.map(category => <label key={category}><input type="checkbox" checked={selectedCategories.includes(category)} onChange={() => toggleCategory(category)} /> <span>{category}</span></label>)}
+              {categories.map(category => <label key={category}><Checkbox checked={selectedCategories.includes(category)} onCheckedChange={() => toggleCategory(category)} aria-label={category} /> <span>{category}</span></label>)}
             </fieldset>
             <fieldset className="filter-group budget-group"><legend>NGÂN SÁCH TỐI THIỂU</legend>
               {budgetOptions.map(option => <label key={option.value}><input type="radio" name="budget" checked={minimumBudget === option.value} onChange={() => setMinimumBudget(option.value)} /> <span>{option.label}</span></label>)}
             </fieldset>
-            <label className="remote-row"><span>Làm việc từ xa</span><input type="checkbox" role="switch" checked={remoteOnly} onChange={event => setRemoteOnly(event.target.checked)} /></label>
+            <label className="remote-row"><span>Làm việc từ xa</span><Checkbox role="switch" checked={remoteOnly} onCheckedChange={checked => setRemoteOnly(checked === true)} aria-label="Chỉ dự án làm việc từ xa" /></label>
           </div>
         </aside>
 
@@ -221,33 +249,37 @@ export default function ProjectExplorer() {
           <h1>Dự án đang mở<span>.</span></h1>
           <p className="intro">Brief từ doanh nghiệp nhỏ đang tìm creative freelancer.</p>
           <div className="toolbar">
-            <label className="search-wrap"><span className="sr-only">Tìm kiếm dự án</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm theo tên, doanh nghiệp, kỹ năng..." /></label>
+            <label className="search-wrap"><span className="sr-only">Tìm kiếm dự án</span><Input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm theo tên, doanh nghiệp, kỹ năng..." /></label>
             <label className="sort-wrap" htmlFor="sort"><span>Sắp xếp</span><select id="sort" value={sortMode} onChange={event => setSortMode(event.target.value as SortMode)}><option value="newest">Mới nhất</option><option value="budget">Ngân sách cao</option><option value="deadline">Hạn gần nhất</option></select></label>
           </div>
-          <p className="result-line" role="status" aria-live="polite"><strong>{visible.length}</strong> dự án phù hợp</p>
+          <p className="result-line" role="status" aria-live="polite">{loading ? "Đang tải dự án..." : loadError ? "Không tải được dự án." : <><strong>{visible.length}</strong> dự án phù hợp</>}</p>
           <div className="project-list grid" aria-label="Dự án đang mở">
             {visible.map(project => <ProjectCard key={project.id} project={project} selected={selected?.id === project.id} saved={saved.has(project.id)} applied={applied.has(project.id)} onSelect={selectProject} onSave={toggleSaved} />)}
           </div>
-          {visible.length === 0 && <div className="empty-state"><strong>Chưa tìm thấy dự án phù hợp.</strong><span>Thử một từ khóa hoặc bộ lọc khác.</span></div>}
+          {loadError && <div className="empty-state"><strong>Không tải được danh sách dự án.</strong><span>Kiểm tra kết nối hoặc cấu hình API rồi tải lại trang.</span></div>}
+          {!loading && !loadError && visible.length === 0 && <div className="empty-state"><strong>Chưa tìm thấy dự án phù hợp.</strong><span>Thử một từ khóa hoặc bộ lọc khác.</span></div>}
         </main>
 
         <aside id="detail-region" className="detail-column" aria-label="Chi tiết dự án">
-          {selected ? <ProjectDetail project={selected} saved={saved.has(selected.id)} applied={applied.has(selected.id)} onSave={toggleSaved} onApply={openApplication} /> : <p className="detail-empty">Chọn bộ lọc khác để xem chi tiết dự án.</p>}
+          {selected ? <ProjectDetail project={selected} saved={saved.has(selected.id)} applied={applied.has(selected.id)} onSave={toggleSaved} onApply={openApplication} /> : !loading && !loadError ? <p className="detail-empty">Chọn bộ lọc khác để xem chi tiết dự án.</p> : null}
         </aside>
       </div>
 
-      <dialog ref={dialogRef} id="apply-dialog" aria-labelledby="apply-title" onClick={event => { if (event.target === dialogRef.current) closeApplication(); }}>
+      <Dialog open={applyingId !== null} onOpenChange={open => { if (!open) closeApplication(); }}>
+        <DialogContent className="apply-dialog" showCloseButton={false}>
         <form id="apply-form" onSubmit={submitApplication}>
-          <div className="dialog-head"><div><h2 id="apply-title">Ứng tuyển dự án</h2><p>{applyingProject?.title}</p></div><button className="icon-button close-dialog" type="button" aria-label="Đóng" onClick={closeApplication}>×</button></div>
+          <div className="dialog-head"><div><DialogTitle id="apply-title">Ứng tuyển dự án</DialogTitle><DialogDescription>{applyingProject?.title}</DialogDescription></div><button className="icon-button close-dialog" type="button" aria-label="Đóng" onClick={closeApplication}>×</button></div>
           <label htmlFor="proposal">Lời giới thiệu ngắn</label>
-          <textarea id="proposal" name="proposal" value={proposal} onChange={event => setProposal(event.target.value)} maxLength={1000} minLength={50} required placeholder="Vì sao bạn phù hợp với dự án này? Cách bạn sẽ tiếp cận..." />
+          <Textarea id="proposal" name="proposal" value={proposal} onChange={event => setProposal(event.target.value)} maxLength={1000} minLength={50} required placeholder="Vì sao bạn phù hợp với dự án này? Cách bạn sẽ tiếp cận..." />
           <p className="input-help"><span>{proposal.length}</span>/1000 ký tự · tối thiểu 50</p>
           <label htmlFor="portfolio">Liên kết portfolio phù hợp</label>
-          <input id="portfolio" name="portfolio" type="url" value={portfolio} onChange={event => setPortfolio(event.target.value)} required placeholder="https://behance.net/ten-ban" />
+          <Input id="portfolio" name="portfolio" type="url" value={portfolio} onChange={event => setPortfolio(event.target.value)} required placeholder="https://behance.net/ten-ban" />
           <p className="input-help">Behance, Dribbble, Google Drive hoặc website cá nhân.</p>
-          <div className="dialog-actions"><button className="secondary-button" type="button" onClick={closeApplication}>Hủy</button><button className="primary-button" type="submit">Gửi ứng tuyển</button></div>
+          {submitError && <p className="submit-error" role="alert">{submitError}</p>}
+          <div className="dialog-actions"><Button className="secondary-button" variant="outline" type="button" onClick={closeApplication}>Hủy</Button><Button className="primary-button" type="submit" disabled={submitting}>{submitting ? "Đang gửi..." : "Gửi ứng tuyển"}</Button></div>
         </form>
-      </dialog>
+        </DialogContent>
+      </Dialog>
       {toast && <div id="toast" role="status" aria-live="polite">{toast}</div>}
     </>
   );
