@@ -1,6 +1,6 @@
 # FREVO Screen
 
-Frontend màn hình “Khám phá dự án” của FREVO. Giao diện được dựng bằng React 19, TypeScript, Vite, Tailwind CSS v4 và các component shadcn/ui. React Router quản lý URL dự án; Axios dùng cho REST API.
+Frontend FREVO gồm màn hình “Khám phá dự án” và trang đăng nhập. Giao diện được dựng bằng React 19, TypeScript, Vite, Tailwind CSS v4 và các component shadcn/ui. React Router quản lý điều hướng; Axios dùng cho REST API.
 
 ## Chạy tại máy
 
@@ -12,6 +12,8 @@ npm run dev
 ```
 
 Mở URL Vite hiển thị trong terminal (mặc định <http://localhost:5173>).
+
+Trang đăng nhập ở `/login`. Form có kiểm tra email, mật khẩu và các trạng thái tương tác; chức năng xác thực, đặt lại mật khẩu và tạo tài khoản cần được kết nối với backend sau.
 
 ```bash
 npm run lint
@@ -33,7 +35,9 @@ Frontend chỉ đánh dấu đã ứng tuyển sau khi API trả về thành cô
 
 ## Cấu trúc
 
-- `src/App.tsx`: React Router với trang danh sách và URL `/projects/:projectId`.
+- `src/App.tsx`: React Router với trang danh sách, URL `/projects/:projectId` và `/login`.
+- `src/components/login-page.tsx` và `login-page.css`: giao diện đăng nhập responsive.
+- `design/login-prototype-desktop.png`: ảnh prototype tham chiếu cho trang đăng nhập.
 - `src/components/project-explorer.tsx`: giao diện, bộ lọc và tương tác.
 - `src/components/ui/`: source component shadcn/ui.
 - `src/lib/api.ts`: Axios instance và hàm gọi API.
