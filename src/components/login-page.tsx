@@ -45,19 +45,7 @@ export default function LoginPage() {
           <h1>Ý tưởng hay<br />cần đúng cơ hội<span>.</span></h1>
           <p>Bắt đầu hành trình sáng tạo cùng FREVO.</p>
         </div>
-        <div className="login-art" aria-hidden="true">
-          <div className="art-petal art-petal-one" />
-          <div className="art-petal art-petal-two" />
-          <div className="art-petal art-petal-three" />
-          <div className="art-brief art-brief-back">
-            <span className="art-shape art-shape-square" /><span className="art-rule" /><span className="art-rule art-rule-short" />
-          </div>
-          <div className="art-brief art-brief-front">
-            <span className="art-shape art-shape-circle" /><span className="art-shape art-shape-triangle" />
-            <span className="art-rule art-rule-ink" /><span className="art-rule" /><span className="art-rule art-rule-short" />
-          </div>
-          <div className="art-spark art-spark-one" /><div className="art-spark art-spark-two" /><div className="art-spark art-spark-three" />
-        </div>
+        <img className="login-art" src="/assets/frevo-login-illustration.png" alt="" aria-hidden="true" />
       </section>
 
       <section className="login-panel" aria-labelledby="login-title">
@@ -68,7 +56,7 @@ export default function LoginPage() {
 
           <div className="login-form-area">
             <h2 id="login-title">Chào mừng trở lại.</h2>
-            <p className="login-subtitle">Đăng nhập để tiếp tục khám phá dự án phù hợp.</p>
+            <p className="login-subtitle">Nơi doanh nghiệp và freelancer kết nối để hợp tác.</p>
 
             <form className="login-form" onSubmit={submit} noValidate>
               <div className="login-field">
