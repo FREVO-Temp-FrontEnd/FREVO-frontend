@@ -21,8 +21,9 @@
 
 :root{--bg:#f7f8f6;--card:#fff;--ink:#20201f;--muted:#747773;--line:#e4e6e2;--orange:#f4490b;--orange-dark:#bd3d14;--peach:#fff0e9;--radius:13px}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Space Grotesk",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Space Grotesk",Arial,sans-serif;-webkit-font-smoothing:antialiased;scrollbar-width:none;-ms-overflow-style:none}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 button:disabled{cursor:default}

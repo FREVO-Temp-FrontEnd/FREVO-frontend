@@ -3,6 +3,13 @@
   grid-template-columns: 52% 48%;
   min-height: 100dvh;
   background: #fff;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.login-shell::-webkit-scrollbar,
+.login-panel::-webkit-scrollbar {
+  display: none;
 }
 
 .login-story {

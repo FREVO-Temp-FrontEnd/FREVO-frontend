@@ -76,14 +76,14 @@ export default function LoginPage() {
 
               <div className="login-options">
                 <label className="login-remember"><Checkbox checked={remember} onCheckedChange={checked => setRemember(checked === true)} aria-label="Ghi nhớ đăng nhập" /> <span>Ghi nhớ đăng nhập</span></label>
-                <button className="login-text-link" type="button" onClick={() => setNotice("Chức năng đặt lại mật khẩu chưa được kết nối.")}>Quên mật khẩu?</button>
+                <Link to="/forgot-password" className="login-text-link">Quên mật khẩu?</Link>
               </div>
 
               <Button type="submit" className="login-submit">Đăng nhập</Button>
               {notice && <p className="login-notice" role="status">{notice}</p>}
             </form>
 
-            <p className="login-register">Chưa có tài khoản? <button type="button" className="login-text-link" onClick={() => setNotice("Trang tạo tài khoản chưa được kết nối.")}>Tạo tài khoản</button></p>
+            <p className="login-register">Chưa có tài khoản? <Link to="/register" className="login-text-link">Tạo tài khoản</Link></p>
           </div>
         </div>
       </section>
