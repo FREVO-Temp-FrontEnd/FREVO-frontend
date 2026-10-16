@@ -223,10 +223,10 @@ export default function ProjectExplorer() {
           <span className="header-divider" aria-hidden="true" />
           <span className="screen-name">Khám phá dự án</span>
         </div>
-        <div className="account flex items-center" aria-label="Tài khoản của Minh Anh">
+        <Link to="/profile" className="account flex items-center" aria-label="Tài khoản của Minh Anh">
           <span className="account-copy"><strong>Minh Anh</strong><small>Freelancer</small></span>
-          <button className="avatar" type="button" aria-label="Tài khoản của Minh Anh">MA</button>
-        </div>
+          <span className="avatar grid place-items-center" aria-hidden="true">MA</span>
+        </Link>
       </header>
       {isDemoMode && <p className="prototype-note">Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.</p>}
 
