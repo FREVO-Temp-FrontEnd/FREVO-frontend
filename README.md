@@ -1,5 +1,13 @@
 # FREVO Screen
 
+## Prototype Business
+
+Mở `/business` để xem luồng Business: tổng quan, dự án, tạo và sửa Project Brief, ứng viên, gợi ý Freelancer/Team, lời mời, hồ sơ và thông báo. Tin nhắn nằm trong từng dự án. Dự án **Đang tuyển** không có tab Thỏa thuận; từ hội thoại có thể tạo đề xuất hợp tác với các mốc công việc. Sau khi gửi, dự án chuyển sang **Chờ xác nhận** và mới xuất hiện tab Thỏa thuận. Hồ sơ và Cài đặt nằm ở nhóm riêng phía dưới thanh bên; Thông báo mở từ biểu tượng chuông ở thanh trên. Dùng nút **Mô phỏng ứng tuyển mới** hoặc **Mô phỏng chấp nhận** để kiểm tra quy tắc mở chat ngay.
+
+Dự án mẫu **Bao bì cho dòng trà Cỏ Mây** ở trạng thái đang tiến hành, đã chọn Hà Vy làm người thực hiện. Các tab lúc này là **Brief**, **Người thực hiện**, **Tin nhắn**, **Tiến độ**, **Hợp đồng**. Tin nhắn chỉ hiển thị hội thoại với Hà Vy. Tiến độ đọc các mốc từ hợp đồng và cho Business mô phỏng xác nhận một mốc đã bàn giao.
+
+Prototype dùng dữ liệu minh họa và lưu thay đổi trong `sessionStorage` của tab hiện tại; chưa kết nối API hoặc gửi email thật. Mở tab mới để bắt đầu lại dữ liệu mẫu.
+
 Frontend FREVO gồm màn hình “Khám phá dự án” và trang đăng nhập. Giao diện được dựng bằng React 19, TypeScript, Vite, Tailwind CSS v4 và các component shadcn/ui. React Router quản lý điều hướng; Axios dùng cho REST API.
 
 ## Chạy tại máy

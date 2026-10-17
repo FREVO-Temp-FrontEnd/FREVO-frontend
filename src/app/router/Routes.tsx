@@ -7,6 +7,7 @@ import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ProfilePage from "@/features/profile/pages/ProfilePage";
 import PortfolioDetailPage from "@/features/profile/pages/PortfolioDetailPage";
 import NotFound from "@/features/errors/NotFound";
+import BusinessPrototype from "@/features/business/BusinessPrototype";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
+      },
+      {
+        path: "business/*",
+        element: <BusinessPrototype />,
       },
       {
         path: "profile",
