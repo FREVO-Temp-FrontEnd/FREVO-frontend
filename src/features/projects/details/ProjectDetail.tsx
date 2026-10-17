@@ -1,4 +1,3 @@
-import { Button } from "@/app/shared/components/ui/button";
 import type { Project } from "@/lib/types/project.types";
 import { formatBudget } from "@/lib/util/formatters";
 import { BookmarkButton } from "../dashboard/BookmarkButton";
@@ -70,13 +69,13 @@ export function ProjectDetail({
         {applied ? (
           <p className="applied-message">✓ Bạn đã ứng tuyển dự án này</p>
         ) : (
-          <Button
+          <button
             className="primary-button"
             type="button"
             onClick={() => onApply(project.id)}
           >
             Ứng tuyển dự án
-          </Button>
+          </button>
         )}
         <BookmarkButton project={project} saved={saved} onToggle={onSave} />
       </div>
