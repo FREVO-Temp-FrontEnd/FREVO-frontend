@@ -152,12 +152,11 @@
 .bw-toast>svg{flex:none;color:#ff8d5f}
 .bw-toast button{display:grid;place-items:center;flex:none;width:28px;height:28px;margin-left:5px;border:0;border-radius:5px;background:transparent;color:#fff}
 .bw-toast button:hover{background:#ffffff20}
-body:has(.bw-modal) [data-slot=dialog-overlay]{background:#171c18a8;backdrop-filter:none}
 .bw-modal{display:block;width:calc(100vw - 32px);max-width:500px;max-height:calc(100dvh - 40px);overflow:auto;padding:30px;border-radius:14px;background:#fff;box-shadow:0 28px 90px #0004}
 .bw-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
 .bw-modal h2{margin-top:8px;font-size:28px;font-weight:900;letter-spacing:-.055em;line-height:1.12}
 .bw-modal-head button{display:grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid #e2e5e0;border-radius:8px;background:#fff;color:#444b44}
-.bw-modal [data-slot=dialog-description]{max-width:370px;margin:10px 0 27px;color:#737a73;font-size:14px;line-height:1.5}
+.bw-modal-description{max-width:370px;margin:10px 0 27px;color:#737a73;font-size:14px;line-height:1.5}
 .bw-modal form>label{display:block;margin:19px 0 8px;font-size:13px;font-weight:800}
 .bw-modal input,.bw-modal select{display:block;width:100%;height:48px;padding:0 13px;border:1.5px solid #cdd3cc;border-radius:8px;background:#fff;color:#20201f;font-size:14px}
 .bw-modal input::placeholder{color:#8d948d}

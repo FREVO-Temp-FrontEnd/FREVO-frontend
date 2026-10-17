@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router";
 import { ArrowRight, BriefcaseBusiness, Check, ChevronDown, Clock3, FolderOpen, Plus, Search, Sparkles, Users, X } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/app/shared/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { sampleProjects, type Project } from "./business-demo-data";
 import "./business-workspace.css";
 
@@ -70,6 +70,32 @@ export default function BusinessWorkspace() {
     </main>
 
     {notice && <div className="bw-toast" role="status"><Check size={17} aria-hidden="true" />{notice}<button type="button" aria-label="Đóng thông báo" onClick={() => setNotice("")}><X size={17} aria-hidden="true" /></button></div>}
-    <Dialog open={createOpen} onOpenChange={setCreateOpen}><DialogContent className="bw-modal" showCloseButton={false}><div className="bw-modal-head"><div><p className="bw-eyebrow">DỰ ÁN MỚI</p><DialogTitle>Bắt đầu từ một brief.</DialogTitle></div><button type="button" aria-label="Đóng" onClick={() => setCreateOpen(false)}><X size={22} aria-hidden="true" /></button></div><DialogDescription>Tạo bản nháp đầu tiên. Bạn có thể hoàn thiện nội dung trước khi công bố.</DialogDescription><form onSubmit={createDraft}><label htmlFor="bw-title">Tên dự án</label><input id="bw-title" autoFocus required maxLength={90} value={newTitle} onChange={event => setNewTitle(event.target.value)} placeholder="Ví dụ: Thiết kế bộ nhận diện thương hiệu" /><label htmlFor="bw-category">Lĩnh vực</label><span className="bw-select"><select id="bw-category" value={newCategory} onChange={event => setNewCategory(event.target.value)}><option>Thiết kế thương hiệu</option><option>UI/UX & Website</option><option>Nội dung sáng tạo</option><option>Motion & Digital</option></select><ChevronDown size={18} aria-hidden="true" /></span><div className="bw-modal-actions"><button type="button" className="bw-secondary" onClick={() => setCreateOpen(false)}>Hủy</button><button type="submit" className="bw-primary">Tạo bản nháp <ArrowRight size={17} aria-hidden="true" /></button></div></form></DialogContent></Dialog>
+    <Dialog
+      open={createOpen}
+      onClose={() => setCreateOpen(false)}
+      aria-describedby="bw-create-description"
+      slotProps={{
+        paper: { className: "bw-modal" },
+        backdrop: { sx: { backgroundColor: "#171c18a8", backdropFilter: "none" } },
+      }}
+    >
+      <DialogContent sx={{ p: 0 }}>
+        <div className="bw-modal-head">
+          <div>
+            <p className="bw-eyebrow">DỰ ÁN MỚI</p>
+            <DialogTitle sx={{ p: 0 }}>Bắt đầu từ một brief.</DialogTitle>
+          </div>
+          <button type="button" aria-label="Đóng" onClick={() => setCreateOpen(false)}><X size={22} aria-hidden="true" /></button>
+        </div>
+        <p id="bw-create-description" className="bw-modal-description">Tạo bản nháp đầu tiên. Bạn có thể hoàn thiện nội dung trước khi công bố.</p>
+        <form onSubmit={createDraft}>
+          <label htmlFor="bw-title">Tên dự án</label>
+          <input id="bw-title" autoFocus required maxLength={90} value={newTitle} onChange={event => setNewTitle(event.target.value)} placeholder="Ví dụ: Thiết kế bộ nhận diện thương hiệu" />
+          <label htmlFor="bw-category">Lĩnh vực</label>
+          <span className="bw-select"><select id="bw-category" value={newCategory} onChange={event => setNewCategory(event.target.value)}><option>Thiết kế thương hiệu</option><option>UI/UX & Website</option><option>Nội dung sáng tạo</option><option>Motion & Digital</option></select><ChevronDown size={18} aria-hidden="true" /></span>
+          <div className="bw-modal-actions"><button type="button" className="bw-secondary" onClick={() => setCreateOpen(false)}>Hủy</button><button type="submit" className="bw-primary">Tạo bản nháp <ArrowRight size={17} aria-hidden="true" /></button></div>
+        </form>
+      </DialogContent>
+    </Dialog>
   </div>;
 }
