@@ -1,4 +1,3 @@
-import { Badge } from "@/app/shared/components/ui/badge";
 import type { Project } from "@/lib/types/project.types";
 import { formatBudget } from "@/lib/util/formatters";
 import { BookmarkButton } from "./BookmarkButton";
@@ -30,7 +29,7 @@ export function ProjectCard({
         onClick={() => onSelect(project.id)}
       >
         <span className="card-top flex items-center">
-          <Badge className={`category-pill ${project.type}`}>{project.category}</Badge>
+          <span className={`category-pill ${project.type}`}>{project.category}</span>
           {applied && <span className="applied-pill">✓ Đã ứng tuyển</span>}
           <span className="age">{project.age} ngày trước</span>
         </span>

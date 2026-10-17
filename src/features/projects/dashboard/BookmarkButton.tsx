@@ -14,7 +14,10 @@ export function BookmarkButton({ project, saved, onToggle }: BookmarkButtonProps
       role="checkbox"
       aria-checked={saved}
       aria-label={`${saved ? "Bỏ lưu" : "Lưu"} ${project.title}`}
-      onClick={() => onToggle(project.id)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle(project.id);
+      }}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M6 3.5h12v17l-6-4-6 4z" />

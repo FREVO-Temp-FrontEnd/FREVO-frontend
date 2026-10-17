@@ -1,31 +1,80 @@
 import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/app/shared/components/ui/button";
+import { Box, Typography, Button } from "@mui/material";
+import { ArrowBack } from "@mui/icons-material";
 
 export default function NotFound() {
   return (
-    <main
-      className="grid min-h-screen place-items-center px-6 py-24 sm:py-32 lg:px-8"
-      style={{ background: "var(--color-bg, #fcfbf9)" }}
+    <Box
+      component="main"
+      sx={{
+        display: "grid",
+        minHeight: "100vh",
+        placeItems: "center",
+        px: { xs: 3, sm: 4, lg: 8 },
+        py: { xs: 12, sm: 16 },
+        bgcolor: "background.default",
+      }}
     >
-      <div className="text-center max-w-md">
-        <p className="text-sm font-semibold tracking-wide text-neutral-500 uppercase">
+      <Box sx={{ textAlign: "center", maxWidth: 440 }}>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            color: "text.secondary",
+            textTransform: "uppercase",
+          }}
+        >
           Lỗi 404
-        </p>
-        <h1 className="mt-2 text-3xl font-serif font-bold tracking-tight text-neutral-900 sm:text-4xl">
+        </Typography>
+        <Typography
+          variant="h1"
+          sx={{
+            mt: 1,
+            fontSize: { xs: "28px", sm: "36px" },
+            fontWeight: 900,
+            color: "#20201f",
+            "& span": { color: "primary.main" },
+          }}
+        >
           Không tìm thấy trang<span>.</span>
-        </h1>
-        <p className="mt-4 text-sm leading-6 text-neutral-600">
+        </Typography>
+        <Typography
+          sx={{
+            mt: 2,
+            fontSize: "15px",
+            lineHeight: 1.6,
+            color: "text.secondary",
+          }}
+        >
           Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.
-        </p>
-        <div className="mt-8 flex items-center justify-center gap-x-4">
-          <Button asChild className="primary-button">
-            <Link to="/">
-              <ArrowLeft size={16} /> Về trang chủ
-            </Link>
+        </Typography>
+        <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+          <Button
+            component={Link}
+            to="/"
+            startIcon={<ArrowBack />}
+            sx={{
+              px: 3,
+              py: 1.2,
+              borderRadius: "999px",
+              border: "2px solid #20201f",
+              bgcolor: "primary.main",
+              color: "#20201f",
+              fontWeight: 900,
+              fontSize: "15px",
+              boxShadow: "3px 3px 0 #20201f",
+              "&:hover": {
+                bgcolor: "#ff5e22",
+                boxShadow: "2px 2px 0 #20201f",
+                transform: "translate(1px, 1px)",
+              },
+            }}
+          >
+            Về trang chủ
           </Button>
-        </div>
-      </div>
-    </main>
+        </Box>
+      </Box>
+    </Box>
   );
 }
