@@ -20,7 +20,7 @@ export function ProjectCard({
   onSave,
 }: ProjectCardProps) {
   return (
-    <article className={`project-card ${selected ? "selected" : ""}`}>
+    <article className={`project-card interactive-card ${selected ? "selected" : ""}`}>
       <button
         className="card-main"
         type="button"
@@ -39,6 +39,14 @@ export function ProjectCard({
         </span>
       </button>
       <BookmarkButton project={project} saved={saved} onToggle={onSave} />
+      <button
+        className="card-more"
+        type="button"
+        disabled={!selected}
+        onClick={() => onSelect(project.id)}
+      >
+        Xem thêm
+      </button>
       <div className="card-bottom">
         <dl className="card-facts flex">
           <div>

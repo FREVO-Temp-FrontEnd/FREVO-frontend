@@ -52,7 +52,7 @@ export default function ProjectDashboard() {
   const applyingProject = projects.find((project) => project.id === applyingId);
 
   function selectProject(id: string) {
-    navigate(`/projects/${id}`);
+    navigate(`/projects/${id}`, { preventScrollReset: true });
     if (window.matchMedia("(max-width: 720px)").matches) {
       requestAnimationFrame(() => {
         document

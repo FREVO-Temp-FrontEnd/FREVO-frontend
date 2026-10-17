@@ -55,7 +55,8 @@ export default function FreelancerHomePage() {
   const applyingProject = projects.find((project) => project.id === applyingId);
 
   function selectProject(id: string) {
-    navigate(`/projects/${id}`);
+    document.getElementById("detail-region")?.scrollTo({ top: 0 });
+    navigate(`/projects/${id}`, { preventScrollReset: true });
     if (window.matchMedia("(max-width: 720px)").matches) {
       requestAnimationFrame(() => {
         document

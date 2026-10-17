@@ -644,20 +644,15 @@ export default function ProfilePage() {
                 {sorted.map((work) => (
                   <Box
                     component="article"
-                    className="portfolio-card"
+                    className="portfolio-card interactive-card"
                     key={work.id}
                     sx={{
                       overflow: "hidden",
                       border: "1px solid var(--line, #e4e6e2)",
                       borderRadius: "var(--radius, 13px)",
                       bgcolor: "#fff",
-                      transition: "border-color .15s, box-shadow .15s",
                       display: "flex",
                       flexDirection: "column",
-                      "&:hover, &:focus-within": {
-                        borderColor: "var(--ink, #20201f)",
-                        boxShadow: "4px 4px 0 var(--orange, #f4490b)",
-                      },
                     }}
                   >
                     <Link

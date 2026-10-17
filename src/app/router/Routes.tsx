@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import App from "../layout/App";
 import FreelancerHomePage from "@/features/freelancer/FreelancerHomePage";
-import ProjectPageRoute from "./ProjectPageRoute";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
@@ -21,7 +20,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "projects/:projectId",
-        element: <ProjectPageRoute />,
+        element: <FreelancerHomePage />,
       },
       {
         path: "login",
