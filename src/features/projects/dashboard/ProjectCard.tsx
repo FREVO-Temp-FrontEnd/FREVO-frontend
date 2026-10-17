@@ -1,4 +1,5 @@
 import type { Project } from "@/lib/types/project.types";
+import { Link } from "react-router";
 import { formatBudget } from "@/lib/util/formatters";
 import { BookmarkButton } from "./BookmarkButton";
 
@@ -39,14 +40,14 @@ export function ProjectCard({
         </span>
       </button>
       <BookmarkButton project={project} saved={saved} onToggle={onSave} />
-      <button
+      <Link
         className="card-more"
-        type="button"
-        disabled={!selected}
-        onClick={() => onSelect(project.id)}
+        to={`/projects/${encodeURIComponent(project.id)}/details`}
+        tabIndex={selected ? 0 : -1}
+        aria-hidden={!selected}
       >
         Xem thêm
-      </button>
+      </Link>
       <div className="card-bottom">
         <dl className="card-facts flex">
           <div>

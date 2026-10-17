@@ -1,0 +1,142 @@
+.MuiDialog-paper.stitch-apply-dialog {
+  width:540px;
+  margin:16px;
+  max-width:calc(100% - 32px);
+  border:0;
+  border-radius:30px;
+  box-shadow:0 24px 90px #20191530;
+}
+.stitch-apply-dialog #apply-form {
+  padding:30px;
+  max-height:calc(100dvh - 32px);
+}
+.stitch-apply-dialog .dialog-head {
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:24px;
+  flex-shrink:0;
+}
+.stitch-apply-dialog .dialog-head>div {
+  flex:1;
+}
+.apply-heading-icon {
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#fff0e9;
+  color:var(--orange-dark);
+  flex-shrink:0;
+}
+.stitch-apply-dialog .dialog-head .close-dialog {
+  height:30px;
+  width:30px;
+  border:0;
+  background:#f5f3f3;
+  flex-shrink:0;
+}
+.stitch-apply-dialog .dialog-project-terms {
+  padding:16px;
+  border-radius:20px;
+  background:#f5f3f3;
+  gap:10px;
+}
+.stitch-apply-dialog .dialog-project-terms strong {
+  font-size:14px;
+  color:var(--orange-dark);
+}
+.stitch-apply-dialog .dialog-project-terms p {
+  color:#75655f;
+  font-size:11px;
+  line-height:1.6;
+}
+.stitch-apply-dialog #apply-form .dialog-fields>label {
+  font-size:12px;
+  font-weight:650;
+  margin:20px 0 8px;
+}
+.stitch-apply-dialog #apply-form textarea,.stitch-apply-dialog #apply-form input[type=url] {
+  border:1px solid transparent;
+  border-radius:18px;
+  background:#f5f3f3;
+  font-family:inherit;
+  font-size:13px;
+  line-height:1.7;
+}
+.stitch-apply-dialog #apply-form textarea {
+  height:140px;
+  resize:vertical;
+  min-height:100px;
+}
+.stitch-apply-dialog #apply-form textarea:focus,.stitch-apply-dialog #apply-form input:focus {
+  outline:2px solid var(--orange-dark);
+  outline-offset:2px;
+}
+.stitch-apply-dialog .input-help {
+  color:#75655f;
+}
+.stitch-apply-dialog .dialog-actions {
+  border:0;
+  padding-top:6px;
+  margin-top:20px;
+}
+.stitch-apply-dialog .dialog-actions .primary-button {
+  background:var(--orange-dark);
+  min-height:44px;
+  padding:10px 22px;
+  font-size:12px;
+  box-shadow:none;
+}
+.stitch-apply-dialog .dialog-actions .secondary-button {
+  background:#f5f3f3;
+  border:0;
+  min-height:44px;
+}
+.stitch-apply-dialog button:disabled {
+  opacity:.65;
+  cursor:default;
+}
+@media(max-width:600px) {
+  .stitch-apply-dialog #apply-form {
+    padding:22px;
+  }
+  .stitch-apply-dialog .dialog-head [data-slot=dialog-title] {
+    font-size:18px;
+  }
+  .stitch-apply-dialog .dialog-actions {
+    gap:8px;
+  }
+  .stitch-apply-dialog .dialog-actions .primary-button {
+    padding-inline:16px;
+  }
+  .stitch-apply-dialog .dialog-head {
+    gap:8px;
+  }
+  .apply-heading-icon {
+    width:30px;
+    height:30px;
+  }
+}
+.stitch-apply-dialog #apply-form input {
+  display:block;
+  width:100%;
+  height:44px;
+  padding:10px 14px;
+  border:1px solid transparent;
+  border-radius:20px;
+  background:#f5f3f3;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:13px;
+}
+.stitch-apply-dialog #apply-form .dialog-fields>label:first-child {
+  margin-top:0;
+}
+.stitch-apply-dialog .dialog-actions .primary-button {
+  color:#fff;
+  border:0;
+}
+.stitch-apply-dialog .dialog-actions .primary-button:hover {
+  background:var(--orange);
+}

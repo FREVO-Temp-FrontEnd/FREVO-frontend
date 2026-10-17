@@ -118,12 +118,21 @@ export function useProjects() {
   async function submitApplication(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!applyingId || !event.currentTarget.reportValidity()) return;
+    const formData = new FormData(event.currentTarget);
+    const proposedBudget = String(formData.get("proposedBudget") ?? "").trim();
+    const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
+    // Keep the existing API contract: proposal terms travel with the cover letter.
+    const applicationProposal = [
+      proposal,
+      proposedBudget ? `Chào giá đề xuất: ${Number(proposedBudget).toLocaleString("vi-VN")} VNĐ` : "",
+      deliveryEstimate ? `Thời gian hoàn thành: ${deliveryEstimate}` : "",
+    ].filter(Boolean).join("\n\n");
     setSubmitting(true);
     setSubmitError("");
     try {
       await projectsApi.createApplication({
         projectId: applyingId,
-        proposal,
+        proposal: applicationProposal,
         portfolioUrl: portfolio,
       });
       setApplied((previous) => new Set(previous).add(applyingId));
