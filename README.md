@@ -1,6 +1,8 @@
-# FREVO Screen
+# FREVO Frontend
 
-Frontend FREVO gồm màn hình “Khám phá dự án” và trang đăng nhập. Giao diện được dựng bằng React 19, TypeScript, Vite, Tailwind CSS v4 và các component shadcn/ui. React Router quản lý điều hướng; Axios dùng cho REST API.
+Frontend FREVO gồm màn hình “Khám phá dự án”, “Chi tiết dự án”, “Hồ sơ cá nhân / Portfolio” và luồng “Xác thực tài khoản”. Giao diện được xây dựng bằng **React 19**, **TypeScript**, **Vite** và **Material UI (MUI)** theo kiến trúc **Feature-Based Clean Architecture** (tham chiếu từ dự án mẫu `Reactivities`). React Router v7 quản lý điều hướng tập trung; Axios quản lý REST API.
+
+---
 
 ## Chạy tại máy
 
@@ -13,36 +15,52 @@ npm run dev
 
 Mở URL Vite hiển thị trong terminal (mặc định <http://localhost:5173>).
 
-Trang đăng nhập ở `/login`. Form có kiểm tra email, mật khẩu và các trạng thái tương tác; chức năng xác thực, đặt lại mật khẩu và tạo tài khoản cần được kết nối với backend sau.
+### Các lệnh kiểm tra chất lượng code:
 
 ```bash
-npm run lint
-npm run typecheck
-npm run build
-npm run preview
+npm run lint         # Kiểm tra linter ESLint (0 errors, 0 warnings)
+npm run typecheck    # Kiểm tra TypeScript type safety
+npm run build        # Build production bundle
+npm run preview      # Xem trước bản build production
 ```
+
+---
+
+## Cấu trúc dự án (Feature-Based Architecture)
+
+Dự án áp dụng mô hình phân tầng module nghiệp vụ (Feature Slices):
+
+- `src/app/`:
+  - `layout/App.tsx`: App Shell bọc `ThemeProvider`, `CssBaseline`, `PortfolioProvider`.
+  - `router/Routes.tsx`: Cấu hình định tuyến tập trung với `createBrowserRouter`.
+  - `theme/theme.ts`: Cấu hình MUI Theme (màu cam `#f4490b`, bo góc, typography `Archivo` & `Space Grotesk`).
+  - `shared/components/`: Các custom components tái sử dụng chung.
+- `src/features/`:
+  - `auth/`: Trang đăng nhập, đăng ký, quên mật khẩu (`LoginPage`, `RegisterPage`, `ForgotPasswordPage`).
+  - `projects/`: Trang khám phá dự án, chi tiết công việc, bộ lọc và modal ứng tuyển (`ProjectDashboard`, `ProjectDetail`, `ProjectFilters`, `ProjectApplyDialog`).
+  - `profile/`: Trang hồ sơ freelancer, studio chỉnh sửa portfolio (`ProfilePage`, `PortfolioDetailPage`, `PortfolioEditor`, `EditProfileDialog`).
+  - `errors/`: Trang báo lỗi (`NotFound`).
+- `src/lib/`:
+  - `api/`: Axios agent và các api modules (`projectsApi.ts`).
+  - `context/`: React context providers (`portfolio-provider.tsx`).
+  - `hooks/`: Custom hooks (`useProjects.ts`, `usePortfolio.ts`).
+  - `types/`: Kiểu dữ liệu TypeScript (`project.types.ts`, `portfolio.types.ts`).
+- `src/index.css`: Nạp web fonts (`Archivo`, `Space Grotesk`) và CSS reset toàn trang.
+- `public/`: Chứa logo, assets tĩnh và mock data (`projects.json`).
+
+Chi tiết về quy chuẩn code và kiến trúc xem tại [REACT_STRUCTURE_GUIDE.md](./REACT_STRUCTURE_GUIDE.md).
+
+---
 
 ## REST API
 
-Mặc định ứng dụng tải sáu dự án mẫu qua Axios từ `public/data/projects.json`. Thao tác ứng tuyển được mô phỏng tại trình duyệt và không gửi dữ liệu đi.
+Mặc định ứng dụng tải danh sách dự án mẫu qua Axios từ `public/data/projects.json`. Thao tác ứng tuyển được mô phỏng tại trình duyệt và không gửi dữ liệu đi nếu chưa cấu hình backend.
 
-Để dùng backend, tạo `.env.local` từ `.env.example` và đặt `VITE_API_BASE_URL`. Khi đó ứng dụng gọi:
+Để kết nối backend thật, tạo `.env.local` từ `.env.example` và đặt biến:
+```env
+VITE_API_BASE_URL=https://api.yourdomain.com
+```
 
-- `GET {VITE_API_BASE_URL}/projects`: trả về mảng dự án theo kiểu `Project` trong `src/lib/projects.ts`.
-- `POST {VITE_API_BASE_URL}/applications`: nhận `{ projectId, proposal, portfolioUrl }`.
-
-Frontend chỉ đánh dấu đã ứng tuyển sau khi API trả về thành công. Nếu API lỗi, giao diện hiển thị thông báo và giữ form để thử lại. Cần cấu hình CORS trên backend cho origin của frontend.
-
-## Cấu trúc
-
-- `src/App.tsx`: React Router với trang danh sách, URL `/projects/:projectId` và `/login`.
-- `src/components/login-page.tsx` và `login-page.css`: giao diện đăng nhập responsive.
-- `design/login-prototype-desktop.png`: ảnh prototype tham chiếu cho trang đăng nhập.
-- `src/components/project-explorer.tsx`: giao diện, bộ lọc và tương tác.
-- `src/components/ui/`: source component shadcn/ui.
-- `src/lib/api.ts`: Axios instance và hàm gọi API.
-- `src/index.css`: Tailwind v4 và giao diện FREVO.
-- `public/assets/`: logo FREVO.
-- `public/data/`: dữ liệu demo.
-
-Phông Archivo và Space Grotesk tải từ Google Fonts khi có mạng, với phông hệ thống dự phòng.
+Các endpoint chính:
+- `GET {VITE_API_BASE_URL}/projects`: Lấy danh sách dự án.
+- `POST {VITE_API_BASE_URL}/applications`: Gửi đơn ứng tuyển `{ projectId, proposal, portfolioUrl }`.
