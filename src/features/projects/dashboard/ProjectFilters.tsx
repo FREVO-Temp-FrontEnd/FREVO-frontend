@@ -1,14 +1,9 @@
+import { Check } from "lucide-react";
+
 const categories = ["Brand identity", "UI/UX", "Nội dung", "Motion"];
-const budgetOptions = [
-  { value: 0, label: "Tất cả" },
-  { value: 5, label: "Từ 5 triệu" },
-  { value: 10, label: "Từ 10 triệu" },
-  { value: 20, label: "Từ 20 triệu" },
-];
+const budgetOptions = [{ value: 0, label: "Tất cả" }, { value: 5, label: "Từ 5 triệu" }, { value: 10, label: "Từ 10 triệu" }, { value: 20, label: "Từ 20 triệu" }];
 
 interface ProjectFiltersProps {
-  filtersOpen: boolean;
-  setFiltersOpen: (open: boolean | ((val: boolean) => boolean)) => void;
   selectedCategories: string[];
   toggleCategory: (category: string) => void;
   minimumBudget: number;
@@ -19,77 +14,22 @@ interface ProjectFiltersProps {
   clearFilters: () => void;
 }
 
-export function ProjectFilters({
-  filtersOpen,
-  setFiltersOpen,
-  selectedCategories,
-  toggleCategory,
-  minimumBudget,
-  setMinimumBudget,
-  remoteOnly,
-  setRemoteOnly,
-  hasFilters,
-  clearFilters,
-}: ProjectFiltersProps) {
+export function ProjectFilters({ selectedCategories, toggleCategory, minimumBudget, setMinimumBudget, remoteOnly, setRemoteOnly, hasFilters, clearFilters }: ProjectFiltersProps) {
   return (
-    <aside
-      className={`filter-rail ${filtersOpen ? "open" : ""}`}
-      aria-label="Bộ lọc dự án"
-    >
-      <button
-        className="filter-toggle"
-        type="button"
-        aria-expanded={filtersOpen}
-        aria-controls="filters-panel"
-        onClick={() => setFiltersOpen((value) => !value)}
-      >
-        Bộ lọc <span aria-hidden="true">{filtersOpen ? "−" : "+"}</span>
-      </button>
-      <div id="filters-panel" className="filters-panel">
-        <div className="filters-heading">
-          <h2>Bộ lọc</h2>
-          <button type="button" disabled={!hasFilters} onClick={clearFilters}>
-            Xóa bộ lọc
-          </button>
-        </div>
-        <fieldset className="filter-group category-group">
-          <legend>LĨNH VỰC</legend>
-          {categories.map((category) => (
-            <label key={category}>
-              <input
-                type="checkbox"
-                checked={selectedCategories.includes(category)}
-                onChange={() => toggleCategory(category)}
-                aria-label={category}
-              />{" "}
-              <span>{category}</span>
-            </label>
-          ))}
-        </fieldset>
-        <fieldset className="filter-group budget-group">
-          <legend>NGÂN SÁCH TỐI THIỂU</legend>
-          {budgetOptions.map((option) => (
-            <label key={option.value}>
-              <input
-                type="radio"
-                name="budget"
-                checked={minimumBudget === option.value}
-                onChange={() => setMinimumBudget(option.value)}
-              />{" "}
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </fieldset>
-        <label className="remote-row">
-          <span>Làm việc từ xa</span>
-          <input
-            type="checkbox"
-            checked={remoteOnly}
-            onChange={(e) => setRemoteOnly(e.target.checked)}
-            aria-label="Chỉ dự án làm việc từ xa"
-          />
-        </label>
+    <section className="discovery-filters" aria-label="Bộ lọc dự án">
+      <div className="filter-chip-row">
+        <span className="filter-label">Lĩnh vực:</span>
+        {categories.map((category) => {
+          const selected = selectedCategories.includes(category);
+          return <button key={category} type="button" className={`filter-chip ${selected ? "is-selected" : ""}`} aria-pressed={selected} onClick={() => toggleCategory(category)}>{category} {selected && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}</button>;
+        })}
       </div>
-    </aside>
+      <div className="filter-chip-row filter-chip-row-bottom">
+        <span className="filter-label">Ngân sách:</span>
+        {budgetOptions.map((option) => <button key={option.value} type="button" className={`budget-chip ${minimumBudget === option.value ? "is-selected" : ""}`} aria-pressed={minimumBudget === option.value} onClick={() => setMinimumBudget(option.value)}>{option.label}</button>)}
+        <label className="filter-remote"><input type="checkbox" checked={remoteOnly} onChange={(event) => setRemoteOnly(event.target.checked)} />Làm việc từ xa</label>
+        <button className="clear-filters" type="button" disabled={!hasFilters} onClick={clearFilters}>Xóa bộ lọc</button>
+      </div>
+    </section>
   );
 }

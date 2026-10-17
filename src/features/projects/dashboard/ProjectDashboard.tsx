@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useProjects } from "@/lib/hooks/useProjects";
 import type { SortMode } from "@/lib/types/project.types";
-import { ProjectFilters } from "./ProjectFilters";
+import { ProjectFilters } from "./LegacyProjectFilters";
 import { ProjectList } from "./ProjectList";
 import { ProjectDetail } from "../details/ProjectDetail";
 import { ProjectApplyDialog } from "../application/ProjectApplyDialog";
