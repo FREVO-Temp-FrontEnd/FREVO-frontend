@@ -121,11 +121,15 @@ export function useProjects() {
     const formData = new FormData(event.currentTarget);
     const proposedBudget = String(formData.get("proposedBudget") ?? "").trim();
     const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
+    const applicantType = formData.get("applicantType") === "team" ? "Đại diện Team" : "Cá nhân";
+    const selectedPortfolioLabels = String(formData.get("selectedPortfolioLabels") ?? "").trim();
     // Keep the existing API contract: proposal terms travel with the cover letter.
     const applicationProposal = [
       proposal,
       proposedBudget ? `Chào giá đề xuất: ${Number(proposedBudget).toLocaleString("vi-VN")} VNĐ` : "",
       deliveryEstimate ? `Thời gian hoàn thành: ${deliveryEstimate}` : "",
+      `Tư cách ứng tuyển: ${applicantType}`,
+      selectedPortfolioLabels ? `Tác phẩm tham khảo (minh họa): ${selectedPortfolioLabels}` : "",
     ].filter(Boolean).join("\n\n");
     setSubmitting(true);
     setSubmitError("");
