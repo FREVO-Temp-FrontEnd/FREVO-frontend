@@ -1,13 +1,5 @@
 import type { FormEvent } from "react";
-import { Button } from "@/app/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/app/shared/components/ui/dialog";
-import { Input } from "@/app/shared/components/ui/input";
-import { Textarea } from "@/app/shared/components/ui/textarea";
+import { Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
 
 interface ProjectApplyDialogProps {
@@ -38,16 +30,41 @@ export function ProjectApplyDialog({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose();
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          className: "apply-dialog",
+        },
       }}
     >
-      <DialogContent className="apply-dialog" showCloseButton={false}>
+      <DialogContent sx={{ p: 0 }}>
         <form id="apply-form" onSubmit={onSubmit}>
           <div className="dialog-head">
             <div>
-              <DialogTitle id="apply-title">Ứng tuyển dự án</DialogTitle>
-              <DialogDescription>{project?.title}</DialogDescription>
+              <DialogTitle
+                id="apply-title"
+                data-slot="dialog-title"
+                sx={{
+                  p: 0,
+                  fontSize: "20px",
+                  fontWeight: 900,
+                  color: "inherit",
+                  fontFamily: "inherit",
+                }}
+              >
+                Ứng tuyển dự án
+              </DialogTitle>
+              <Typography
+                data-slot="dialog-description"
+                component="p"
+                sx={{
+                  mt: "6px",
+                  color: "#8b8e89",
+                  fontSize: "12px",
+                }}
+              >
+                {project?.title}
+              </Typography>
             </div>
             <button
               className="icon-button close-dialog"
@@ -58,8 +75,9 @@ export function ProjectApplyDialog({
               ×
             </button>
           </div>
+
           <label htmlFor="proposal">Lời giới thiệu ngắn</label>
-          <Textarea
+          <textarea
             id="proposal"
             name="proposal"
             value={proposal}
@@ -72,8 +90,9 @@ export function ProjectApplyDialog({
           <p className="input-help">
             <span>{proposal.length}</span>/1000 ký tự · tối thiểu 50
           </p>
+
           <label htmlFor="portfolio">Liên kết portfolio phù hợp</label>
-          <Input
+          <input
             id="portfolio"
             name="portfolio"
             type="url"
@@ -85,27 +104,28 @@ export function ProjectApplyDialog({
           <p className="input-help">
             Behance, Dribbble, Google Drive hoặc website cá nhân.
           </p>
+
           {submitError && (
             <p className="submit-error" role="alert">
               {submitError}
             </p>
           )}
+
           <div className="dialog-actions">
-            <Button
+            <button
               className="secondary-button"
-              variant="outline"
               type="button"
               onClick={onClose}
             >
               Hủy
-            </Button>
-            <Button
+            </button>
+            <button
               className="primary-button"
               type="submit"
               disabled={submitting}
             >
               {submitting ? "Đang gửi..." : "Gửi ứng tuyển"}
-            </Button>
+            </button>
           </div>
         </form>
       </DialogContent>

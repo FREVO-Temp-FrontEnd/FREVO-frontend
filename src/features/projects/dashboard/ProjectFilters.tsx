@@ -1,5 +1,3 @@
-import { Checkbox } from "@/app/shared/components/ui/checkbox";
-
 const categories = ["Brand identity", "UI/UX", "Nội dung", "Motion"];
 const budgetOptions = [
   { value: 0, label: "Tất cả" },
@@ -58,9 +56,10 @@ export function ProjectFilters({
           <legend>LĨNH VỰC</legend>
           {categories.map((category) => (
             <label key={category}>
-              <Checkbox
+              <input
+                type="checkbox"
                 checked={selectedCategories.includes(category)}
-                onCheckedChange={() => toggleCategory(category)}
+                onChange={() => toggleCategory(category)}
                 aria-label={category}
               />{" "}
               <span>{category}</span>
@@ -83,10 +82,10 @@ export function ProjectFilters({
         </fieldset>
         <label className="remote-row">
           <span>Làm việc từ xa</span>
-          <Checkbox
-            role="switch"
+          <input
+            type="checkbox"
             checked={remoteOnly}
-            onCheckedChange={(checked) => setRemoteOnly(checked === true)}
+            onChange={(e) => setRemoteOnly(e.target.checked)}
             aria-label="Chỉ dự án làm việc từ xa"
           />
         </label>

@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/app/shared/components/ui/button";
-import { Checkbox } from "@/app/shared/components/ui/checkbox";
-import { Input } from "@/app/shared/components/ui/input";
-import "../styles/login-page.css";
+import {
+  Box,
+  Typography,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Button,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 type LoginErrors = { email?: string; password?: string };
 
@@ -21,72 +27,406 @@ export default function LoginPage() {
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Đăng nhập | FREVO";
-    return () => { document.title = previousTitle; };
+    return () => {
+      document.title = previousTitle;
+    };
   }, []);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors: LoginErrors = {};
     if (!email.trim()) nextErrors.email = "Vui lòng nhập email.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) nextErrors.email = "Email chưa đúng định dạng.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      nextErrors.email = "Email chưa đúng định dạng.";
     if (!password) nextErrors.password = "Vui lòng nhập mật khẩu.";
 
     setErrors(nextErrors);
     setNotice("");
     if (nextErrors.email) emailRef.current?.focus();
     else if (nextErrors.password) passwordRef.current?.focus();
-    else setNotice("Đây là bản giao diện mẫu. Chức năng đăng nhập chưa được kết nối.");
+    else
+      setNotice(
+        "Đây là bản giao diện mẫu. Chức năng đăng nhập chưa được kết nối."
+      );
   }
 
   return (
-    <main className="login-shell">
-      <section className="login-story" aria-label="Giới thiệu FREVO">
-        <div className="login-story-copy">
-          <h1>Ý tưởng hay<br />cần đúng cơ hội<span>.</span></h1>
-          <p>Bắt đầu hành trình sáng tạo cùng FREVO.</p>
-        </div>
-        <img className="login-art" src="/assets/frevo-login-illustration.png" alt="" aria-hidden="true" />
-      </section>
+    <Box
+      component="main"
+      sx={{
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "52% 48%" },
+        minHeight: "100dvh",
+        bgcolor: "#ffffff",
+      }}
+    >
+      {/* Story Column */}
+      <Box
+        component="section"
+        aria-label="Giới thiệu FREVO"
+        sx={{
+          display: { xs: "none", md: "block" },
+          position: "relative",
+          minHeight: "760px",
+          overflow: "hidden",
+          bgcolor: "var(--peach, #fff0e9)",
+          p: {
+            xs: "68px 44px",
+            lg: "clamp(68px, 6vw, 90px) clamp(44px, 5.1vw, 86px)",
+          },
+        }}
+      >
+        <Box sx={{ position: "relative", zIndex: 2, maxWidth: 660 }}>
+          <Typography
+            variant="h1"
+            sx={{
+              fontSize: { md: "clamp(50px, 5vw, 75px)", lg: "clamp(58px, 5.6vw, 88px)" },
+              lineHeight: 0.99,
+              letterSpacing: "-0.065em",
+              fontWeight: 900,
+              color: "#20201f",
+              "& span": { color: "primary.main" },
+            }}
+          >
+            Ý tưởng hay
+            <br />
+            cần đúng cơ hội<span>.</span>
+          </Typography>
+          <Typography
+            sx={{
+              maxWidth: 480,
+              mt: "28px",
+              fontSize: "clamp(20px, 1.6vw, 24px)",
+              lineHeight: 1.4,
+              fontWeight: 500,
+              color: "#20201f",
+            }}
+          >
+            Bắt đầu hành trình sáng tạo cùng FREVO.
+          </Typography>
+        </Box>
+        <Box
+          component="img"
+          className="login-art"
+          src="/assets/frevo-login-illustration.png"
+          alt=""
+          aria-hidden="true"
+          sx={{
+            position: "absolute",
+            left: "50%",
+            bottom: "18px",
+            width: "min(680px, 96%)",
+            maxHeight: "calc(100% - 390px)",
+            objectFit: "contain",
+            transform: "translateX(-50%)",
+          }}
+        />
+      </Box>
 
-      <section className="login-panel" aria-labelledby="login-title">
-        <div className="login-panel-inner">
-          <Link to="/" className="login-logo-link" aria-label="FREVO, về trang dự án">
-            <img src="/assets/frevo-logo.png" className="login-logo" alt="FREVO" />
-          </Link>
+      {/* Form Column */}
+      <Box
+        component="section"
+        aria-labelledby="login-title"
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          p: {
+            xs: "38px 24px 48px",
+            sm: "48px 40px",
+            md: "clamp(52px, 5vw, 76px) clamp(42px, 6vw, 104px)",
+          },
+        }}
+      >
+        <Box sx={{ width: "min(100%, 560px)", mx: "auto" }}>
+          <Box
+            component={Link}
+            to="/"
+            sx={{ display: "inline-block", borderRadius: "6px" }}
+            aria-label="FREVO, về trang dự án"
+          >
+            <Box
+              component="img"
+              src="/assets/frevo-logo.png"
+              alt="FREVO"
+              sx={{
+                width: { xs: 190, md: "clamp(178px, 17vw, 244px)" },
+                height: "auto",
+              }}
+            />
+          </Box>
 
-          <div className="login-form-area">
-            <h2 id="login-title">Chào mừng trở lại.</h2>
-            <p className="login-subtitle">Nơi doanh nghiệp và freelancer kết nối để hợp tác.</p>
+          <Box sx={{ mt: "clamp(22px, 2vw, 30px)" }}>
+            <Typography
+              id="login-title"
+              variant="h2"
+              sx={{
+                fontSize: {
+                  xs: "clamp(36px, 8vw, 48px)",
+                  md: "clamp(38px, 3.4vw, 53px)",
+                },
+                lineHeight: 1.05,
+                letterSpacing: "-0.055em",
+                fontWeight: 900,
+                color: "#20201f",
+              }}
+            >
+              Chào mừng trở lại.
+            </Typography>
+            <Typography
+              sx={{
+                mt: "14px",
+                color: "#686c69",
+                fontSize: 18,
+                lineHeight: 1.5,
+              }}
+            >
+              Nơi doanh nghiệp và freelancer kết nối để hợp tác.
+            </Typography>
 
-            <form className="login-form" onSubmit={submit} noValidate>
-              <div className="login-field">
-                <label htmlFor="login-email">Email</label>
-                <Input ref={emailRef} id="login-email" name="email" type="email" autoComplete="email" value={email} onChange={event => { setEmail(event.target.value); setErrors(previous => ({ ...previous, email: undefined })); }} placeholder="ban@example.com" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? "login-email-error" : undefined} />
-                {errors.email && <p id="login-email-error" className="login-error" role="alert">{errors.email}</p>}
-              </div>
+            <Box
+              component="form"
+              onSubmit={submit}
+              noValidate
+              sx={{ mt: "38px" }}
+            >
+              <Box sx={{ mb: "23px" }}>
+                <Typography
+                  component="label"
+                  htmlFor="login-email"
+                  sx={{
+                    display: "block",
+                    mb: "10px",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#20201f",
+                  }}
+                >
+                  Email
+                </Typography>
+                <TextField
+                  inputRef={emailRef}
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setErrors((previous) => ({ ...previous, email: undefined }));
+                  }}
+                  placeholder="ban@example.com"
+                  error={Boolean(errors.email)}
+                  helperText={errors.email}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      height: 58,
+                      borderRadius: "11px",
+                      bgcolor: "#fff",
+                      fontSize: 16,
+                      "& fieldset": { borderColor: "#c8cdca", borderWidth: 1.5 },
+                      "&:hover fieldset": { borderColor: "#8d9690" },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "primary.main",
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                />
+              </Box>
 
-              <div className="login-field">
-                <label htmlFor="login-password">Mật khẩu</label>
-                <div className="login-password-wrap">
-                  <Input ref={passwordRef} id="login-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={event => { setPassword(event.target.value); setErrors(previous => ({ ...previous, password: undefined })); }} placeholder="Nhập mật khẩu" aria-invalid={Boolean(errors.password)} aria-describedby={errors.password ? "login-password-error" : undefined} />
-                  <button type="button" className="login-reveal" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"} aria-pressed={showPassword}>{showPassword ? <EyeOff size={20} strokeWidth={1.8} /> : <Eye size={20} strokeWidth={1.8} />}</button>
-                </div>
-                {errors.password && <p id="login-password-error" className="login-error" role="alert">{errors.password}</p>}
-              </div>
+              <Box sx={{ mb: "23px" }}>
+                <Typography
+                  component="label"
+                  htmlFor="login-password"
+                  sx={{
+                    display: "block",
+                    mb: "10px",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#20201f",
+                  }}
+                >
+                  Mật khẩu
+                </Typography>
+                <TextField
+                  inputRef={passwordRef}
+                  id="login-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setErrors((previous) => ({
+                      ...previous,
+                      password: undefined,
+                    }));
+                  }}
+                  placeholder="Nhập mật khẩu"
+                  error={Boolean(errors.password)}
+                  helperText={errors.password}
+                  fullWidth
+                  variant="outlined"
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword((value) => !value)}
+                            edge="end"
+                            aria-label={
+                              showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                            }
+                            sx={{ color: "#626965" }}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      height: 58,
+                      borderRadius: "11px",
+                      bgcolor: "#fff",
+                      fontSize: 16,
+                      "& fieldset": { borderColor: "#c8cdca", borderWidth: 1.5 },
+                      "&:hover fieldset": { borderColor: "#8d9690" },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "primary.main",
+                        borderWidth: 2,
+                      },
+                    },
+                  }}
+                />
+              </Box>
 
-              <div className="login-options">
-                <label className="login-remember"><Checkbox checked={remember} onCheckedChange={checked => setRemember(checked === true)} aria-label="Ghi nhớ đăng nhập" /> <span>Ghi nhớ đăng nhập</span></label>
-                <Link to="/forgot-password" className="login-text-link">Quên mật khẩu?</Link>
-              </div>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  mt: "21px",
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
+                      size="small"
+                      sx={{
+                        color: "#89908b",
+                        "&.Mui-checked": { color: "primary.main" },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontSize: 14, color: "#525752" }}>
+                      Ghi nhớ đăng nhập
+                    </Typography>
+                  }
+                />
+                <Typography
+                  component={Link}
+                  to="/forgot-password"
+                  sx={{
+                    color: "#ba3b14",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    "&:hover": {
+                      color: "#8f2c10",
+                      textDecoration: "underline",
+                      textUnderlineOffset: "3px",
+                    },
+                  }}
+                >
+                  Quên mật khẩu?
+                </Typography>
+              </Box>
 
-              <Button type="submit" className="login-submit">Đăng nhập</Button>
-              {notice && <p className="login-notice" role="status">{notice}</p>}
-            </form>
+              <Button
+                type="submit"
+                fullWidth
+                sx={{
+                  height: 60,
+                  mt: "35px",
+                  border: "2px solid #20201f",
+                  borderRadius: "999px",
+                  bgcolor: "primary.main",
+                  color: "#20201f",
+                  fontSize: 18,
+                  fontWeight: 900,
+                  boxShadow: "4px 5px 0 #20201f",
+                  transition: "transform .15s ease, box-shadow .15s ease, background .15s ease",
+                  "&:hover": {
+                    bgcolor: "#ff5e22",
+                    transform: "translate(1px, 1px)",
+                    boxShadow: "3px 4px 0 #20201f",
+                  },
+                  "&:active": {
+                    transform: "translate(4px, 5px)",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Đăng nhập
+              </Button>
 
-            <p className="login-register">Chưa có tài khoản? <Link to="/register" className="login-text-link">Tạo tài khoản</Link></p>
-          </div>
-        </div>
-      </section>
-    </main>
+              {notice && (
+                <Box
+                  role="status"
+                  sx={{
+                    mt: "18px",
+                    p: "11px 14px",
+                    border: "1px solid #f7c3aa",
+                    borderRadius: "9px",
+                    bgcolor: "#fff4ef",
+                    color: "#8c3819",
+                    fontSize: 14,
+                    lineHeight: 1.45,
+                  }}
+                >
+                  {notice}
+                </Box>
+              )}
+            </Box>
+
+            <Typography
+              sx={{
+                mt: "52px",
+                color: "#686c69",
+                textAlign: "center",
+                fontSize: 15,
+              }}
+            >
+              Chưa có tài khoản?{" "}
+              <Typography
+                component={Link}
+                to="/register"
+                sx={{
+                  color: "#ba3b14",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  "&:hover": {
+                    color: "#8f2c10",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                  },
+                }}
+              >
+                Tạo tài khoản
+              </Typography>
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }

@@ -1,5 +1,4 @@
 import { Link, useNavigate, useParams } from "react-router";
-import { Input } from "@/app/shared/components/ui/input";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useProjects } from "@/lib/hooks/useProjects";
 import type { SortMode } from "@/lib/types/project.types";
@@ -136,7 +135,7 @@ export default function ProjectDashboard() {
           <div className="toolbar">
             <label className="search-wrap">
               <span className="sr-only">Tìm kiếm dự án</span>
-              <Input
+              <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
