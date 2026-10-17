@@ -13,6 +13,8 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 type RoleType = "freelancer" | "client";
+const compactDesktop = "@media (min-width:900px) and (max-height:800px)";
+const compactWideDesktop = "@media (min-width:1200px) and (max-height:800px)";
 
 type RegisterErrors = {
   companyName?: string;
@@ -125,9 +127,9 @@ export default function RegisterPage() {
       sx={{
         display: "grid",
         gridTemplateColumns: { xs: "1fr", md: "52% 48%" },
-        height: "100dvh",
-        maxHeight: "100dvh",
-        overflow: "hidden",
+        minHeight: "100dvh",
+        height: { md: "100dvh" },
+        overflow: { md: "hidden" },
         bgcolor: "#ffffff",
       }}
     >
@@ -142,8 +144,10 @@ export default function RegisterPage() {
           overflow: "hidden",
           bgcolor: "var(--peach, #fff0e9)",
           p: {
-            md: "clamp(48px, 4.5vw, 76px) clamp(40px, 4.5vw, 72px)",
+            md: "68px 44px",
+            lg: "clamp(68px, 6vw, 90px) clamp(44px, 5.1vw, 86px)",
           },
+          [compactDesktop]: { pt: "24px", pb: "20px" },
         }}
       >
         <Box sx={{ position: "relative", zIndex: 2, maxWidth: 660 }}>
@@ -152,7 +156,7 @@ export default function RegisterPage() {
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: "clamp(48px, 4.6vw, 72px)",
+                  fontSize: { md: "clamp(50px, 5vw, 75px)", lg: "clamp(58px, 5.6vw, 88px)" },
                   lineHeight: 0.99,
                   letterSpacing: "-0.065em",
                   fontWeight: 900,
@@ -160,13 +164,13 @@ export default function RegisterPage() {
                   "& span": { color: "primary.main" },
                 }}
               >
-                Khởi đầu mới<br />cùng dự án hay<span>.</span>
+                Khởi đầu mới<br />cùng những<br />dự án hay<span>.</span>
               </Typography>
               <Typography
                 sx={{
                   maxWidth: 480,
-                  mt: "20px",
-                  fontSize: "clamp(18px, 1.4vw, 22px)",
+                  mt: "28px",
+                  fontSize: "clamp(20px, 1.6vw, 24px)",
                   lineHeight: 1.4,
                   fontWeight: 500,
                   color: "#20201f",
@@ -180,7 +184,7 @@ export default function RegisterPage() {
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: "clamp(48px, 4.6vw, 72px)",
+                  fontSize: { md: "clamp(50px, 5vw, 75px)", lg: "clamp(58px, 5.6vw, 88px)" },
                   lineHeight: 0.99,
                   letterSpacing: "-0.065em",
                   fontWeight: 900,
@@ -188,13 +192,13 @@ export default function RegisterPage() {
                   "& span": { color: "primary.main" },
                 }}
               >
-                Tìm kiếm tài năng<br />cho dự án của bạn<span>.</span>
+                Tìm tài năng<br />cho dự án của bạn<span>.</span>
               </Typography>
               <Typography
                 sx={{
                   maxWidth: 480,
-                  mt: "20px",
-                  fontSize: "clamp(18px, 1.4vw, 22px)",
+                  mt: "28px",
+                  fontSize: "clamp(20px, 1.6vw, 24px)",
                   lineHeight: 1.4,
                   fontWeight: 500,
                   color: "#20201f",
@@ -215,7 +219,7 @@ export default function RegisterPage() {
             left: "50%",
             bottom: "16px",
             width: "min(580px, 92%)",
-            maxHeight: "calc(100% - 320px)",
+            maxHeight: "min(370px, calc(100% - 350px))",
             objectFit: "contain",
             transform: "translateX(-50%)",
           }}
@@ -229,13 +233,14 @@ export default function RegisterPage() {
         sx={{
           display: "flex",
           alignItems: "flex-start",
-          height: "100%",
-          maxHeight: "100dvh",
-          overflowY: "auto",
+          height: { md: "100%" },
+          maxHeight: { md: "100dvh" },
+          overflowY: { md: "auto" },
           p: {
             xs: "28px 24px 44px",
             md: "clamp(28px, 3vh, 44px) clamp(36px, 5vw, 84px)",
           },
+          [compactDesktop]: { pt: "20px", pb: "16px" },
           scrollbarWidth: "none",
           "&::-webkit-scrollbar": { display: "none" },
         }}
@@ -258,7 +263,7 @@ export default function RegisterPage() {
             />
           </Box>
 
-          <Box sx={{ mt: "16px" }}>
+          <Box sx={{ mt: "16px", [compactDesktop]: { mt: "10px" } }}>
             <Typography
               id="register-title"
               variant="h2"
@@ -286,7 +291,7 @@ export default function RegisterPage() {
             </Typography>
 
             {/* Role switchers */}
-            <Box sx={{ mt: "16px" }} role="group" aria-labelledby="register-role-label">
+            <Box sx={{ mt: "16px", [compactDesktop]: { mt: "10px" } }} role="group" aria-labelledby="register-role-label">
               <Typography
                 id="register-role-label"
                 sx={{
@@ -353,9 +358,9 @@ export default function RegisterPage() {
               </Box>
             </Box>
 
-            <Box component="form" onSubmit={submit} noValidate sx={{ mt: "18px" }}>
+            <Box component="form" onSubmit={submit} noValidate sx={{ mt: "18px", [compactDesktop]: { mt: "10px" }, [compactWideDesktop]: { display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: "12px" } }}>
               {role === "client" && (
-                <Box sx={{ mb: "14px" }}>
+                <Box sx={{ mb: "14px", [compactDesktop]: { mb: "8px" }, [compactWideDesktop]: { gridColumn: "1 / -1" } }}>
                   <Typography
                     component="label"
                     htmlFor="register-company"
@@ -402,7 +407,7 @@ export default function RegisterPage() {
                 </Box>
               )}
 
-              <Box sx={{ mb: "14px" }}>
+              <Box sx={{ mb: "14px", [compactDesktop]: { mb: "8px" } }}>
                 <Typography
                   component="label"
                   htmlFor="register-name"
@@ -445,7 +450,7 @@ export default function RegisterPage() {
                 />
               </Box>
 
-              <Box sx={{ mb: "14px" }}>
+              <Box sx={{ mb: "14px", [compactDesktop]: { mb: "8px" } }}>
                 <Typography
                   component="label"
                   htmlFor="register-email"
@@ -489,7 +494,7 @@ export default function RegisterPage() {
                 />
               </Box>
 
-              <Box sx={{ mb: "14px" }}>
+              <Box sx={{ mb: "14px", [compactDesktop]: { mb: "8px" } }}>
                 <Typography
                   component="label"
                   htmlFor="register-password"
@@ -527,6 +532,7 @@ export default function RegisterPage() {
                             onClick={() => setShowPassword((value) => !value)}
                             edge="end"
                             size="small"
+                            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                             sx={{ color: "#626965" }}
                           >
                             {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
@@ -549,7 +555,7 @@ export default function RegisterPage() {
                 />
               </Box>
 
-              <Box sx={{ mb: "14px" }}>
+              <Box sx={{ mb: "14px", [compactDesktop]: { mb: "8px" } }}>
                 <Typography
                   component="label"
                   htmlFor="register-confirm-password"
@@ -590,6 +596,7 @@ export default function RegisterPage() {
                             onClick={() => setShowConfirmPassword((value) => !value)}
                             edge="end"
                             size="small"
+                            aria-label={showConfirmPassword ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
                             sx={{ color: "#626965" }}
                           >
                             {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
@@ -612,7 +619,7 @@ export default function RegisterPage() {
                 />
               </Box>
 
-              <Box sx={{ mt: "14px" }}>
+              <Box sx={{ mt: "14px", [compactDesktop]: { mt: "8px" }, [compactWideDesktop]: { gridColumn: "1 / -1" } }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -673,6 +680,8 @@ export default function RegisterPage() {
                 sx={{
                   height: 52,
                   mt: "22px",
+                  [compactDesktop]: { mt: "12px" },
+                  [compactWideDesktop]: { gridColumn: "1 / -1" },
                   border: "2px solid #20201f",
                   borderRadius: "999px",
                   bgcolor: "primary.main",
@@ -700,6 +709,7 @@ export default function RegisterPage() {
                   role="status"
                   sx={{
                     mt: "14px",
+                    [compactWideDesktop]: { gridColumn: "1 / -1" },
                     p: "10px 14px",
                     border: "1px solid #f7c3aa",
                     borderRadius: "9px",
@@ -718,6 +728,7 @@ export default function RegisterPage() {
               sx={{
                 mt: "28px",
                 mb: "20px",
+                [compactDesktop]: { mt: "12px", mb: "8px" },
                 color: "#686c69",
                 textAlign: "center",
                 fontSize: 14.5,

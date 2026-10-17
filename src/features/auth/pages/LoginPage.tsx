@@ -13,6 +13,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 type LoginErrors = { email?: string; password?: string };
+const compactDesktop = "@media (min-width:900px) and (max-height:800px)";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -67,13 +68,13 @@ export default function LoginPage() {
         sx={{
           display: { xs: "none", md: "block" },
           position: "relative",
-          minHeight: "760px",
           overflow: "hidden",
           bgcolor: "var(--peach, #fff0e9)",
           p: {
             xs: "68px 44px",
             lg: "clamp(68px, 6vw, 90px) clamp(44px, 5.1vw, 86px)",
           },
+          [compactDesktop]: { pt: "24px", pb: "20px" },
         }}
       >
         <Box sx={{ position: "relative", zIndex: 2, maxWidth: 660 }}>
@@ -135,6 +136,7 @@ export default function LoginPage() {
             sm: "48px 40px",
             md: "clamp(52px, 5vw, 76px) clamp(42px, 6vw, 104px)",
           },
+          [compactDesktop]: { pt: "24px", pb: "20px" },
         }}
       >
         <Box sx={{ width: "min(100%, 560px)", mx: "auto" }}>
@@ -151,11 +153,12 @@ export default function LoginPage() {
               sx={{
                 width: { xs: 190, md: "clamp(178px, 17vw, 244px)" },
                 height: "auto",
+                [compactDesktop]: { width: 178 },
               }}
             />
           </Box>
 
-          <Box sx={{ mt: "clamp(22px, 2vw, 30px)" }}>
+          <Box sx={{ mt: "clamp(22px, 2vw, 30px)", [compactDesktop]: { mt: "18px" } }}>
             <Typography
               id="login-title"
               variant="h2"
@@ -175,6 +178,7 @@ export default function LoginPage() {
             <Typography
               sx={{
                 mt: "14px",
+                [compactDesktop]: { mt: "10px" },
                 color: "#686c69",
                 fontSize: 18,
                 lineHeight: 1.5,
@@ -187,9 +191,9 @@ export default function LoginPage() {
               component="form"
               onSubmit={submit}
               noValidate
-              sx={{ mt: "38px" }}
+              sx={{ mt: "38px", [compactDesktop]: { mt: "22px" } }}
             >
-              <Box sx={{ mb: "23px" }}>
+              <Box sx={{ mb: "23px", [compactDesktop]: { mb: "16px" } }}>
                 <Typography
                   component="label"
                   htmlFor="login-email"
@@ -236,7 +240,7 @@ export default function LoginPage() {
                 />
               </Box>
 
-              <Box sx={{ mb: "23px" }}>
+              <Box sx={{ mb: "23px", [compactDesktop]: { mb: "16px" } }}>
                 <Typography
                   component="label"
                   htmlFor="login-password"
@@ -311,6 +315,7 @@ export default function LoginPage() {
                   justifyContent: "space-between",
                   gap: 2,
                   mt: "21px",
+                  [compactDesktop]: { mt: "12px" },
                 }}
               >
                 <FormControlLabel
@@ -357,6 +362,7 @@ export default function LoginPage() {
                 sx={{
                   height: 60,
                   mt: "35px",
+                  [compactDesktop]: { mt: "20px" },
                   border: "2px solid #20201f",
                   borderRadius: "999px",
                   bgcolor: "primary.main",
@@ -401,6 +407,7 @@ export default function LoginPage() {
             <Typography
               sx={{
                 mt: "52px",
+                [compactDesktop]: { mt: "24px" },
                 color: "#686c69",
                 textAlign: "center",
                 fontSize: 15,
