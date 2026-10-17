@@ -1,0 +1,564 @@
+/* ═══════════════════════════════════════════════════════════
+   FREVO — ProjectApplyDialog styles
+   Thiết kế theo ảnh 2: clean card layout, orange accent
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Keyframe: slide từ trên xuống + fade in ──────────────── */
+@keyframes dialog-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Dialog paper ─────────────────────────────────────────── */
+.MuiDialog-paper.stitch-apply-dialog {
+  width: min(700px, calc(100vw - 32px));
+  margin: 16px;
+  max-width: calc(100vw - 32px);
+  border: 0;
+  border-radius: 24px;
+  box-shadow: 0 24px 90px rgba(32, 25, 21, 0.22);
+  overflow: hidden;
+}
+
+/* ── Áp dụng animation khi dialog mở ─────────────────────── */
+.MuiDialog-paper.stitch-apply-dialog.dialog-enter {
+  animation: dialog-slide-down 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Form wrapper (flex column, fixed max-height) ─────────── */
+.stitch-apply-dialog #apply-form {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── HEADER (sticky top) ──────────────────────────────────── */
+.stitch-apply-dialog .dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #f0eeee;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.apply-heading-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff0e9;
+  color: var(--orange-dark, #ab2e00);
+  flex-shrink: 0;
+}
+
+.apply-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1b1c1c;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0;
+  font-family: inherit;
+}
+
+.apply-title-dot {
+  color: var(--orange-dark, #ab2e00);
+}
+
+.stitch-apply-dialog .close-dialog {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 0;
+  background: #f5f3f3;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #5b4039;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.stitch-apply-dialog .close-dialog:hover {
+  background: #ece0db;
+}
+
+/* ── SCROLLABLE BODY ──────────────────────────────────────── */
+.stitch-apply-dialog .dialog-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px 8px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* ẩn scrollbar mọi trình duyệt */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge cũ */
+}
+.stitch-apply-dialog .dialog-body::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / Brave */
+}
+
+/* ── Project banner ───────────────────────────────────────── */
+.stitch-apply-dialog .dialog-project-terms {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255, 200, 170, 0.2);
+  border: 1px solid rgba(255, 181, 160, 0.4);
+  margin-bottom: 10px;
+}
+.project-terms-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b1c1c;
+}
+.project-terms-budget {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange-dark, #ab2e00);
+  white-space: nowrap;
+}
+.primary-icon {
+  color: var(--orange-dark, #ab2e00);
+}
+
+/* ── Info note ────────────────────────────────────────────── */
+.dialog-info-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #75655f;
+  margin-bottom: 16px;
+  padding-left: 2px;
+}
+
+/* ── Fields container ─────────────────────────────────────── */
+.stitch-apply-dialog .dialog-fields {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: auto;
+  flex: none;
+  overflow: visible;
+}
+
+/* ── Label row (label + hint) ────────────────────────────── */
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1b1c1c;
+}
+.required-star {
+  color: var(--orange-dark, #ab2e00);
+}
+.field-hint {
+  font-size: 11px;
+  color: #907067;
+}
+
+/* ── Applicant type cards ─────────────────────────────────── */
+.applicant-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+.applicant-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 2px solid #e4e2e2;
+  background: #f9f8f7;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+  min-width: 0;
+}
+.applicant-card:hover {
+  background: #f5f3f3;
+}
+.applicant-card.selected {
+  border-color: var(--orange-dark, #ab2e00);
+  background: rgba(255, 219, 209, 0.18);
+}
+.applicant-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e4e2e2;
+  display: grid;
+  place-items: center;
+  color: #5b4039;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.applicant-card-icon.active {
+  background: var(--orange-dark, #ab2e00);
+  color: #fff;
+}
+.applicant-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.applicant-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1b1c1c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.applicant-card-sub {
+  font-size: 11px;
+  color: #75655f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.applicant-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #c5b3ac;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+.applicant-radio.checked {
+  border-color: var(--orange-dark, #ab2e00);
+  background: var(--orange-dark, #ab2e00);
+}
+.applicant-radio-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* ── Proposal textarea ────────────────────────────────────── */
+.proposal-textarea {
+  width: 100%;
+  min-height: 120px;
+  height: 130px;
+  resize: vertical;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  background: #f5f3f3;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #1b1c1c;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.proposal-textarea::placeholder {
+  color: #b0a09a;
+}
+.proposal-textarea:focus {
+  outline: none;
+  border-color: var(--orange-dark, #ab2e00);
+  background: #fff;
+}
+.char-count {
+  font-size: 11px;
+  color: #907067;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ── Portfolio cards ──────────────────────────────────────── */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+  min-width: 0;
+}
+.portfolio-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 2px solid #e4e2e2;
+  background: #f9f8f7;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+  position: relative;
+  min-width: 0;
+}
+.portfolio-card:hover {
+  background: #f5f3f3;
+}
+.portfolio-card.selected {
+  border-color: var(--orange-dark, #ab2e00);
+  background: rgba(255, 219, 209, 0.18);
+}
+.portfolio-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #e9e8e7;
+  display: grid;
+  place-items: center;
+  color: #5b4039;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.portfolio-card-icon.active {
+  background: #ffdbd1;
+  color: var(--orange-dark, #ab2e00);
+}
+.portfolio-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.portfolio-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1b1c1c;
+  overflow-wrap: anywhere;
+}
+.portfolio-card-sub {
+  font-size: 11px;
+  color: #75655f;
+  overflow-wrap: anywhere;
+}
+.portfolio-card-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--orange-dark, #ab2e00);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+}
+
+/* ── Portfolio link input ─────────────────────────────────── */
+.portfolio-link-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.portfolio-link-icon {
+  position: absolute;
+  left: 12px;
+  color: #907067;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.portfolio-link-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 34px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  background: #f5f3f3;
+  font-family: inherit;
+  font-size: 12px;
+  color: #1b1c1c;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.portfolio-link-input::placeholder {
+  color: #b0a09a;
+}
+.portfolio-link-input:focus {
+  outline: none;
+  border-color: var(--orange-dark, #ab2e00);
+  background: #fff;
+}
+
+/* ── Budget row ───────────────────────────────────────────── */
+.budget-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.budget-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.budget-col-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #75655f;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.budget-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.budget-input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 44px 0 14px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  background: #f5f3f3;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--orange-dark, #ab2e00);
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.budget-input[type="number"] { appearance: textfield; }
+.budget-input[type="number"]::-webkit-inner-spin-button,
+.budget-input[type="number"]::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.budget-input:focus {
+  outline: none;
+  border-color: var(--orange-dark, #ab2e00);
+  background: #fff;
+}
+.budget-suffix {
+  position: absolute;
+  right: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #907067;
+  pointer-events: none;
+}
+.calendar-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.portfolio-section-label,.budget-section-label,.portfolio-url-label{display:block;margin:20px 0 10px}
+.portfolio-selection-note{margin:0 0 12px;color:#75655f;font-size:11px;line-height:1.5}
+.portfolio-url-label{margin-top:12px}
+
+/* ── Submit error ─────────────────────────────────────────── */
+.submit-error {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffdad6;
+  color: #93000a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── FOOTER (sticky bottom) ──────────────────────────────── */
+.stitch-apply-dialog .dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px 20px;
+  border-top: 1px solid #f0eeee;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.stitch-apply-dialog .secondary-button {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 0;
+  background: #f5f3f3;
+  color: #1b1c1c;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.stitch-apply-dialog .secondary-button:hover {
+  background: #ece0db;
+}
+
+.stitch-apply-dialog .primary-button {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--orange-dark, #ab2e00);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 2px 2px 0 #1b1c1c22;
+  transition: background 0.15s, transform 0.1s;
+}
+.stitch-apply-dialog .primary-button:hover {
+  filter: brightness(1.08);
+}
+.stitch-apply-dialog .primary-button:active {
+  transform: translateY(1px);
+}
+
+/* disabled state */
+.stitch-apply-dialog button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .applicant-type-grid,
+  .portfolio-grid,
+  .budget-row {
+    grid-template-columns: 1fr;
+  }
+  .stitch-apply-dialog .dialog-head,
+  .stitch-apply-dialog .dialog-body,
+  .stitch-apply-dialog .dialog-actions {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}

@@ -22,7 +22,149 @@
       "User flow mới",
       "Prototype Figma 20+ màn hình",
       "UI kit cơ bản"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=1600&q=80",
+      "heroAlt": "Không gian spa sang trọng với ánh nến và gỗ tối màu",
+      "heroCaption": "Lotus Wellness Spa — TP. Hồ Chí Minh",
+      "expertise": [
+        "UI/UX Design",
+        "Mobile App",
+        "Design System"
+      ],
+      "tools": [
+        "Figma",
+        "FigJam",
+        "Maze"
+      ],
+      "experience": "Đã thực hiện ít nhất 02 dự án thiết kế ứng dụng mobile hoàn chỉnh (ưu tiên lĩnh vực Health & Wellness hoặc Booking).",
+      "audience": "UI/UX Designer có kinh nghiệm nghiên cứu người dùng và xây dựng design system.",
+      "intro": [
+        "Lotus Wellness là chuỗi spa cao cấp với 5 chi nhánh tại TP. Hồ Chí Minh, chuyên cung cấp các liệu trình chăm sóc sức khỏe và sắc đẹp từ thiên nhiên. Ứng dụng đặt lịch hiện tại đang gặp tỉ lệ rời bỏ lên đến 68% tại bước chọn dịch vụ, ảnh hưởng trực tiếp đến doanh thu.",
+        "Dự án tái thiết kế tập trung vào việc nghiên cứu hành vi người dùng thực tế, xác định điểm đau trong luồng đặt lịch hiện tại và thiết kế lại toàn bộ trải nghiệm từ trang chủ đến màn hình xác nhận booking. Chúng tôi mong muốn một UI thanh lịch, nhẹ nhàng, truyền tải được tinh thần thư giãn của Lotus."
+      ],
+      "scope": [
+        {
+          "title": "Nghiên cứu người dùng & Phân tích hiện trạng:",
+          "text": "Phỏng vấn 5–8 người dùng thực tế, phân tích heatmap và session recording hiện có, xác định các điểm gây ma sát trong luồng đặt lịch."
+        },
+        {
+          "title": "User Flow & Information Architecture:",
+          "text": "Thiết kế lại cấu trúc thông tin, vẽ user flow mới tối ưu cho 3 nhóm người dùng chính: khách mới, khách quen và thành viên VIP."
+        },
+        {
+          "title": "Wireframe & Prototype thấp độ trung thực:",
+          "text": "Dựng wireframe 20+ màn hình bao phủ toàn bộ hành trình đặt lịch, thử nghiệm với người dùng thực qua Maze trước khi chuyển sang high-fidelity."
+        },
+        {
+          "title": "Thiết kế UI High-Fidelity:",
+          "text": "Thiết kế giao diện hoàn chỉnh theo design language của Lotus (tông đất ấm, serif typography), bao phủ cả iOS và Android với adaptive layout."
+        },
+        {
+          "title": "Design System & Handoff:",
+          "text": "Xây dựng component library chuẩn Atomic Design trong Figma, chuẩn bị annotation và spec đầy đủ để bàn giao cho đội developer."
+        }
+      ],
+      "requirements": [
+        "Có portfolio tối thiểu 02 dự án mobile app UI/UX hoàn chỉnh (có thể là cá nhân/case study).",
+        "Thành thạo Figma bao gồm Auto Layout, Component, Variant và Prototyping.",
+        "Hiểu biết về nguyên tắc HIG (iOS) và Material Design (Android).",
+        "Có kinh nghiệm thực hiện usability testing hoặc sử dụng công cụ kiểm thử như Maze, Useberry."
+      ],
+      "deliverables": [
+        {
+          "title": "Báo cáo nghiên cứu người dùng",
+          "text": "Tổng hợp insight từ phỏng vấn, phân tích hành vi hiện tại và danh sách các vấn đề ưu tiên cần giải quyết."
+        },
+        {
+          "title": "User Flow & Sitemap mới",
+          "text": "Sơ đồ luồng người dùng cập nhật cho 3 nhóm khách hàng, dưới dạng file FigJam có thể chỉnh sửa."
+        },
+        {
+          "title": "Prototype Figma 20+ màn hình",
+          "text": "Prototype tương tác high-fidelity bao phủ toàn bộ hành trình đặt lịch: Browse → Select → Schedule → Payment → Confirmation."
+        },
+        {
+          "title": "UI Kit & Design System",
+          "text": "Bộ component library đầy đủ: Color tokens, Typography scale, Spacing system, Icons, Buttons, Form elements, Cards, Navigation."
+        },
+        {
+          "title": "Developer Handoff Package",
+          "text": "File Figma với annotation chi tiết, spec kỹ thuật (spacing, sizing, state), asset export sẵn sàng cho iOS/Android."
+        },
+        {
+          "title": "Báo cáo usability test sau thiết kế",
+          "text": "Kết quả kiểm thử với 5 người dùng thực tế trên prototype, đề xuất tinh chỉnh trước khi bàn giao chính thức."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (25%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO khi khởi động dự án."
+          },
+          {
+            "label": "ĐỢT 2 (35%)",
+            "title": "Duyệt User Flow & Wireframe",
+            "description": "Giải ngân sau khi client phê duyệt toàn bộ luồng và wireframe."
+          },
+          {
+            "label": "ĐỢT 3 (40%)",
+            "title": "Nghiệm thu UI & Design System",
+            "description": "Giải ngân khi bàn giao đầy đủ file Figma và handoff package."
+          }
+        ],
+        "note": "Dự án bao gồm tối đa 02 vòng phản hồi lớn cho mỗi giai đoạn. Các chỉnh sửa nhỏ (typo, màu sắc nhỏ) không tính vào số vòng.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Thống nhất phạm vi công việc chi tiết và ký quỹ FREVO trước khi bắt đầu dự án."
+      },
+      "documents": [
+        {
+          "title": "UX Audit Report — Lotus App hiện tại",
+          "description": "Phân tích điểm đau & cơ hội cải thiện",
+          "kind": "brief"
+        },
+        {
+          "title": "Brand & Visual Reference",
+          "description": "Màu sắc, typography và hình ảnh thương hiệu Lotus",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "LW",
+        "industry": "Health & Wellness / Spa",
+        "description": "Chuỗi spa cao cấp tại TP. Hồ Chí Minh, chuyên liệu trình chăm sóc toàn thân từ thiên nhiên với tiêu chuẩn 5 sao.",
+        "verified": true,
+        "teamSize": "25 – 50 nhân sự",
+        "completedProjects": "05 dự án hoàn thành",
+        "rating": "4.8/5.0 (22 đánh giá)"
+      },
+      "hiringCount": "01 UI/UX Designer",
+      "timeline": [
+        {
+          "date": "25/10/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và case study liên quan trước thời hạn."
+        },
+        {
+          "date": "27/10/2026",
+          "title": "Phỏng vấn & Khớp brief",
+          "description": "Trao đổi 45 phút qua Google Meet, trình bày phương án tiếp cận."
+        },
+        {
+          "date": "30/10/2026",
+          "title": "Ký hợp đồng & Khởi động",
+          "description": "Bắt đầu nghiên cứu người dùng và phân tích hiện trạng."
+        },
+        {
+          "date": "10/12/2026",
+          "title": "Nghiệm thu & Bàn giao toàn bộ",
+          "description": "Hoàn tất prototype, design system và developer handoff."
+        }
+      ]
+    }
   },
   {
     "id": "coffee",
@@ -47,7 +189,149 @@
       "Logo chính & biến thể",
       "Brand guideline 15–20 trang",
       "Thiết kế bao bì 3 SKU"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://lh3.googleusercontent.com/aida-public/AB6AXuDP5Z1JKFEk85DRbYSpryR9LT-BU0pmvnNaRWk5zI_smNMVVayFMKLzzm6zMwFmNnqPNVf22mQqpLbVhn7EoXpGU8ZusQi9fxxHGQhncjrOn5I0oISPRPZ3anbbmhBmNzrnu7AOqAbKy_iJuEsMgko9yBPTw9WWim2qEq4DRVk1GMFeb15sNHgR33zTPQ8eJsAF-JL6dG5QX8Vfdm6JyVGIIfoOTZ2EOE4R3V1nATMnBDWvt81RJ1DQ",
+      "heroAlt": "Không gian quán cà phê Mộc với quầy gỗ và ánh sáng tự nhiên",
+      "heroCaption": "Không gian Mộc Coffee Roastery — Đà Lạt",
+      "expertise": [
+        "Brand Identity",
+        "Packaging",
+        "Typography"
+      ],
+      "tools": [
+        "Adobe Illustrator",
+        "Adobe Photoshop",
+        "Figma"
+      ],
+      "experience": "Đã thực hiện ít nhất 02 dự án nhận diện thương hiệu hoàn chỉnh (ưu tiên F&B / Lifestyle).",
+      "audience": "Freelancer độc lập hoặc Creative Studio nhỏ có năng lực tự chủ mỹ thuật.",
+      "intro": [
+        "Mộc Coffee Roastery khởi nguồn từ một xưởng rang hạt nhỏ tại thung lũng Trạm Hành, Đà Lạt. Sau 3 năm đồng hành cùng những người yêu cà phê nguyên bản, chúng tôi chuẩn bị khai trương không gian trải nghiệm cà phê specialty thứ hai tại trung tâm thành phố.",
+        "Dự án lần này hướng đến việc tái định vị và chuẩn hóa toàn bộ hệ thống nhận diện thương hiệu. Chúng tôi theo đuổi phong cách mộc mạc, thủ công (artisanal) nhưng mang đường nét thiết kế đương đại (modern editorial). Bộ nhận diện cần kể được câu chuyện của sương sớm cao nguyên, hạt Arabica Cầu Đất rang chậm bằng lửa củi, và sự tĩnh lặng trong từng giọt cà phê chiết xuất thủ công."
+      ],
+      "scope": [
+        {
+          "title": "Nghiên cứu & Định hướng DNA thương hiệu:",
+          "text": "Họp khởi động online cùng Founder, phân tích khách hàng mục tiêu và định vị so với các tiệm specialty hiện có tại Đà Lạt & Sài Gòn."
+        },
+        {
+          "title": "Moodboard & Khái niệm thị giác:",
+          "text": "Đề xuất 02 đến 03 hướng tiếp cận concept khác nhau để thống nhất tinh thần thiết kế trước khi vẽ chi tiết."
+        },
+        {
+          "title": "Thiết kế Logo & Hệ thống nhận diện:",
+          "text": "Logo chính, logo mark, hệ thống typography phối hợp, bảng mã màu chuẩn (Pantone/CMYK), hệ họa tiết (pattern/illustration) lấy cảm hứng từ cao nguyên."
+        },
+        {
+          "title": "Thiết kế Bao bì túi cà phê rang xay 250g:",
+          "text": "Layout nhãn dán, quy cách túi kraft tráng nhôm, hệ thống phân loại màu sắc cho 4 dòng hạt chính (Arabica, Catimor, Robusta Fine, Typica)."
+        },
+        {
+          "title": "Mini Brand Guidelines:",
+          "text": "Tài liệu quy chuẩn sử dụng logo, màu sắc, font chữ, quy cách in ấn túi giấy và ly giấy mang đi."
+        }
+      ],
+      "requirements": [
+        "Có portfolio dự án Brand Identity hoặc Packaging thực tế, có gu thẩm mỹ tinh tế, tối giản.",
+        "Tư duy hệ thống tốt, có khả năng trình bày lý do chọn giải pháp thị giác thuyết phục.",
+        "Chủ động trong việc giao tiếp, cập nhật tiến độ đều đặn hàng tuần qua Google Meet / Telegram.",
+        "Cam kết bàn giao đúng tiến độ 4 tuần để kịp tiến độ in ấn khai trương tiệm mới."
+      ],
+      "deliverables": [
+        {
+          "title": "Logo chính và các biến thể ứng dụng",
+          "text": "Bao gồm bản ngang, bản khối vuông, favicon, watermark âm bản & dương bản."
+        },
+        {
+          "title": "Bảng màu chuẩn & Hướng dẫn Typography",
+          "text": "Mã màu chi tiết (Pantone, CMYK, RGB, HEX) và file font bản quyền/open-source cho tiêu đề & thân văn bản."
+        },
+        {
+          "title": "Thiết kế bao bì túi cà phê rang xay 250g",
+          "text": "Bao gồm 3 mặt túi, nhãn dán thông số độ cao/giống hạt, file dàn khuôn bế chuẩn in flexo/offset."
+        },
+        {
+          "title": "Mockup phối cảnh ứng dụng thực tế",
+          "text": "Tối thiểu 6 phối cảnh mockup: biển hiệu gỗ, ly giấy take-away, tạp dề barista, túi vải canvas, menu để bàn."
+        },
+        {
+          "title": "Mini Brand Guideline (15–20 trang PDF)",
+          "text": "Tài liệu chỉ dẫn quy chuẩn hiển thị, khoảng cách an toàn, lỗi cấm và quy tắc dàn trang ấn phẩm tiếp thị."
+        },
+        {
+          "title": "Master Source Files trọn gói",
+          "text": "Bàn giao toàn bộ file gốc vector .AI, .EPS, .PDF vector chất lượng cao không nén."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (30%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO."
+          },
+          {
+            "label": "ĐỢT 2 (40%)",
+            "title": "Chốt Moodboard & Concept",
+            "description": "Giải ngân khi duyệt phương án logo chính."
+          },
+          {
+            "label": "ĐỢT 3 (30%)",
+            "title": "Nghiệm thu toàn bộ",
+            "description": "Giải ngân khi bàn giao đầy đủ file master."
+          }
+        ],
+        "note": "Dự án bao gồm tối đa 02 vòng phản hồi điều chỉnh lớn cho concept chính và các tinh chỉnh nhỏ trước khi xuất file in ấn.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Thống nhất hợp đồng và ký quỹ trước khi bắt đầu dự án."
+      },
+      "documents": [
+        {
+          "title": "Brief Mộc Coffee Roastery",
+          "description": "Câu chuyện thương hiệu & phạm vi công việc",
+          "kind": "brief"
+        },
+        {
+          "title": "Moodboard Artisanal Reference",
+          "description": "Không gian quán & tinh thần thiết kế",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "MC",
+        "industry": "F&B / Cà phê đặc sản",
+        "description": "Thương hiệu cà phê rang xay nguyên bản tại Đà Lạt, tôn vinh hạt Arabica Cầu Đất và phương pháp pha chế thủ công pour-over.",
+        "verified": true,
+        "teamSize": "10 – 25 nhân sự",
+        "completedProjects": "03 dự án hoàn thành",
+        "rating": "4.9/5.0 (14 đánh giá)"
+      },
+      "hiringCount": "01 Freelancer / Studio",
+      "timeline": [
+        {
+          "date": "30/10/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và đề xuất của bạn trước thời hạn."
+        },
+        {
+          "date": "02/11/2026",
+          "title": "Phỏng vấn & Khớp brief",
+          "description": "Trao đổi 30 phút online qua Google Meet."
+        },
+        {
+          "date": "05/11/2026",
+          "title": "Ký hợp đồng & Khởi động",
+          "description": "Thống nhất phạm vi và các cột mốc thanh toán."
+        },
+        {
+          "date": "05/12/2026",
+          "title": "Nghiệm thu & Bàn giao master",
+          "description": "Hoàn tất xuất file bao bì và hướng dẫn in ấn."
+        }
+      ]
+    }
   },
   {
     "id": "fintech",
@@ -72,7 +356,149 @@
       "Storyboard",
       "Video 16:9 & 9:16",
       "3 cut 15 giây"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1600&q=80",
+      "heroAlt": "Màn hình smartphone hiển thị ứng dụng ví điện tử với biểu đồ tài chính",
+      "heroCaption": "Ví Sen — Giải pháp tiết kiệm thông minh",
+      "expertise": [
+        "Motion Graphics",
+        "2D Animation",
+        "Storyboard"
+      ],
+      "tools": [
+        "Adobe After Effects",
+        "Adobe Illustrator",
+        "Adobe Premiere Pro"
+      ],
+      "experience": "Đã thực hiện ít nhất 02 dự án motion graphics explainer video cho sản phẩm/dịch vụ số (ưu tiên fintech, SaaS hoặc app mobile).",
+      "audience": "Motion Designer hoặc studio animation có kinh nghiệm làm explainer video thương mại.",
+      "intro": [
+        "Ví Sen là ứng dụng ví điện tử thế hệ mới, tập trung vào tính năng tiết kiệm tự động thông minh dựa trên hành vi chi tiêu. Sau 18 tháng hoạt động, Ví Sen đạt hơn 500.000 người dùng và chuẩn bị ra mắt chiến dịch quảng cáo lớn trên mạng xã hội.",
+        "Chúng tôi cần một video motion graphics 60–90 giây, truyền tải rõ ràng và hấp dẫn tính năng 'Tiết kiệm Thông minh' — tự động trích một phần thu nhập vào hũ tiết kiệm dựa trên mục tiêu tài chính cá nhân. Phong cách hướng đến: clean, modern, trẻ trung nhưng đáng tin cậy."
+      ],
+      "scope": [
+        {
+          "title": "Tinh chỉnh kịch bản & Storyboard:",
+          "text": "Phối hợp cùng team marketing Ví Sen để hoàn thiện kịch bản sơ bộ, phát triển storyboard chi tiết theo từng cảnh với chú thích animation và voice-over timing."
+        },
+        {
+          "title": "Thiết kế Visual Style & Assets:",
+          "text": "Xây dựng bộ visual assets (UI mockup app, icon, character flat 2D nếu cần) đồng nhất với bộ nhận diện thương hiệu Ví Sen đã có sẵn."
+        },
+        {
+          "title": "Animation chính (60–90 giây):",
+          "text": "Sản xuất video motion hoàn chỉnh định dạng 16:9 (YouTube/Desktop) và 9:16 (Reels/TikTok/Stories), đảm bảo chuyển cảnh mượt mà và timing khớp với voice-over."
+        },
+        {
+          "title": "Cắt 3 phiên bản 15 giây:",
+          "text": "Biên tập 3 bản cắt ngắn tập trung vào 3 tính năng nổi bật khác nhau cho quảng cáo Facebook Ads và Google Display."
+        },
+        {
+          "title": "Xử lý âm thanh & Hoàn thiện:",
+          "text": "Kết hợp nhạc nền bản quyền, hiệu ứng âm thanh UI, và đồng bộ với voice-over (phía client cung cấp bản ghi âm)."
+        }
+      ],
+      "requirements": [
+        "Portfolio có ít nhất 01 explainer video hoàn chỉnh cho sản phẩm số hoặc ứng dụng.",
+        "Thành thạo After Effects với kỹ năng kiểm soát easing, timing và motion principles.",
+        "Có khả năng vẽ hoặc thiết kế asset 2D vector trong Illustrator hoặc tương đương.",
+        "Tuân thủ đúng timeline — video cần sẵn sàng trước ngày ra mắt chiến dịch."
+      ],
+      "deliverables": [
+        {
+          "title": "Storyboard chi tiết đã duyệt",
+          "text": "File PDF storyboard theo từng scene, có ghi chú animation direction, text overlay và timing dự kiến."
+        },
+        {
+          "title": "Video chính 16:9 (60–90 giây)",
+          "text": "File MP4 chất lượng cao (1080p minimum, 4K nếu có thể), tối ưu cho YouTube và trình chiếu màn hình."
+        },
+        {
+          "title": "Video dọc 9:16 (60–90 giây)",
+          "text": "Bản reformat cho Instagram Reels, TikTok và Facebook Stories với bố cục được tái thiết kế phù hợp."
+        },
+        {
+          "title": "3 bản cắt 15 giây (16:9 & 9:16)",
+          "text": "Mỗi bản tập trung một tính năng: Tiết kiệm tự động, Mục tiêu tài chính, và Báo cáo chi tiêu thông minh."
+        },
+        {
+          "title": "File nguồn After Effects trọn gói",
+          "text": "Project AE có cấu trúc rõ ràng, link đầy đủ, kèm tất cả assets (font, image, audio) để client có thể điều chỉnh text sau."
+        },
+        {
+          "title": "Version không nhạc (Music-Free)",
+          "text": "Bản xuất không có nhạc nền để client linh hoạt sử dụng cho các thị trường có bản quyền âm nhạc khác nhau."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (30%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO khi bắt đầu."
+          },
+          {
+            "label": "ĐỢT 2 (40%)",
+            "title": "Duyệt Storyboard & Visual Style",
+            "description": "Giải ngân sau khi phê duyệt storyboard và bộ asset chính."
+          },
+          {
+            "label": "ĐỢT 3 (30%)",
+            "title": "Nghiệm thu video hoàn chỉnh",
+            "description": "Giải ngân khi bàn giao đủ tất cả phiên bản và file nguồn."
+          }
+        ],
+        "note": "Dự án bao gồm tối đa 02 vòng phản hồi lớn sau bản dựng thô. Các chỉnh sửa nhỏ (text, màu, timing nhỏ) không tính vòng.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Ký hợp đồng rõ ràng về phạm vi và ký quỹ FREVO trước khi bắt đầu sản xuất."
+      },
+      "documents": [
+        {
+          "title": "Kịch bản sơ bộ & Brand Kit Ví Sen",
+          "description": "Script gốc, logo, màu sắc và font thương hiệu",
+          "kind": "brief"
+        },
+        {
+          "title": "Tham khảo phong cách animation",
+          "description": "Moodboard và ví dụ video tham khảo",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "VS",
+        "industry": "Fintech / Ví điện tử",
+        "description": "Ứng dụng ví điện tử thế hệ mới với tính năng tiết kiệm tự động thông minh, phục vụ hơn 500.000 người dùng tại Việt Nam.",
+        "verified": true,
+        "teamSize": "50 – 100 nhân sự",
+        "completedProjects": "07 dự án hoàn thành",
+        "rating": "4.7/5.0 (31 đánh giá)"
+      },
+      "hiringCount": "01 Motion Designer / Studio",
+      "timeline": [
+        {
+          "date": "28/10/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và showreel motion graphics trước thời hạn."
+        },
+        {
+          "date": "30/10/2026",
+          "title": "Phỏng vấn & Khớp brief",
+          "description": "Trao đổi 30 phút qua Google Meet, xem xét kịch bản chi tiết."
+        },
+        {
+          "date": "02/11/2026",
+          "title": "Ký hợp đồng & Nhận tài liệu",
+          "description": "Nhận brand kit, kịch bản và bắt đầu storyboard."
+        },
+        {
+          "date": "05/12/2026",
+          "title": "Bàn giao video hoàn chỉnh",
+          "description": "Nộp tất cả phiên bản video và file nguồn trước ngày ra mắt chiến dịch."
+        }
+      ]
+    }
   },
   {
     "id": "interior",
@@ -97,7 +523,145 @@
       "Nội dung 6 trang",
       "8 bài mô tả dự án",
       "Bộ từ khóa SEO"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&q=80",
+      "heroAlt": "Không gian nội thất tối giản phong cách Bắc Âu với ánh sáng tự nhiên",
+      "heroCaption": "Nhà Xanh Interior — Thiết kế không gian sống xanh",
+      "expertise": [
+        "Copywriting",
+        "SEO Content",
+        "Brand Storytelling"
+      ],
+      "tools": [
+        "Google Docs",
+        "SEMrush / Ahrefs",
+        "Notion"
+      ],
+      "experience": "Đã thực hiện ít nhất 02 dự án viết nội dung website B2C hoàn chỉnh (ưu tiên lĩnh vực nội thất, kiến trúc, lifestyle hoặc bất động sản).",
+      "audience": "Copywriter hoặc Content Strategist có gu viết tinh tế, hiểu ngành nội thất.",
+      "intro": [
+        "Nhà Xanh Interior là studio thiết kế nội thất tại Hà Nội, chuyên về các không gian sống lấy cảm hứng từ thiên nhiên — sử dụng vật liệu tự nhiên, cây xanh trong nhà và ánh sáng tự nhiên làm ngôn ngữ thiết kế chủ đạo. Sau 6 năm hoạt động với hơn 80 dự án hoàn thành, Nhà Xanh chuẩn bị tái ra mắt website hoàn toàn mới.",
+        "Website hiện tại có nội dung lỗi thời, thiếu câu chuyện thương hiệu và không được tối ưu cho SEO. Chúng tôi cần một copywriter hiểu sâu về không gian sống, có khả năng viết nội dung vừa truyền cảm hứng, vừa thực chiến về kỹ thuật SEO, đặc biệt là kể câu chuyện cho các dự án tiêu biểu theo hình thức case study."
+      ],
+      "scope": [
+        {
+          "title": "Nghiên cứu thương hiệu & Phỏng vấn:",
+          "text": "01 buổi gặp trực tiếp tại văn phòng Nhà Xanh (Hà Nội), phỏng vấn founder và 2–3 khách hàng tiêu biểu để thu thập câu chuyện thực tế."
+        },
+        {
+          "title": "Nghiên cứu từ khóa & Chiến lược SEO:",
+          "text": "Phân tích từ khóa cho ngành nội thất Hà Nội, xây dựng bộ từ khóa mục tiêu cho từng trang, đề xuất cấu trúc nội dung tối ưu on-page SEO."
+        },
+        {
+          "title": "Viết nội dung 6 trang chính:",
+          "text": "Trang Chủ, Về Chúng Tôi, Dịch Vụ, Dự Án, Blog (1 bài mẫu) và Liên Hệ — mỗi trang đầy đủ headline, body copy, CTA và meta description."
+        },
+        {
+          "title": "Viết 8 bài mô tả dự án (Case Study):",
+          "text": "Mỗi bài theo cấu trúc: Thách thức — Giải pháp — Kết quả, kết hợp kỹ thuật storytelling và từ khóa SEO tự nhiên."
+        },
+        {
+          "title": "Review & Chỉnh sửa:",
+          "text": "Tối đa 02 vòng chỉnh sửa cho mỗi trang dựa trên phản hồi của team Nhà Xanh."
+        }
+      ],
+      "requirements": [
+        "Portfolio có ít nhất 02 mẫu nội dung website hoàn chỉnh, ưu tiên ngành nội thất/kiến trúc/lifestyle.",
+        "Hiểu biết cơ bản về SEO on-page: title tag, meta description, heading hierarchy, keyword density.",
+        "Viết tiếng Việt chuẩn mực, có văn phong linh hoạt (vừa chuyên nghiệp vừa gần gũi).",
+        "Sẵn sàng đến văn phòng tại Hà Nội ít nhất 01 buổi để phỏng vấn và chụp ảnh tư liệu."
+      ],
+      "deliverables": [
+        {
+          "title": "Bộ từ khóa SEO & Chiến lược nội dung",
+          "text": "File Excel/Sheet tổng hợp từ khóa mục tiêu, search volume, độ khó và phân bổ từ khóa cho từng trang."
+        },
+        {
+          "title": "Nội dung 6 trang website hoàn chỉnh",
+          "text": "File Google Docs cho từng trang, bao gồm headline, subheadline, body copy, CTA, meta title và meta description."
+        },
+        {
+          "title": "8 bài Case Study dự án tiêu biểu",
+          "text": "Mỗi bài 400–600 từ theo cấu trúc Thách thức — Giải pháp — Kết quả, có tích hợp từ khóa tự nhiên."
+        },
+        {
+          "title": "01 bài blog mẫu tối ưu SEO",
+          "text": "Bài blog pillar content khoảng 1.200–1.500 từ về chủ đề thiết kế nội thất, làm ví dụ cho các bài tiếp theo."
+        },
+        {
+          "title": "Hướng dẫn giọng văn thương hiệu (Tone of Voice)",
+          "text": "Tài liệu ngắn (1–2 trang) mô tả phong cách viết của Nhà Xanh để team nội bộ duy trì nhất quán về sau."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (30%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO trước buổi gặp đầu tiên."
+          },
+          {
+            "label": "ĐỢT 2 (40%)",
+            "title": "Bàn giao nội dung 6 trang chính",
+            "description": "Giải ngân sau khi duyệt nội dung các trang website chính."
+          },
+          {
+            "label": "ĐỢT 3 (30%)",
+            "title": "Nghiệm thu toàn bộ",
+            "description": "Giải ngân sau khi duyệt 8 case study và tài liệu tone of voice."
+          }
+        ],
+        "note": "Tổng tối đa 02 vòng chỉnh sửa cho mỗi hạng mục nội dung. Thay đổi phạm vi lớn (thêm trang, thêm case study) sẽ được thương lượng phụ phí.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Toàn bộ quyền sở hữu nội dung chuyển giao sau khi hoàn tất thanh toán đợt cuối."
+      },
+      "documents": [
+        {
+          "title": "Brief Nhà Xanh Interior",
+          "description": "Thông tin thương hiệu, dịch vụ & 8 dự án cần viết",
+          "kind": "brief"
+        },
+        {
+          "title": "Ảnh tư liệu dự án",
+          "description": "Album ảnh các dự án tiêu biểu đã hoàn thành",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "NX",
+        "industry": "Nội thất & Kiến trúc",
+        "description": "Studio thiết kế nội thất tại Hà Nội, chuyên không gian sống lấy cảm hứng từ thiên nhiên với hơn 80 dự án hoàn thành trong 6 năm.",
+        "verified": true,
+        "teamSize": "10 – 20 nhân sự",
+        "completedProjects": "04 dự án hoàn thành",
+        "rating": "4.8/5.0 (18 đánh giá)"
+      },
+      "hiringCount": "01 Copywriter / Content Strategist",
+      "timeline": [
+        {
+          "date": "05/11/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và 01 mẫu writing về chủ đề nội thất/lifestyle."
+        },
+        {
+          "date": "07/11/2026",
+          "title": "Phỏng vấn & Gặp mặt tại Hà Nội",
+          "description": "Buổi gặp trực tiếp tại văn phòng Nhà Xanh, phỏng vấn brief."
+        },
+        {
+          "date": "10/11/2026",
+          "title": "Ký hợp đồng & Khởi động",
+          "description": "Bắt đầu nghiên cứu từ khóa và phỏng vấn khách hàng."
+        },
+        {
+          "date": "28/11/2026",
+          "title": "Nghiệm thu & Bàn giao toàn bộ",
+          "description": "Hoàn tất tất cả nội dung, case study và tone of voice guide."
+        }
+      ]
+    }
   },
   {
     "id": "podcast",
@@ -121,7 +685,140 @@
       "Intro 8 giây",
       "Logo động loop",
       "File nguồn AE"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1600&q=80",
+      "heroAlt": "Microphone podcast chuyên nghiệp trên bàn thu âm với ánh đèn ấm",
+      "heroCaption": "Chuyện Nghề Podcast — Câu chuyện từ những người làm nghề sáng tạo",
+      "expertise": [
+        "Logo Animation",
+        "Motion Graphics",
+        "Sound Design"
+      ],
+      "tools": [
+        "Adobe After Effects",
+        "Adobe Illustrator",
+        "Adobe Audition"
+      ],
+      "experience": "Đã thực hiện ít nhất 01 dự án logo animation hoặc intro/outro cho YouTube, podcast hoặc chương trình truyền hình.",
+      "audience": "Motion Designer hoặc animator có kỹ năng đồng bộ chuyển động với âm nhạc.",
+      "intro": [
+        "Chuyện Nghề Podcast là kênh nội dung độc lập tại Đà Nẵng, nơi những người làm nghề sáng tạo — designers, copywriters, illustrators, photographers — chia sẻ hành trình và bài học nghề nghiệp thật của mình. Kênh đang tăng trưởng nhanh với hơn 30.000 người nghe mỗi tháng.",
+        "Chúng tôi cần một bộ motion identity ngắn gọn nhưng ấn tượng: logo animation có thể dùng loop trên livestream, intro 5–8 giây khớp với nhạc hiệu gốc đã có, và một số element chuyển cảnh để dùng trong video YouTube. Phong cách: hiện đại, tối giản nhưng có cá tính rõ ràng."
+      ],
+      "scope": [
+        {
+          "title": "Phân tích & Đồng bộ âm nhạc:",
+          "text": "Phân tích nhạc hiệu có sẵn (BPM, điểm nhấn), lên kế hoạch animation timing để mọi chuyển động khớp chính xác với từng beat."
+        },
+        {
+          "title": "Thiết kế Logo Animation:",
+          "text": "Hoạt hình hóa logo hiện có của Chuyện Nghề thành 02 phiên bản: loop ngắn 3 giây (cho livestream overlay) và reveal animation đầy đủ 5 giây."
+        },
+        {
+          "title": "Sản xuất Intro 5–8 giây:",
+          "text": "Intro hoàn chỉnh tích hợp logo animation, tên kênh, tagline và nhạc hiệu — phù hợp để dùng mở đầu mỗi tập podcast trên YouTube."
+        },
+        {
+          "title": "Bộ Lower Third & Chuyển cảnh:",
+          "text": "2–3 mẫu lower third để hiển thị tên khách mời, 02 transition đơn giản để nối các segment trong video."
+        }
+      ],
+      "requirements": [
+        "Portfolio có ít nhất 01 mẫu logo animation hoặc intro cho kênh YouTube/podcast.",
+        "Kỹ năng sound sync tốt — khả năng dùng Keyframe hay Expression trong AE để animation khớp nhạc.",
+        "Sáng tạo trong giới hạn thương hiệu: tôn trọng logo và màu sắc hiện có, thêm cá tính qua chuyển động.",
+        "Bàn giao đúng hạn — intro cần có mặt trước ngày ra tập podcast tiếp theo của kênh."
+      ],
+      "deliverables": [
+        {
+          "title": "Logo Animation — Phiên bản Loop (3 giây)",
+          "text": "File MP4/MOV có nền trong (alpha), chất lượng Full HD, tối ưu cho overlay livestream YouTube/Twitch."
+        },
+        {
+          "title": "Logo Animation — Phiên bản Reveal (5 giây)",
+          "text": "Animation từ đầu đến khi logo hiện ra hoàn chỉnh, có thể dùng standalone hoặc kết hợp vào intro."
+        },
+        {
+          "title": "Intro Podcast hoàn chỉnh (5–8 giây)",
+          "text": "Video intro có nhạc hiệu, logo reveal, tên kênh — export cả bản 16:9 (YouTube) và 1:1 (IGTV)."
+        },
+        {
+          "title": "Bộ Lower Third (2–3 mẫu)",
+          "text": "Animation hiển thị tên & chức danh khách mời, cả phiên bản in và out, export có alpha."
+        },
+        {
+          "title": "Transition Elements (02 loại)",
+          "text": "Chuyển cảnh đơn giản phù hợp phong cách kênh, có thể dùng trong Premiere Pro hoặc Final Cut."
+        },
+        {
+          "title": "File nguồn After Effects",
+          "text": "Project AE được sắp xếp gọn gàng, có hướng dẫn để client tự cập nhật tên khách mời cho mỗi tập."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (40%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO khi khởi động."
+          },
+          {
+            "label": "ĐỢT 2 (60%)",
+            "title": "Nghiệm thu & Bàn giao",
+            "description": "Giải ngân sau khi duyệt toàn bộ assets và file nguồn."
+          }
+        ],
+        "note": "Dự án gọn nhẹ trong 2 tuần. Tối đa 02 vòng chỉnh sửa sau khi bàn giao bản preview.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Thanh toán đợt 1 qua FREVO trước khi bắt đầu sản xuất, đợt 2 ngay khi nghiệm thu."
+      },
+      "documents": [
+        {
+          "title": "Brand Kit Chuyện Nghề Podcast",
+          "description": "Logo gốc, bảng màu và nhạc hiệu MP3",
+          "kind": "brief"
+        },
+        {
+          "title": "Tham khảo motion style",
+          "description": "3 ví dụ intro podcast ưa thích để định hướng phong cách",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "CN",
+        "industry": "Media / Podcast sáng tạo",
+        "description": "Kênh podcast độc lập về nghề sáng tạo, kết nối cộng đồng designer, writer và artist tại Việt Nam với hơn 30.000 người nghe hàng tháng.",
+        "verified": true,
+        "teamSize": "2 – 5 nhân sự",
+        "completedProjects": "02 dự án hoàn thành",
+        "rating": "5.0/5.0 (8 đánh giá)"
+      },
+      "hiringCount": "01 Motion Designer",
+      "timeline": [
+        {
+          "date": "02/11/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và showreel animation trước thời hạn."
+        },
+        {
+          "date": "04/11/2026",
+          "title": "Phỏng vấn & Khớp brief",
+          "description": "Trao đổi nhanh 20 phút qua Zoom, nghe thử nhạc hiệu."
+        },
+        {
+          "date": "05/11/2026",
+          "title": "Ký hợp đồng & Nhận assets",
+          "description": "Nhận brand kit và bắt đầu phân tích âm nhạc."
+        },
+        {
+          "date": "18/11/2026",
+          "title": "Bàn giao toàn bộ motion assets",
+          "description": "Nộp đầy đủ file export và file nguồn AE."
+        }
+      ]
+    }
   },
   {
     "id": "bakery",
@@ -146,6 +843,140 @@
       "Lịch nội dung 1 tháng",
       "20 caption",
       "20 thiết kế bài đăng"
-    ]
+    ],
+    "details": {
+      "heroImage": "https://images.unsplash.com/photo-1612240498936-65f5101365d2?w=1600&q=80",
+      "heroAlt": "Bánh ngọt thủ công trên khay gỗ với hoa trang trí, không gian tiệm bánh ấm cúng",
+      "heroCaption": "Bếp Bà Ngoại — Hương vị bánh thủ công miền Tây",
+      "expertise": [
+        "Social Media Content",
+        "Visual Design",
+        "Community Management"
+      ],
+      "tools": [
+        "Canva",
+        "Meta Business Suite",
+        "Google Sheets"
+      ],
+      "experience": "Đã quản lý nội dung mạng xã hội cho ít nhất 01 thương hiệu F&B hoặc bán lẻ (thực chiến hoặc cá nhân).",
+      "audience": "Social Media Creator hoặc Content Designer quen với phong cách ấm cúng, gần gũi của thương hiệu địa phương.",
+      "intro": [
+        "Bếp Bà Ngoại là tiệm bánh thủ công tại Cần Thơ, chuyên các loại bánh truyền thống miền Tây được làm hoàn toàn bằng tay: bánh bông lan trứng muối, bánh kem trái cây theo mùa, bánh mì vỏ giòn kiểu Pháp và các loại bánh tét, bánh ít dịp lễ. Thương hiệu mang phong cách ấm cúng, hoài niệm nhưng hiện đại trong cách trình bày.",
+        "Mùa lễ hội cuối năm (Halloween, Giáng Sinh, Tết Dương Lịch) là giai đoạn kinh doanh quan trọng nhất của Bếp Bà Ngoại. Chúng tôi cần một bộ nội dung mạng xã hội bài bản cho Facebook và Instagram trong tháng 11–12, giúp tăng tương tác, kéo khách đến đặt bánh và lan tỏa câu chuyện thương hiệu."
+      ],
+      "scope": [
+        {
+          "title": "Lập kế hoạch nội dung tháng:",
+          "text": "Xây dựng lịch biên tập (content calendar) 30 ngày với 20 bài đăng, phân bổ hợp lý giữa các chủ đề: giới thiệu sản phẩm, hậu trường làm bánh, câu chuyện thương hiệu, ưu đãi mùa lễ và UGC."
+        },
+        {
+          "title": "Viết 20 caption hấp dẫn:",
+          "text": "Mỗi caption có hook mạnh, body storytelling và CTA rõ ràng, phù hợp với giọng văn ấm cúng, gần gũi của Bếp Bà Ngoại. Bao gồm cả hashtag tối ưu theo từng chủ đề."
+        },
+        {
+          "title": "Thiết kế 20 visual bài đăng:",
+          "text": "Dựng template trên Canva từ ảnh sản phẩm do tiệm cung cấp, đảm bảo tính nhất quán về màu sắc, font và layout theo brand palette của Bếp Bà Ngoại."
+        },
+        {
+          "title": "Chiến lược hashtag & Thời điểm đăng:",
+          "text": "Nghiên cứu hashtag phù hợp theo ngách (bánh thủ công, Cần Thơ, mùa lễ), đề xuất khung giờ đăng tối ưu dựa trên insight trang Facebook/Instagram."
+        }
+      ],
+      "requirements": [
+        "Có portfolio tối thiểu 01 thương hiệu F&B/bán lẻ đã quản lý content (link fanpage hoặc ảnh chụp màn hình kết quả).",
+        "Thành thạo Canva, biết tạo template chuẩn brand từ ảnh thô khách hàng cung cấp.",
+        "Viết tiếng Việt tự nhiên, có khiếu kể chuyện, tránh văn phong quảng cáo cứng nhắc.",
+        "Chủ động lập kế hoạch và nộp lịch nội dung để client duyệt trước 1 tuần so với ngày đăng."
+      ],
+      "deliverables": [
+        {
+          "title": "Content Calendar (Lịch nội dung 1 tháng)",
+          "text": "File Google Sheet với đầy đủ: ngày đăng, nền tảng, chủ đề, dạng bài, caption tóm tắt và trạng thái duyệt."
+        },
+        {
+          "title": "20 Caption hoàn chỉnh",
+          "text": "File Google Docs với 20 caption đã viết xong, bao gồm hook, body, CTA và danh sách hashtag cho từng bài."
+        },
+        {
+          "title": "20 Thiết kế visual (file Canva + ảnh export)",
+          "text": "Bộ 20 hình ảnh bài đăng xuất file PNG/JPG chất lượng cao, kèm link Canva để tiệm tự chỉnh sửa sau."
+        },
+        {
+          "title": "Bộ Template Canva tái sử dụng",
+          "text": "4–5 template Canva chuẩn brand (post vuông, story dọc, carousel) để Bếp Bà Ngoại dùng cho các tháng tiếp theo."
+        },
+        {
+          "title": "Báo cáo chiến lược hashtag",
+          "text": "Danh sách 30–50 hashtag phân loại theo nhóm (địa điểm, ngành, sản phẩm, lễ hội) với hướng dẫn cách phối hợp."
+        }
+      ],
+      "benefits": {
+        "title": "Bảo chứng thanh toán theo từng cột mốc",
+        "payments": [
+          {
+            "label": "ĐỢT 1 (30%)",
+            "title": "Ký kết hợp đồng",
+            "description": "Ký gửi tiền vào quỹ cọc FREVO khi bắt đầu."
+          },
+          {
+            "label": "ĐỢT 2 (40%)",
+            "title": "Duyệt lịch nội dung & 10 bài đầu",
+            "description": "Giải ngân sau khi duyệt content calendar và 10 bài đăng đầu tiên."
+          },
+          {
+            "label": "ĐỢT 3 (30%)",
+            "title": "Nghiệm thu 20 bài hoàn chỉnh",
+            "description": "Giải ngân sau khi bàn giao đủ 20 bài đăng và bộ template."
+          }
+        ],
+        "note": "Tiệm cung cấp ảnh sản phẩm thô trong 3 ngày đầu tiên. Nếu ảnh đến muộn hơn, timeline sẽ được điều chỉnh tương ứng.",
+        "trustTitle": "Bảo vệ quyền lợi Freelancer",
+        "trustDescription": "Ký hợp đồng rõ phạm vi và ký quỹ FREVO. Ảnh thô từ tiệm được giao đúng hẹn mới tính bắt đầu timeline."
+      },
+      "documents": [
+        {
+          "title": "Brief Bếp Bà Ngoại",
+          "description": "Giới thiệu thương hiệu, sản phẩm nổi bật & mục tiêu mùa lễ",
+          "kind": "brief"
+        },
+        {
+          "title": "Album ảnh sản phẩm tháng 11",
+          "description": "Ảnh bánh thủ công do tiệm chụp sẵn",
+          "kind": "image"
+        }
+      ],
+      "employer": {
+        "monogram": "BB",
+        "industry": "F&B / Bánh thủ công",
+        "description": "Tiệm bánh thủ công truyền thống miền Tây tại Cần Thơ, chuyên bánh theo mùa và dịp lễ với công thức gia đình nhiều thế hệ.",
+        "verified": true,
+        "teamSize": "2 – 5 nhân sự",
+        "completedProjects": "02 dự án hoàn thành",
+        "rating": "4.9/5.0 (11 đánh giá)"
+      },
+      "hiringCount": "01 Social Media Creator",
+      "timeline": [
+        {
+          "date": "22/10/2026",
+          "title": "Hạn chót nộp hồ sơ ứng tuyển",
+          "description": "Gửi portfolio và 01 mẫu caption viết cho thương hiệu F&B."
+        },
+        {
+          "date": "24/10/2026",
+          "title": "Phỏng vấn & Khớp brief",
+          "description": "Trao đổi 20 phút qua Zalo/Messenger về phong cách và kế hoạch."
+        },
+        {
+          "date": "26/10/2026",
+          "title": "Ký hợp đồng & Nhận ảnh sản phẩm",
+          "description": "Tiệm giao ảnh sản phẩm, bắt đầu lập lịch nội dung."
+        },
+        {
+          "date": "22/11/2026",
+          "title": "Bàn giao toàn bộ 20 bài đăng",
+          "description": "Nộp đủ caption, visual và template Canva để tiệm đăng bài."
+        }
+      ]
+    }
   }
 ]

@@ -8,6 +8,7 @@ import ProfilePage from "@/features/profile/pages/ProfilePage";
 import PortfolioDetailPage from "@/features/profile/pages/PortfolioDetailPage";
 import NotFound from "@/features/errors/NotFound";
 import BusinessPrototype from "@/features/business/BusinessPrototype";
+import ProjectDetailPage from "@/features/projects/details/ProjectDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: "projects/:projectId",
         element: <FreelancerHomePage />,
+      },
+      {
+        path: "projects/:projectId/details",
+        element: <ProjectDetailPage />,
       },
       {
         path: "login",
