@@ -39,18 +39,24 @@ FREVO-frontend/
 │   │       └── components/                 # Các custom component dùng chung đa tính năng (nếu có)
 │   │
 │   ├── features/                           # Domain Modules (Feature Slices)
-│   │   ├── auth/                           # Module xác thực tài khoản
-│   │   │   └── pages/                      # LoginPage, RegisterPage, ForgotPasswordPage (MUI)
-│   │   ├── projects/                       # Module khám phá & ứng tuyển dự án
-│   │   │   ├── dashboard/                  # ProjectDashboard, ProjectList, ProjectCard, ProjectFilters...
-│   │   │   ├── details/                    # ProjectDetail
-│   │   │   └── application/                # ProjectApplyDialog
-│   │   ├── profile/                        # Module hồ sơ cá nhân & portfolio
-│   │   │   ├── pages/                      # ProfilePage, PortfolioDetailPage (MUI)
+│   │   ├── auth/                           # Module xác thực tài khoản (MUI)
+│   │   │   └── pages/                      # LoginPage, RegisterPage, ForgotPasswordPage
+│   │   ├── freelancer/                     # Module trang chủ & điều hướng Freelancer
+│   │   │   ├── FreelancerHomePage.tsx      # Khám phá, Đã lưu, Đã ứng tuyển
+│   │   │   └── components/                 # FreelancerHeader, FreelancerNav, NotificationsBell
+│   │   ├── business/                       # Module dành cho doanh nghiệp
+│   │   │   ├── BusinessPrototype.tsx       # Prototype workspace & quản lý dự án
+│   │   │   └── business-data.ts            # Dữ liệu mock doanh nghiệp
+│   │   ├── projects/                       # Module khám phá & ứng tuyển dự án (MUI)
+│   │   │   ├── dashboard/                  # ProjectList, ProjectCard, ProjectFilters...
+│   │   │   ├── details/                    # ProjectDetailPage, ProjectDetailContent, Body, Sidebar...
+│   │   │   └── application/                # ProjectApplyDialog (MUI)
+│   │   ├── profile/                        # Module hồ sơ cá nhân & portfolio (MUI)
+│   │   │   ├── pages/                      # ProfilePage, PortfolioDetailPage
 │   │   │   ├── components/                 # EditProfileDialog, PortfolioEditor, PortfolioCover
 │   │   │   └── data/                       # portfolio-data.ts, stitch-images.json
-│   │   └── errors/                         # Màn hình lỗi
-│   │       └── NotFound.tsx                # Trang 404 thân thiện (MUI)
+│   │   └── errors/                         # Màn hình lỗi (MUI)
+│   │       └── NotFound.tsx                # Trang 404 thân thiện
 │   │
 │   ├── lib/                                # Hạ tầng & tiện ích dùng chung
 │   │   ├── api/                            # Axios agent với interceptors & domain api clients

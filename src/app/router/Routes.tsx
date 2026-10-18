@@ -10,22 +10,29 @@ import NotFound from "@/features/errors/NotFound";
 import BusinessPrototype from "@/features/business/BusinessPrototype";
 import ProjectDetailPage from "@/features/projects/details/ProjectDetailPage";
 
+import FreelancerLayout from "@/features/freelancer/layout/FreelancerLayout";
+
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
       {
-        path: "",
-        element: <FreelancerHomePage />,
-      },
-      {
-        path: "projects/:projectId",
-        element: <FreelancerHomePage />,
-      },
-      {
-        path: "projects/:projectId/details",
-        element: <ProjectDetailPage />,
+        element: <FreelancerLayout />,
+        children: [
+          {
+            path: "",
+            element: <FreelancerHomePage />,
+          },
+          {
+            path: "projects/:projectId",
+            element: <FreelancerHomePage />,
+          },
+          {
+            path: "projects/:projectId/details",
+            element: <ProjectDetailPage />,
+          },
+        ],
       },
       {
         path: "login",

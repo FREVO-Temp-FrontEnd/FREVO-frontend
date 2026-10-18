@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useProjects } from "@/lib/hooks/useProjects";
 import type { SortMode } from "@/lib/types/project.types";
-import { ProjectFilters } from "./LegacyProjectFilters";
+import { ProjectFilters } from "./ProjectFilters";
 import { ProjectList } from "./ProjectList";
 import { ProjectDetail } from "../details/ProjectDetail";
 import { ProjectApplyDialog } from "../application/ProjectApplyDialog";
@@ -31,8 +31,6 @@ export default function ProjectDashboard() {
     saved,
     applied,
     toggleSaved,
-    filtersOpen,
-    setFiltersOpen,
     applyingId,
     openApplication,
     closeApplication,
@@ -113,8 +111,6 @@ export default function ProjectDashboard() {
 
       <div className="page-grid grid">
         <ProjectFilters
-          filtersOpen={filtersOpen}
-          setFiltersOpen={setFiltersOpen}
           selectedCategories={selectedCategories}
           toggleCategory={toggleCategory}
           minimumBudget={minimumBudget}
