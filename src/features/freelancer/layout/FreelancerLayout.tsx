@@ -1,14 +1,19 @@
 import { Outlet } from "react-router";
 import { Typography } from "@mui/material";
 import { FreelancerHeader } from "../components/FreelancerHeader";
+import { GuestBanner } from "@/features/public/components/GuestBanner";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { isDemoMode } from "@/lib/api/projectsApi";
 
 export default function FreelancerLayout() {
+  const { role } = useAuthSession();
+
   return (
     <>
       <a className="skip-link" href="#main">
         Đi đến nội dung chính
       </a>
+      {role === "guest" && <GuestBanner />}
       <FreelancerHeader />
       {isDemoMode && (
         <Typography

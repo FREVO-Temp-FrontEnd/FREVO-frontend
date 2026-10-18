@@ -1,13 +1,16 @@
 import { useEffect } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import { Box, Typography, Button } from "@mui/material";
 import { ArrowLeft } from "lucide-react";
 import { ProjectApplyDialog } from "@/features/projects/application/ProjectApplyDialog";
 import { useProjects } from "@/lib/hooks/useProjects";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { ProjectDetailContent } from "./ProjectDetailContent";
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { role } = useAuthSession();
   const {
     projects,
     loading,
@@ -28,6 +31,14 @@ export default function ProjectDetailPage() {
     toast,
   } = useProjects();
   const project = projects.find((item) => item.id === projectId);
+
+  function handleApply(id: string) {
+    if (role === "guest") {
+      navigate("/login", { state: { from: { pathname: `/projects/${id}/details` } } });
+      return;
+    }
+    openApplication(id);
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -184,7 +195,7 @@ export default function ProjectDetailPage() {
             applied={applied.has(project.id)}
             saved={saved.has(project.id)}
             onSave={toggleSaved}
-            onApply={openApplication}
+            onApply={handleApply}
           />
         )}
       </Box>
