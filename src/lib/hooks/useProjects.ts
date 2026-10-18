@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { projectsApi, isDemoMode } from "@/lib/api/projectsApi";
+import { projectsApi } from "@/lib/api/projectsApi";
+import { mockStorage } from "@/lib/storage/mockStorage";
+import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/util/formatters";
 
 export function useProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() =>
+    mergeProjectsWithStorage([], mockStorage.getProjects())
+  );
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [query, setQuery] = useState("");
@@ -28,18 +32,35 @@ export function useProjects() {
     projectsApi.getProjects()
       .then((data) => {
         if (active) {
-          setProjects(data);
+          const merged = mergeProjectsWithStorage(data, mockStorage.getProjects());
+          setProjects(merged);
           setLoadError(false);
         }
       })
       .catch(() => {
-        if (active) setLoadError(true);
+        if (active) {
+          // If network / API fails, use mockStorage projects as fallback
+          const fallback = mergeProjectsWithStorage([], mockStorage.getProjects());
+          if (fallback.length > 0) {
+            setProjects(fallback);
+            setLoadError(false);
+          } else {
+            setLoadError(true);
+          }
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
       });
+
+    // Reactive subscription to cross-role project creations/publications
+    const unsub = mockStorage.subscribe(() => {
+      setProjects((prev) => mergeProjectsWithStorage(prev, mockStorage.getProjects()));
+    });
+
     return () => {
       active = false;
+      unsub();
     };
   }, []);
 
@@ -139,12 +160,16 @@ export function useProjects() {
         proposal: applicationProposal,
         portfolioUrl: portfolio,
       });
+      const activeUser = mockStorage.getActiveUser();
+      const talentId =
+        activeUser.role === "freelancer"
+          ? (activeUser.actingIdentity?.type === "team" ? "may-creative" : (activeUser.id || "minh-anh"))
+          : "minh-anh";
+      mockStorage.submitApplication(applyingId, talentId, applicationProposal);
       setApplied((previous) => new Set(previous).add(applyingId));
       closeApplication();
       setToast(
-        isDemoMode
-          ? "Đã mô phỏng gửi ứng tuyển. Không có dữ liệu nào được gửi đi."
-          : "Ứng tuyển đã được gửi thành công."
+        "Ứng tuyển đã được gửi thành công. Doanh nghiệp sẽ xem xét hồ sơ của bạn (BR-002, BR-003)."
       );
       if (toastTimer.current) clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(""), 4000);

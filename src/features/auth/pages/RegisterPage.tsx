@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import {
   Box,
   Typography,
@@ -45,6 +46,9 @@ export default function RegisterPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
+  const { login } = useAuthSession();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -113,11 +117,9 @@ export default function RegisterPage() {
     } else if (nextErrors.confirmPassword) {
       confirmPasswordRef.current?.focus();
     } else {
-      setNotice(
-        role === "client"
-          ? "Đây là bản giao diện mẫu. Đăng ký tài khoản doanh nghiệp chưa được kết nối backend."
-          : "Đây là bản giao diện mẫu. Đăng ký tài khoản freelancer chưa được kết nối backend."
-      );
+      login(email.trim(), role).then(() => {
+        navigate(role === "client" ? "/business" : "/projects", { replace: true });
+      });
     }
   }
 

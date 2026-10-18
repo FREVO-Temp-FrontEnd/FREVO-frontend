@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useProjects } from "@/lib/hooks/useProjects";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import type { SortMode } from "@/lib/types/project.types";
 import { ProjectFilters } from "@/features/projects/dashboard/ProjectFilters";
 import { FreelancerNav, type ProjectView } from "./components/FreelancerNav";
@@ -12,6 +13,7 @@ import "./freelancer-home.css";
 export default function FreelancerHomePage() {
   const navigate = useNavigate();
   const { projectId } = useParams();
+  const { role } = useAuthSession();
   const [view, setView] = useState<ProjectView>("discover");
   const [navNotice, setNavNotice] = useState("");
 
@@ -47,6 +49,14 @@ export default function FreelancerHomePage() {
     submitApplication,
     toast,
   } = useProjects();
+
+  function handleApply(id: string) {
+    if (role === "guest") {
+      navigate("/login", { state: { from: { pathname: `/projects/${id}` } } });
+      return;
+    }
+    openApplication(id);
+  }
 
   const displayed = visible.filter((project) => view === "discover" || (view === "saved" ? saved.has(project.id) : applied.has(project.id)));
   const selected = displayed.find((project) => project.id === (projectId ?? "coffee")) ?? displayed[0];
@@ -155,7 +165,7 @@ export default function FreelancerHomePage() {
               saved={saved.has(selected.id)}
               applied={applied.has(selected.id)}
               onSave={toggleSaved}
-              onApply={openApplication}
+              onApply={handleApply}
             />
           ) : !loading && !loadError ? (
             <p className="detail-empty">

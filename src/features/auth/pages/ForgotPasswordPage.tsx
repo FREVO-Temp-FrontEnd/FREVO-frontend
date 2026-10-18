@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
     } else {
       setSubmittedEmail(email.trim());
       setNotice(
-        "Đây là bản giao diện mẫu. Hệ thống gửi email chưa được kết nối backend."
+        "Mô phỏng: Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn (mã xác nhận demo: 123456)."
       );
     }
   }

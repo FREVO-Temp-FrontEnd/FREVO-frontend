@@ -1,15 +1,31 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router";
-import { ArrowLeft, ArrowRight, Bell, BriefcaseBusiness, Check, CheckCheck, ChevronDown, Clock3, FolderOpen, LayoutDashboard, Mail, MessageCircle, Plus, Search, Send, Settings2, SlidersHorizontal, Sparkles, UserRound, Users, X } from "lucide-react";
-import { initialBusinessState, talents, type Agreement, type BusinessProject, type BusinessState, type CandidateStatus, type Invitation, type Milestone, type ProjectStatus, type Talent } from "./business-data";
+import { Link, Navigate, useLocation } from "react-router";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bell,
+  BriefcaseBusiness,
+  Check,
+  CheckCheck,
+  ChevronDown,
+  Clock3,
+  FolderOpen,
+  MessageCircle,
+  Plus,
+  Search,
+  Send,
+  Users,
+} from "lucide-react";
+import { initialBusinessState, talents, type Agreement, type BusinessProject, type BusinessState, type CandidateStatus, type Milestone, type ProjectStatus, type Talent } from "./business-data";
+import { BusinessLayout } from "./layout/BusinessLayout";
+import { BusinessDashboardPage } from "./pages/BusinessDashboardPage";
+import { MyProjectsPage } from "./pages/MyProjectsPage";
+import { CreateBriefPage } from "./pages/CreateBriefPage";
+import { BusinessProjectDetailPage } from "./pages/BusinessProjectDetailPage";
 import "./business.css";
 
 const STORAGE_KEY = "frevo-business-prototype-v6";
 const today = "17/10/2026";
-const navItems = [
-  { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
-];
 
 function loadState(): BusinessState {
   try {
@@ -57,26 +73,18 @@ function ProjectHeader({ project, active, state }: { project: BusinessProject; a
 
 export default function BusinessPrototype() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [state, setState] = useState<BusinessState>(loadState);
   const [toast, setToast] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
   const parts = location.pathname.split("/").filter(Boolean);
   const projectId = parts[1] === "projects" ? parts[2] : undefined;
   const project = projectId && projectId !== "new" ? projectFor(state, projectId) : undefined;
   const section = parts[3] ?? "";
-  const unreadCount = state.notices.filter(notice => !notice.read).length;
 
   useEffect(() => {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* Prototype remains usable. */ }
   }, [state]);
   useEffect(() => { document.title = "Không gian Business | FREVO"; }, []);
 
-  function updateProject(next: BusinessProject) {
-    setState(previous => ({ ...previous, projects: previous.projects.some(item => item.id === next.id) ? previous.projects.map(item => item.id === next.id ? next : item) : [next, ...previous.projects] }));
-    setToast(next.status === "draft" ? "Đã lưu bản nháp." : "Đã công bố dự án.");
-    navigate(projectPath(next.id));
-  }
   function addNotice(title: string, detail: string, href: string) {
     return { id: uniqueId("n"), title, detail, time: "Vừa xong", read: false, href };
   }
@@ -86,20 +94,6 @@ export default function BusinessPrototype() {
     const invited = talentFor(talentId);
     setState(previous => ({ ...previous, invitations: [{ id: uniqueId("i"), projectId: projectIdToInvite, talentId, status: "pending", sent: today }, ...previous.invitations], notices: [addNotice(`Đã gửi lời mời cho ${invited?.name ?? "Freelancer"}`, "Lời mời hết hạn sau 7 ngày.", projectPath(projectIdToInvite, "invitations")), ...previous.notices] }));
     setToast("Đã gửi lời mời. Freelancer có 7 ngày để phản hồi.");
-  }
-  function createCandidate(projectIdToApply: string, talentId: string, source: "Ứng tuyển" | "Lời mời") {
-    const name = talentFor(talentId)?.name ?? "Freelancer";
-    setState(previous => {
-      const exists = previous.candidates.find(candidate => candidate.projectId === projectIdToApply && candidate.talentId === talentId);
-      const candidates = exists ? previous.candidates.map(candidate => candidate.id === exists.id ? { ...candidate, source: "Ứng tuyển · Lời mời" as const } : candidate) : [{ id: uniqueId("c"), projectId: projectIdToApply, talentId, source, status: "new" as const, proposal: source === "Lời mời" ? "Đã chấp nhận lời mời và sẵn sàng trao đổi về dự án." : "Tôi quan tâm đến brief này và muốn trao đổi thêm về phạm vi công việc.", received: "Vừa xong", unread: true }, ...previous.candidates];
-      return { ...previous, candidates, notices: [addNotice(`${name} ${source === "Lời mời" ? "đã chấp nhận lời mời" : "vừa ứng tuyển"}`, "Hội thoại đã được mở ngay cho dự án.", projectPath(projectIdToApply, "applicants")), ...previous.notices] };
-    });
-    setToast(`${name} đã trở thành ứng viên. Chat đã mở ngay.`);
-  }
-  function acceptInvitation(invitation: Invitation) {
-    if (projectFor(state, invitation.projectId)?.status !== "published") { setToast("Dự án đã đóng tuyển nên không thể chấp nhận lời mời."); return; }
-    setState(previous => ({ ...previous, invitations: previous.invitations.map(item => item.id === invitation.id ? { ...item, status: "accepted" } : item) }));
-    createCandidate(invitation.projectId, invitation.talentId, "Lời mời");
   }
   function sendMessage(projectIdToMessage: string, talentId: string, body: string) {
     const message = { id: uniqueId("m"), projectId: projectIdToMessage, talentId, sender: "business" as const, body: body.trim(), time: "Vừa xong" };
@@ -124,12 +118,17 @@ export default function BusinessPrototype() {
   }
 
   let content: ReactNode;
-  if (parts.length === 1) content = <Dashboard state={state} />;
-  else if (parts[1] === "projects" && parts.length === 2) content = <ProjectsPage state={state} />;
-  else if (parts[1] === "projects" && (projectId === "new" || section === "edit")) content = <BriefForm key={project?.id ?? "new"} project={project} onSave={updateProject} />;
-  else if (project) {
+  if (parts.length === 1) {
+    content = <BusinessDashboardPage />;
+  } else if (parts[1] === "projects" && parts.length === 2) {
+    content = <MyProjectsPage />;
+  } else if (parts[1] === "projects" && (projectId === "new" || section === "edit")) {
+    content = <CreateBriefPage />;
+  } else if (project && (!section || section === "suggestions" || section === "invitations" || section === "applicants")) {
+    content = <BusinessProjectDetailPage />;
+  } else if (project) {
     const header = <ProjectHeader project={project} active={section} state={state} />;
-    content = <>{header}{section === "applicants" && project.status !== "ongoing" && project.status !== "draft" ? <ApplicantsPage state={state} project={project} onSimulate={() => { const next = talents.find(talent => !state.candidates.some(candidate => candidate.projectId === project.id && candidate.talentId === talent.id)); if (next) createCandidate(project.id, next.id, "Ứng tuyển"); else setToast("Tất cả hồ sơ minh họa đã ứng tuyển."); }} /> : section === "executor" && project.status === "ongoing" ? <ExecutorPage state={state} project={project} /> : section === "progress" && project.status === "ongoing" ? <ProgressPage state={state} project={project} onComplete={completeMilestone} /> : section === "suggestions" && project.status === "published" ? <SuggestionsPage state={state} project={project} onInvite={sendInvitation} /> : section === "invitations" && project.status === "published" ? <InvitationsPage state={state} project={project} onAccept={acceptInvitation} /> : section === "messages" && project.status !== "draft" ? <MessagesPage state={state} project={project} talentId={new URLSearchParams(location.search).get("talent")} onSend={sendMessage} /> : section === "propose" && project.status === "published" ? <AgreementPage key={`${project.id}-propose`} state={state} project={project} initialTalentId={new URLSearchParams(location.search).get("talent")} onPropose={proposeAgreement} onConfirm={confirmAgreement} /> : section === "propose" && project.status === "agreement" ? <Navigate to={projectPath(project.id, "agreement")} replace /> : section === "agreement" && (project.status === "agreement" || project.status === "ongoing") ? <AgreementPage key={`${project.id}-agreement`} state={state} project={project} onPropose={proposeAgreement} onConfirm={confirmAgreement} /> : section === "applicants" && project.status === "ongoing" ? <Navigate to={projectPath(project.id, "executor")} replace /> : section ? <Navigate to={projectPath(project.id)} replace /> : <ProjectBrief state={state} project={project} onClose={() => { setState(previous => ({ ...previous, projects: previous.projects.map(item => item.id === project.id ? { ...item, status: "closed" } : item) })); setToast("Đã đóng tuyển dự án."); }} />}</>;
+    content = <>{header}{section === "executor" && project.status === "ongoing" ? <ExecutorPage state={state} project={project} /> : section === "progress" && project.status === "ongoing" ? <ProgressPage state={state} project={project} onComplete={completeMilestone} /> : section === "messages" && project.status !== "draft" ? <MessagesPage state={state} project={project} talentId={new URLSearchParams(location.search).get("talent")} onSend={sendMessage} /> : section === "propose" && project.status === "published" ? <AgreementPage key={`${project.id}-propose`} state={state} project={project} initialTalentId={new URLSearchParams(location.search).get("talent")} onPropose={proposeAgreement} onConfirm={confirmAgreement} /> : section === "propose" && project.status === "agreement" ? <Navigate to={projectPath(project.id, "agreement")} replace /> : section === "agreement" && (project.status === "agreement" || project.status === "ongoing") ? <AgreementPage key={`${project.id}-agreement`} state={state} project={project} onPropose={proposeAgreement} onConfirm={confirmAgreement} /> : <Navigate to={projectPath(project.id)} replace />}</>;
   }
   else if (parts[1] === "talent" && parts[2]) content = <TalentProfile state={state} talentId={parts[2]} projectId={new URLSearchParams(location.search).get("project") ?? state.projects[0]?.id ?? ""} onInvite={sendInvitation} />;
   else if (parts[1] === "messages" || parts[1] === "agreements") content = <Navigate to="/business/projects" replace />;
@@ -138,109 +137,7 @@ export default function BusinessPrototype() {
   else if (parts[1] === "settings") content = <SettingsPage name={state.businessName} onSave={name => { setState(previous => ({ ...previous, businessName: name })); setToast("Đã lưu thông tin Business trong phiên xem này."); }} />;
   else content = <Empty title="Không tìm thấy trang" text="Trang này chưa có trong prototype Business." action={<Link className="fb-button fb-button-primary" to="/business">Về tổng quan</Link>} />;
 
-  return <div className="fb-app">
-    <a className="fb-skip" href="#fb-content">Đi đến nội dung chính</a>
-    <aside className={`fb-sidebar ${mobileNav ? "is-open" : ""}`}>
-      <Link className="fb-brand" to="/business" onClick={() => setMobileNav(false)}><img src="/assets/frevo-logo.png" alt="FREVO" /><span>Business</span></Link>
-      <div className="fb-side-label">KHÔNG GIAN LÀM VIỆC</div>
-      <nav aria-label="Điều hướng Business">{navItems.map(item => <Link key={item.href} to={item.href} onClick={() => setMobileNav(false)} aria-current={item.href === "/business" ? location.pathname === item.href ? "page" : undefined : location.pathname.startsWith(item.href) ? "page" : undefined}><item.icon size={19} strokeWidth={1.8} /><span>{item.label}</span></Link>)}</nav>
-      <div className="fb-sidebar-account"><div className="fb-side-label">TÀI KHOẢN</div><nav aria-label="Tài khoản Business"><Link to="/business/profile" onClick={() => setMobileNav(false)} aria-current={location.pathname === "/business/profile" ? "page" : undefined}><UserRound size={19} strokeWidth={1.8} /><span>Hồ sơ</span></Link><Link to="/business/settings" onClick={() => setMobileNav(false)} aria-current={location.pathname === "/business/settings" ? "page" : undefined}><Settings2 size={19} strokeWidth={1.8} /><span>Cài đặt</span></Link></nav></div>
-    </aside>
-    <div className="fb-content-wrap"><header className="fb-topbar">
-      <button className="fb-mobile-menu" type="button" aria-label={mobileNav ? "Đóng menu" : "Mở menu"} aria-expanded={mobileNav} onClick={() => setMobileNav(!mobileNav)}>{mobileNav ? <X size={22} /> : <span>☰</span>}</button>
-      <span>Không gian doanh nghiệp</span>
-      <div><span className="fb-demo-label">BẢN XEM TRƯỚC</span><Link to="/business/notifications" aria-label={`Thông báo, ${unreadCount} chưa đọc`}><Bell size={19} /></Link><span className="fb-top-avatar" title={state.businessName} aria-label={`Tài khoản ${state.businessName}`}>{state.businessName.charAt(0).toLocaleUpperCase("vi")}</span></div>
-    </header><main id="fb-content" className="fb-main">{content}</main><div className="fb-demo-foot">Prototype Business · Dữ liệu minh họa, lưu trong phiên trình duyệt.</div></div>
-    {mobileNav && <button type="button" className="fb-scrim" aria-label="Đóng menu" onClick={() => setMobileNav(false)} />}
-    {toast && <div className="fb-toast" role="status"><Check size={18} />{toast}<button type="button" aria-label="Đóng thông báo" onClick={() => setToast("")}><X size={17} /></button></div>}
-  </div>;
-}
-
-function Dashboard({ state }: { state: BusinessState }) {
-  const published = state.projects.filter(project => project.status === "published").length;
-  const ongoing = state.projects.filter(project => project.status === "ongoing").length;
-  const fresh = state.candidates.filter(candidate => candidate.status === "new").length;
-  const submitted = state.agreements.flatMap(agreement => agreement.status === "confirmed" ? (agreement.milestones ?? []).filter(milestone => milestone.status === "submitted").map(milestone => ({ agreement, milestone })) : []);
-  const tasks: { id: string; title: string; detail: string; href: string; action: string; icon: typeof Users; tone: string }[] = [];
-  state.projects.forEach(project => {
-    const count = state.candidates.filter(candidate => candidate.projectId === project.id && candidate.status === "new").length;
-    if (count) tasks.push({ id: `applicants-${project.id}`, title: `${count} ứng viên mới cần xem`, detail: `Dự án: ${project.title}`, href: projectPath(project.id, "applicants"), action: `Xem ứng viên (${count})`, icon: Users, tone: "orange" });
-  });
-  submitted.forEach(({ agreement, milestone }) => {
-    const project = projectFor(state, agreement.projectId);
-    if (project) tasks.push({ id: `milestone-${milestone.id}`, title: `${milestone.name} chờ xác nhận`, detail: `${project.title} · Gửi bàn giao ${milestone.submittedAt ?? "gần đây"}`, href: projectPath(project.id, "progress"), action: "Xem bàn giao", icon: Clock3, tone: "green" });
-  });
-  state.notices.filter(notice => !notice.read && notice.title.toLocaleLowerCase("vi").includes("tin nhắn")).forEach(notice => tasks.push({ id: notice.id, title: notice.title, detail: notice.detail, href: notice.href, action: "Mở tin nhắn", icon: MessageCircle, tone: "purple" }));
-  const visibleTasks = tasks.slice(0, 4);
-  const seenThreads = new Set<string>();
-  const recentMessages = [...state.messages].reverse().filter(message => {
-    const project = projectFor(state, message.projectId);
-    if (!project || project.status === "ongoing" && !state.candidates.some(candidate => candidate.projectId === project.id && candidate.talentId === message.talentId && candidate.status === "selected")) return false;
-    const thread = `${message.projectId}:${message.talentId}`;
-    if (seenThreads.has(thread)) return false;
-    seenThreads.add(thread);
-    return true;
-  }).slice(0, 3);
-  const upcoming = state.agreements.flatMap(agreement => agreement.status === "confirmed" ? (agreement.milestones ?? []).filter(milestone => milestone.status !== "completed").map(milestone => ({ agreement, milestone })) : []).sort((a, b) => {
-    const dateKey = (value: string) => value.split("/").reverse().join("");
-    return dateKey(a.milestone.deadline).localeCompare(dateKey(b.milestone.deadline));
-  }).slice(0, 3);
-  return <div className="fb-dash-layout">
-    <div className="fb-dash-main">
-      <section className="fb-dash-welcome"><div><h1>Chào {state.businessName}<span className="fb-dot">.</span></h1><p>Theo dõi tiến độ dự án và tìm cộng sự tài năng cho ý tưởng tiếp theo.</p></div><Link className="fb-button fb-button-primary" to="/business/projects/new"><Plus size={17} /> Đăng dự án mới</Link></section>
-      <div className="fb-dash-stats" aria-label="Số liệu tổng quan">
-        <div><span>Dự án đang tuyển<i className="fb-stat-mark blue" /></span><strong>{published}</strong><small>Dự án nhận ứng tuyển</small></div>
-        <div><span>Đang thực hiện<i className="fb-stat-mark green" /></span><strong>{ongoing}</strong><small>Hợp đồng đang chạy</small></div>
-        <div><span>Ứng tuyển mới<i className="fb-stat-mark orange" /></span><strong>{fresh}</strong><small>Hồ sơ cần xem</small></div>
-        <div><span>Cần phê duyệt<i className="fb-stat-mark amber" /></span><strong>{submitted.length}</strong><small>Mốc đã bàn giao</small></div>
-      </div>
-      <section className="fb-panel fb-dash-priorities"><div className="fb-dash-title-row"><div><h2><span className="fb-priority-dot" /> Cần bạn xử lý <small>{tasks.length} việc ưu tiên</small></h2></div><span>Cập nhật hôm nay</span></div>{visibleTasks.length ? <div className="fb-dash-task-list">{visibleTasks.map(task => <div className="fb-dash-task" key={task.id}><span className={`fb-dash-task-icon ${task.tone}`}><task.icon size={18} strokeWidth={1.8} /></span><div><strong>{task.title}</strong><small>{task.detail}</small></div><Link to={task.href}>{task.action} <ArrowRight size={14} /></Link></div>)}</div> : <p className="fb-dash-empty">Hiện chưa có việc cần xử lý.</p>}</section>
-    </div>
-    <aside className="fb-dash-rail" aria-label="Cập nhật dự án"><section><div className="fb-dash-rail-head"><h2>Tin nhắn gần đây<span className="fb-dot">.</span></h2><Link to="/business/projects">Xem dự án</Link></div>{recentMessages.length ? <div className="fb-dash-message-list">{recentMessages.map(message => { const talent = talentFor(message.talentId); const project = projectFor(state, message.projectId); if (!talent || !project) return null; return <Link key={`${message.projectId}-${message.talentId}`} to={`${projectPath(project.id, "messages")}?talent=${talent.id}`}><TalentAvatar talent={talent} size="sm" /><span><strong>{talent.name}</strong><small>{message.sender === "business" ? `Bạn: ${message.body}` : message.body}</small></span><time>{message.time}</time></Link>; })}</div> : <p className="fb-dash-rail-empty">Chưa có tin nhắn trong các dự án.</p>}</section><section><div className="fb-dash-rail-head"><h2>Mốc sắp tới<span className="fb-dot">.</span></h2><span>Trong hợp đồng</span></div>{upcoming.length ? <div className="fb-dash-milestone-list">{upcoming.map(({ agreement, milestone }) => { const project = projectFor(state, agreement.projectId); if (!project) return null; const [day, month] = milestone.deadline.split("/"); return <Link key={milestone.id} to={projectPath(project.id, "progress")} className={milestone.status === "submitted" ? "is-submitted" : ""}><span className="fb-dash-date"><small>THG {month}</small><strong>{day}</strong></span><span><em>{milestone.status === "submitted" ? "CHỜ DUYỆT BÀN GIAO" : milestone.status === "in_progress" ? "ĐANG THỰC HIỆN" : "SẮP ĐẾN HẠN"}</em><strong>{milestone.name}</strong><small>{project.title}</small></span></Link>; })}</div> : <p className="fb-dash-rail-empty">Chưa có mốc công việc sắp tới.</p>}</section></aside>
-  </div>;
-}
-
-function ProjectsPage({ state }: { state: BusinessState }) {
-  const [filter, setFilter] = useState("all");
-  const [query, setQuery] = useState("");
-  const visible = state.projects.filter(project => (filter === "all" || project.status === filter) && `${project.title} ${project.category}`.toLocaleLowerCase("vi").includes(query.toLocaleLowerCase("vi")));
-  return <><PageHeading eyebrow="QUẢN LÝ DỰ ÁN" title="Dự án của tôi" description="Theo dõi brief, ứng viên, hội thoại và hợp đồng trong từng dự án." action={<Link className="fb-button fb-button-primary" to="/business/projects/new"><Plus size={18} /> Tạo dự án mới</Link>} /><div className="fb-toolbar"><div className="fb-segmented" role="group" aria-label="Lọc trạng thái dự án">{[["all", "Tất cả"], ["published", "Đang tuyển"], ["ongoing", "Đang tiến hành"], ["agreement", "Chờ xác nhận"], ["draft", "Bản nháp"], ["closed", "Đã đóng"]].map(([value, label]) => <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{label}</button>)}</div><label className="fb-search"><Search size={17} /><span className="sr-only">Tìm dự án</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm dự án" /></label></div><div className="fb-project-grid">{visible.map(project => { const count = state.candidates.filter(candidate => candidate.projectId === project.id).length; const selected = state.candidates.find(candidate => candidate.projectId === project.id && candidate.status === "selected"); return <article className="fb-project-card" key={project.id}><div className="fb-card-top"><Badge tone={project.status === "published" || project.status === "ongoing" ? "green" : project.status === "agreement" ? "orange" : "neutral"}>{statusLabel(project.status)}</Badge><span>{project.category}</span></div><h2>{project.title}</h2><p>{project.description}</p><div className="fb-project-metrics"><span><strong>{project.budget}</strong> Ngân sách</span><span><strong>{selected ? talentFor(selected.talentId)?.name : count}</strong> {selected ? "Người thực hiện" : "Ứng viên"}</span><span><strong>{project.deadline || "Chưa đặt"}</strong> Hạn hoàn thành</span></div><Link to={projectPath(project.id)} className="fb-card-link">{project.status === "draft" ? "Tiếp tục brief" : "Xem dự án"}<ArrowRight size={17} /></Link></article>; })}</div>{visible.length === 0 && <Empty title="Không có dự án phù hợp" text="Thử từ khóa hoặc trạng thái khác." />}</>;
-}
-
-function BriefForm({ project, onSave }: { project?: BusinessProject; onSave: (project: BusinessProject) => void }) {
-  const [title, setTitle] = useState(project?.title ?? "");
-  const [category, setCategory] = useState(project?.category ?? "Thiết kế thương hiệu");
-  const [description, setDescription] = useState(project?.description ?? "");
-  const [skills, setSkills] = useState(project?.skills.join(", ") ?? "");
-  const [budget, setBudget] = useState(project?.budget ?? "");
-  const [deadline, setDeadline] = useState(project?.deadline ?? "");
-  const [applicationDeadline, setApplicationDeadline] = useState(project?.applicationDeadline ?? "");
-  const [deliverables, setDeliverables] = useState(project?.deliverables.join("\n") ?? "");
-  const [preference, setPreference] = useState<BusinessProject["preference"]>(project?.preference ?? "both");
-  const [error, setError] = useState("");
-  function save(status: "draft" | "published") {
-    if (!title.trim()) { setError("Vui lòng nhập tên dự án."); return; }
-    if (status === "published" && (!description.trim() || !skills.trim() || !budget.trim() || !deadline.trim() || !deliverables.trim())) { setError("Hãy điền mô tả, kỹ năng, ngân sách, thời hạn và sản phẩm bàn giao trước khi công bố."); return; }
-    setError("");
-    onSave({ id: project?.id ?? `project-${Date.now()}`, title: title.trim(), category, description: description.trim(), skills: skills.split(",").map(value => value.trim()).filter(Boolean), budget: budget.trim(), deadline: deadline.trim(), applicationDeadline: applicationDeadline.trim(), deliverables: deliverables.split("\n").map(value => value.trim()).filter(Boolean), preference, status });
-  }
-  return <><Link className="fb-back" to={project ? projectPath(project.id) : "/business/projects"}><ArrowLeft size={16} /> {project ? "Về dự án" : "Dự án của tôi"}</Link><PageHeading eyebrow="PROJECT BRIEF" title={project ? "Chỉnh sửa brief" : "Tạo dự án mới"} description="Mô tả rõ việc cần làm để freelancer đánh giá cơ hội và đưa ra đề xuất phù hợp." /><div className="fb-form-layout"><form className="fb-form-card" onSubmit={(event: FormEvent) => { event.preventDefault(); save("published"); }}><div className="fb-form-section"><span className="fb-step">01</span><div><h2>Thông tin cơ bản</h2><p>Giới thiệu ngắn về dự án và mục tiêu của bạn.</p></div></div><div className="fb-fields"><label>Tên dự án <span>*</span><input value={title} onChange={event => setTitle(event.target.value)} placeholder="Ví dụ: Thiết kế bộ nhận diện thương hiệu" maxLength={100} /></label><label>Lĩnh vực <span>*</span><span className="fb-select"><select value={category} onChange={event => setCategory(event.target.value)}><option>Thiết kế thương hiệu</option><option>UI/UX & Website</option><option>Nội dung sáng tạo</option><option>Motion & Digital</option></select><ChevronDown size={17} /></span></label><label className="fb-field-full">Mô tả dự án <span>*</span><textarea rows={5} value={description} onChange={event => setDescription(event.target.value)} placeholder="Bạn đang xây dựng điều gì? Mục tiêu và đối tượng sử dụng là ai?" /></label></div><div className="fb-form-section"><span className="fb-step">02</span><div><h2>Yêu cầu và phạm vi</h2><p>Giúp ứng viên hình dung công việc cần thực hiện.</p></div></div><div className="fb-fields"><label className="fb-field-full">Kỹ năng yêu cầu <span>*</span><input value={skills} onChange={event => setSkills(event.target.value)} placeholder="Brand identity, Logo design, Packaging" /><small>Ngăn cách từng kỹ năng bằng dấu phẩy.</small></label><label className="fb-field-full">Sản phẩm bàn giao <span>*</span><textarea rows={4} value={deliverables} onChange={event => setDeliverables(event.target.value)} placeholder={"Logo chính và biến thể\nBảng màu và kiểu chữ\nBộ bài đăng mạng xã hội"} /><small>Mỗi sản phẩm một dòng.</small></label><label>Ngân sách dự kiến <span>*</span><input value={budget} onChange={event => setBudget(event.target.value)} placeholder="Ví dụ: 15–25 triệu" /></label><label>Hạn hoàn thành <span>*</span><input value={deadline} onChange={event => setDeadline(event.target.value)} placeholder="Ví dụ: 30/11/2026" /></label><label>Hạn nhận hồ sơ<input value={applicationDeadline} onChange={event => setApplicationDeadline(event.target.value)} placeholder="Ví dụ: 31/10/2026" /></label><fieldset className="fb-preference"><legend>Ưu tiên bên thực hiện</legend><div>{[["both", "Cả hai"], ["individual", "Cá nhân"], ["team", "Team"]].map(([value, label]) => <label key={value}><input type="radio" name="preference" checked={preference === value} onChange={() => setPreference(value as BusinessProject["preference"])} /> {label}</label>)}</div><small>Ưu tiên hỗ trợ xếp hạng, không loại hồ sơ còn lại.</small></fieldset></div>{error && <p className="fb-form-error" role="alert">{error}</p>}<div className="fb-form-actions"><button className="fb-button fb-button-secondary" type="button" onClick={() => save("draft")}>Lưu bản nháp</button><button className="fb-button fb-button-primary" type="submit">Công bố dự án <ArrowRight size={17} /></button></div></form><aside className="fb-form-aside"><span className="fb-eyebrow">MẸO VIẾT BRIEF</span><h3>Một brief rõ ràng giúp bạn nhận đề xuất sát nhu cầu hơn.</h3><p>Nêu kết quả cần có, thời gian dự kiến và khoảng ngân sách. Bạn có thể lưu nháp rồi bổ sung sau.</p><div><Check size={17} /> Chỉ dự án đã công bố mới nhận ứng tuyển và gửi lời mời.</div></aside></div></>;
-}
-
-function ProjectBrief({ state, project, onClose }: { state: BusinessState; project: BusinessProject; onClose: () => void }) {
-  const selected = state.candidates.find(candidate => candidate.projectId === project.id && candidate.status === "selected");
-  const selectedTalent = selected && talentFor(selected.talentId);
-  return <div className="fb-detail-grid"><div>
-    <section className="fb-panel fb-brief"><div className="fb-section-head"><div><span className="fb-eyebrow">PROJECT BRIEF</span><h2>Thông tin dự án</h2></div>{project.status === "draft" || project.status === "published" ? <Link className="fb-button fb-button-secondary fb-button-small" to={projectPath(project.id, "edit")}>Chỉnh sửa</Link> : null}</div><p>{project.description || "Chưa có mô tả. Hãy hoàn thiện brief trước khi công bố."}</p><div className="fb-facts"><div><small>Ngân sách dự kiến</small><strong>{project.budget || "Chưa đặt"}</strong></div><div><small>Hạn nhận hồ sơ</small><strong>{project.applicationDeadline || "Chưa đặt"}</strong></div><div><small>Hạn hoàn thành</small><strong>{project.deadline || "Chưa đặt"}</strong></div><div><small>Ưu tiên</small><strong>{project.preference === "both" ? "Cá nhân hoặc team" : project.preference === "individual" ? "Cá nhân" : "Team"}</strong></div></div></section>
-    <section className="fb-panel fb-brief"><span className="fb-eyebrow">PHẠM VI CÔNG VIỆC</span><h2>Kỹ năng và bàn giao</h2><h3>Kỹ năng cần có</h3><div className="fb-chips">{project.skills.length ? project.skills.map(skill => <span key={skill}>{skill}</span>) : <span>Chưa thêm kỹ năng</span>}</div><h3>Sản phẩm bàn giao</h3>{project.deliverables.length ? <ul className="fb-check-list">{project.deliverables.map(item => <li key={item}><Check size={17} /> {item}</li>)}</ul> : <p>Chưa thêm sản phẩm bàn giao.</p>}</section>
-  </div><aside className="fb-detail-aside"><div className="fb-panel"><span className="fb-eyebrow">{project.status === "ongoing" ? "NGƯỜI THỰC HIỆN" : "BƯỚC TIẾP THEO"}</span><h2>{project.status === "draft" ? "Hoàn thiện brief" : project.status === "ongoing" ? selectedTalent?.name ?? "Đã chọn người thực hiện" : project.status === "agreement" ? "Chờ freelancer xác nhận" : project.status === "closed" ? "Đã đóng tuyển" : "Tìm người phù hợp"}</h2><p>{project.status === "draft" ? "Điền đủ thông tin để công bố dự án và bắt đầu nhận ứng tuyển." : project.status === "ongoing" ? "Dự án đã chốt người thực hiện. Tin nhắn và hợp đồng được quản lý tại dự án này." : project.status === "agreement" ? "Đề xuất đã gửi. Theo dõi phản hồi trước khi bắt đầu thực hiện dự án." : project.status === "closed" ? "Dự án đã ngừng tuyển ứng viên." : "Xem hồ sơ ứng tuyển hoặc tìm người phù hợp từ danh sách gợi ý."}</p><div className="fb-aside-actions">{project.status === "draft" ? <Link className="fb-button fb-button-primary" to={projectPath(project.id, "edit")}>Tiếp tục brief <ArrowRight size={17} /></Link> : project.status === "ongoing" ? <><Link className="fb-button fb-button-primary" to={projectPath(project.id, "messages")}>Tin nhắn dự án <ArrowRight size={17} /></Link><Link className="fb-button fb-button-secondary" to={projectPath(project.id, "agreement")}>Xem hợp đồng</Link></> : project.status === "agreement" ? <><Link className="fb-button fb-button-primary" to={projectPath(project.id, "agreement")}>Xem thỏa thuận <ArrowRight size={17} /></Link><Link className="fb-button fb-button-secondary" to={projectPath(project.id, "messages")}>Mở tin nhắn</Link></> : project.status === "closed" ? <Link className="fb-button fb-button-secondary" to={projectPath(project.id, "applicants")}>Xem ứng viên</Link> : <><Link className="fb-button fb-button-primary" to={projectPath(project.id, "applicants")}>Xem ứng viên <ArrowRight size={17} /></Link><Link className="fb-button fb-button-secondary" to={projectPath(project.id, "suggestions")}>Khám phá gợi ý</Link></>}</div></div>{project.status === "published" && <button type="button" className="fb-text-button" onClick={() => { if (window.confirm("Đóng tuyển dự án này? Dự án sẽ không nhận ứng tuyển hoặc lời mời mới.")) onClose(); }}>Đóng tuyển dự án</button>}</aside></div>;
-}
-
-function ApplicantsPage({ state, project, onSimulate }: { state: BusinessState; project: BusinessProject; onSimulate: () => void }) {
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("all");
-  const candidates = state.candidates.filter(candidate => candidate.projectId === project.id).filter(candidate => filter === "all" || candidate.status === filter).filter(candidate => talentFor(candidate.talentId)?.name.toLocaleLowerCase("vi").includes(query.toLocaleLowerCase("vi")));
-  return <section className="fb-panel fb-list-panel"><div className="fb-section-head"><div><span className="fb-eyebrow">HỒ SƠ ỨNG TUYỂN</span><h2>Ứng viên của dự án</h2><p>{project.status === "ongoing" ? "Dự án đã chọn người thực hiện. Xem lại hồ sơ và kết quả tuyển chọn tại đây." : "Ứng tuyển hoặc chấp nhận lời mời đều mở hội thoại ngay."}</p></div>{project.status === "published" && <button className="fb-button fb-button-secondary fb-button-small" type="button" onClick={onSimulate}>Mô phỏng ứng tuyển mới</button>}</div><div className="fb-toolbar"><div className="fb-segmented" role="group" aria-label="Lọc ứng viên">{(project.status === "ongoing" ? [["all", "Tất cả"], ["selected", "Đã chọn"], ["not_selected", "Không được chọn"]] : [["all", "Tất cả"], ["new", "Mới"], ["discussing", "Đang trao đổi"], ["offer", "Chờ xác nhận"]]).map(([value, label]) => <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{label}</button>)}</div><label className="fb-search"><Search size={17} /><span className="sr-only">Tìm ứng viên</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tìm ứng viên" /></label></div><div className="fb-candidate-list">{candidates.map(candidate => { const talent = talentFor(candidate.talentId); if (!talent) return null; return <article className="fb-candidate-row" key={candidate.id}><TalentAvatar talent={talent} /><div className="fb-candidate-info"><div><h3>{talent.name}</h3>{candidate.unread && <span className="fb-new-dot" aria-label="Chưa đọc" />}</div><p>{talent.role} · {talent.kind} · {candidate.source}</p><small>{candidate.proposal}</small></div><div className="fb-candidate-end"><Badge tone={candidate.status === "selected" ? "green" : candidate.status === "new" ? "orange" : "neutral"}>{candidateLabel(candidate.status)}</Badge><span>{candidate.received}</span><div><Link to={`/business/talent/${talent.id}?project=${project.id}`}>Xem hồ sơ</Link>{(project.status !== "ongoing" || candidate.status === "selected") && <Link to={`${projectPath(project.id, "messages")}?talent=${talent.id}`}>Mở chat <ArrowRight size={15} /></Link>}</div></div></article>; })}</div>{candidates.length === 0 && <Empty icon={Users} title="Không có ứng viên phù hợp" text="Thử chọn bộ lọc hoặc tên khác." />}</section>;
+  return <BusinessLayout>{content}{toast && <div className="fb-toast" role="status"><Check size={18} />{toast}<button type="button" aria-label="Đóng thông báo" onClick={() => setToast("")}>✕</button></div>}</BusinessLayout>;
 }
 
 function ExecutorPage({ state, project }: { state: BusinessState; project: BusinessProject }) {
@@ -261,17 +158,7 @@ function ProgressPage({ state, project, onComplete }: { state: BusinessState; pr
   return <><div className="fb-section-head fb-outside-head"><div><span className="fb-eyebrow">THEO DÕI THỰC HIỆN</span><h2>Tiến độ dự án</h2><p>Các mốc bên dưới được lấy từ hợp đồng đã xác nhận. Business duyệt khi nhận đủ sản phẩm bàn giao.</p></div><Link className="fb-button fb-button-secondary fb-button-small" to={projectPath(project.id, "agreement")}>Xem hợp đồng <ArrowRight size={16} /></Link></div><div className="fb-progress-layout"><div><section className="fb-panel fb-progress-summary"><div><span className="fb-eyebrow">TIẾN ĐỘ TỔNG THỂ</span><strong>{completed}/{milestones.length} mốc hoàn thành</strong><p>{active ? `${active.name} · ${labels[active.status]}` : "Tất cả các mốc đã hoàn thành."}</p></div><span className="fb-progress-percent">{percent}%</span><div className="fb-progress-bar" role="progressbar" aria-label="Tiến độ dự án" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${percent}%` }} /></div></section><section className="fb-panel fb-progress-panel"><div className="fb-section-head"><div><span className="fb-eyebrow">MỐC TRONG HỢP ĐỒNG</span><h2>Lộ trình công việc</h2></div></div><ol className="fb-progress-list">{milestones.map((milestone, index) => <li key={milestone.id} className={`is-${milestone.status}`}><span className="fb-progress-marker">{milestone.status === "completed" ? <Check size={17} /> : String(index + 1).padStart(2, "0")}</span><div className="fb-progress-item"><div className="fb-progress-item-top"><div><small>MỐC {String(index + 1).padStart(2, "0")}</small><h3>{milestone.name}</h3></div><Badge tone={milestone.status === "completed" ? "green" : milestone.status === "submitted" ? "orange" : "neutral"}>{labels[milestone.status]}</Badge></div><p>{milestone.deliverable}</p><div className="fb-progress-meta"><span>Hạn {milestone.deadline}</span><span>{milestone.amount}</span></div>{milestone.submittedAt && <small className="fb-progress-event">Đã gửi bàn giao {milestone.submittedAt}</small>}{milestone.completedAt && <small className="fb-progress-event">Business xác nhận {milestone.completedAt}</small>}{milestone.status === "submitted" && <button type="button" className="fb-button fb-button-primary fb-button-small" onClick={() => onComplete(project.id, milestone.id)}>Xác nhận hoàn thành <Check size={16} /></button>}</div></li>)}</ol></section></div><aside className="fb-detail-aside"><div className="fb-panel"><span className="fb-eyebrow">NGƯỜI THỰC HIỆN</span><h2>{talentFor(agreement.talentId)?.name}</h2><p>Mọi trao đổi về bàn giao thuộc hội thoại của dự án này.</p><div className="fb-aside-actions"><Link className="fb-button fb-button-secondary" to={projectPath(project.id, "messages")}>Mở tin nhắn <ArrowRight size={17} /></Link></div></div><div className="fb-panel"><span className="fb-eyebrow">ĐÃ THỐNG NHẤT</span><h2>{agreement.budget}</h2><p>Ngân sách và ngày bàn giao hiển thị theo hợp đồng. Xác nhận mốc tại đây chỉ cập nhật tiến độ trong prototype.</p></div></aside></div></>;
 }
 
-function SuggestionsPage({ state, project, onInvite }: { state: BusinessState; project: BusinessProject; onInvite: (projectId: string, talentId: string) => void }) {
-  const [query, setQuery] = useState("");
-  const [kind, setKind] = useState("all");
-  const visible = talents.filter(talent => (kind === "all" || talent.kind === kind) && `${talent.name} ${talent.role} ${talent.skills.join(" ")}`.toLocaleLowerCase("vi").includes(query.toLocaleLowerCase("vi")));
-  return <><div className="fb-section-head fb-outside-head"><div><span className="fb-eyebrow">GỢI Ý THEO BRIEF</span><h2>Freelancer phù hợp</h2><p>Các lý do phù hợp được trình bày để bạn tự đánh giá trước khi mời.</p></div><Badge tone="soft"><Sparkles size={14} /> Gợi ý theo tiêu chí</Badge></div><div className="fb-toolbar"><div className="fb-segmented" role="group" aria-label="Lọc loại hồ sơ">{[["all", "Tất cả"], ["Cá nhân", "Cá nhân"], ["Team", "Team"]].map(([value, label]) => <button key={value} type="button" className={kind === value ? "active" : ""} aria-pressed={kind === value} onClick={() => setKind(value)}>{label}</button>)}</div><label className="fb-search"><Search size={17} /><span className="sr-only">Tìm freelancer</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Tên, kỹ năng, chuyên môn" /></label></div><div className="fb-talent-grid">{visible.map(talent => { const invitation = state.invitations.find(item => item.projectId === project.id && item.talentId === talent.id); return <article className="fb-talent-card" key={talent.id}><div className="fb-talent-top"><TalentAvatar talent={talent} size="lg" /><Badge>{talent.kind}</Badge></div><h3>{talent.name}</h3><p>{talent.role} · {talent.location}</p><div className="fb-fit"><span>Lý do gợi ý</span>{talent.fit.map(item => <div key={item}><Check size={15} /> {item}</div>)}</div><div className="fb-chips">{talent.skills.slice(0, 3).map(skill => <span key={skill}>{skill}</span>)}</div><div className="fb-talent-footer"><Link to={`/business/talent/${talent.id}?project=${project.id}`}>Xem hồ sơ <ArrowRight size={16} /></Link><button className="fb-button fb-button-primary fb-button-small" type="button" disabled={!!invitation || project.status !== "published"} onClick={() => onInvite(project.id, talent.id)}>{invitation ? "Đã mời" : "Gửi lời mời"}</button></div></article>; })}</div>{visible.length === 0 && <Empty icon={SlidersHorizontal} title="Không tìm thấy hồ sơ" text="Thử tên hoặc kỹ năng khác." />}<p className="fb-disclaimer">Dữ liệu gợi ý là minh họa. Prototype chưa tính điểm hoặc dùng AI.</p></>;
-}
 
-function InvitationsPage({ state, project, onAccept }: { state: BusinessState; project: BusinessProject; onAccept: (invitation: Invitation) => void }) {
-  const invitations = state.invitations.filter(invitation => invitation.projectId === project.id);
-  return <section className="fb-panel fb-list-panel"><div className="fb-section-head"><div><span className="fb-eyebrow">LỜI MỜI ĐÃ GỬI</span><h2>Theo dõi phản hồi</h2><p>Lời mời có hiệu lực 7 ngày từ lúc gửi.</p></div><Link className="fb-button fb-button-secondary fb-button-small" to={projectPath(project.id, "suggestions")}>Tìm thêm freelancer</Link></div>{invitations.length ? <div className="fb-candidate-list">{invitations.map(invitation => { const talent = talentFor(invitation.talentId); if (!talent) return null; return <article className="fb-candidate-row" key={invitation.id}><TalentAvatar talent={talent} /><div className="fb-candidate-info"><h3>{talent.name}</h3><p>{talent.role} · {talent.kind}</p><small>Gửi ngày {invitation.sent} · Hết hạn sau 7 ngày</small></div><div className="fb-candidate-end"><Badge tone={invitation.status === "accepted" ? "green" : "orange"}>{invitation.status === "accepted" ? "Đã chấp nhận" : invitation.status === "declined" ? "Đã từ chối" : "Chờ phản hồi"}</Badge>{invitation.status === "pending" ? <button className="fb-button fb-button-secondary fb-button-small" type="button" disabled={project.status !== "published"} onClick={() => onAccept(invitation)}>Mô phỏng chấp nhận</button> : <Link to={`${projectPath(project.id, "messages")}?talent=${talent.id}`}>Mở chat <ArrowRight size={16} /></Link>}</div></article>; })}</div> : <Empty icon={Mail} title="Chưa gửi lời mời" text="Chọn hồ sơ phù hợp từ danh sách gợi ý để bắt đầu." action={<Link className="fb-button fb-button-primary" to={projectPath(project.id, "suggestions")}>Xem gợi ý</Link>} />}</section>;
-}
 
 function TalentProfile({ state, talentId, projectId, onInvite }: { state: BusinessState; talentId: string; projectId: string; onInvite: (projectId: string, talentId: string) => void }) {
   const talent = talentFor(talentId);

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
+import type { UserRole } from "@/lib/types/marketplace.types";
 import {
   Box,
   Typography,
@@ -9,8 +11,9 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Chip,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, BusinessOutlined, PersonOutlined } from "@mui/icons-material";
 
 type LoginErrors = { email?: string; password?: string };
 const compactDesktop = "@media (min-width:900px) and (max-height:800px)";
@@ -25,6 +28,10 @@ export default function LoginPage() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  const { login } = useAuthSession();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Đăng nhập | FREVO";
@@ -32,6 +39,22 @@ export default function LoginPage() {
       document.title = previousTitle;
     };
   }, []);
+
+  async function performLogin(targetEmail: string, targetRole?: UserRole) {
+    await login(targetEmail, targetRole);
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+    if (from && from !== "/login") {
+      navigate(from, { replace: true });
+    } else {
+      const isClient =
+        targetRole === "client" ||
+        (!targetRole &&
+          (targetEmail.includes("client") ||
+            targetEmail.includes("nang") ||
+            targetEmail.includes("business")));
+      navigate(isClient ? "/business" : "/projects", { replace: true });
+    }
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,10 +68,9 @@ export default function LoginPage() {
     setNotice("");
     if (nextErrors.email) emailRef.current?.focus();
     else if (nextErrors.password) passwordRef.current?.focus();
-    else
-      setNotice(
-        "Đây là bản giao diện mẫu. Chức năng đăng nhập chưa được kết nối."
-      );
+    else {
+      performLogin(email.trim());
+    }
   }
 
   return (
@@ -384,6 +406,33 @@ export default function LoginPage() {
               >
                 Đăng nhập
               </Button>
+
+              {/* Demo Mode Quick Access */}
+              <Box sx={{ mt: 3, pt: 2, borderTop: "1px dashed #e4dfd7", textAlign: "center" }}>
+                <Typography variant="caption" sx={{ color: "#7a7d7b", display: "block", mb: 1.5 }}>
+                  Chế độ thử nghiệm · Đăng nhập nhanh một chạm:
+                </Typography>
+                <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", flexWrap: "wrap" }}>
+                  <Chip
+                    icon={<BusinessOutlined />}
+                    label="Doanh nghiệp (Nắng Studio)"
+                    clickable
+                    color="primary"
+                    variant="outlined"
+                    onClick={() => performLogin("contact@nangstudio.vn", "client")}
+                    sx={{ fontWeight: 600, py: 1 }}
+                  />
+                  <Chip
+                    icon={<PersonOutlined />}
+                    label="Freelancer (Minh Anh)"
+                    clickable
+                    color="default"
+                    variant="outlined"
+                    onClick={() => performLogin("minhanh.design@frevo.vn", "freelancer")}
+                    sx={{ fontWeight: 600, py: 1 }}
+                  />
+                </Box>
+              </Box>
 
               {notice && (
                 <Box
