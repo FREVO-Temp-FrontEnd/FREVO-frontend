@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { isDemoMode } from "@/lib/api/projectsApi";
 import { useProjects } from "@/lib/hooks/useProjects";
 import type { SortMode } from "@/lib/types/project.types";
 import { ProjectFilters } from "@/features/projects/dashboard/ProjectFilters";
-import { FreelancerNav, type ProjectView } from "@/components/freelancer/FreelancerNav";
-import { FreelancerHeader } from "@/components/freelancer/FreelancerHeader";
+import { FreelancerNav, type ProjectView } from "./components/FreelancerNav";
 import { ProjectList } from "@/features/projects/dashboard/ProjectList";
 import { ProjectDetail } from "@/features/projects/details/ProjectDetail";
 import { ProjectApplyDialog } from "@/features/projects/application/ProjectApplyDialog";
@@ -83,12 +81,6 @@ export default function FreelancerHomePage() {
 
   return (
     <>
-      <a className="skip-link" href="#main">
-        Đi đến nội dung chính
-      </a>
-      <FreelancerHeader />
-      {isDemoMode && <p className="prototype-note">Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.</p>}
-
       <div className="page-grid grid freelancer-home">
         <FreelancerNav view={view} onViewChange={changeView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />
 
