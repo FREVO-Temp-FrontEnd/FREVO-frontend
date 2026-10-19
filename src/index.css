@@ -80,7 +80,9 @@ h1,h2,h3{font-family:Archivo,Arial,sans-serif}
 .interactive-card{transition:border-color .15s ease,box-shadow .15s ease}
 .interactive-card:hover,.interactive-card:focus-within{border-color:#c4cbc5;box-shadow:0 4px 14px #20201f0d}
 .interactive-card.selected{border-color:#d29b85;box-shadow:0 2px 10px #20201f0d}
-.project-card{position:relative;min-height:191px;padding:20px;border:2px solid transparent;border-radius:var(--radius);background:var(--card)}
+.project-card{position:relative;min-height:191px;padding:20px;border:2px solid var(--muted);border-radius:var(--radius);background:var(--card)}
+.project-card.interactive-card:not(.selected):hover,.project-card.interactive-card:not(.selected):focus-within{border-color:var(--muted);box-shadow:none}
+.project-card.interactive-card.selected{border-color:var(--ink);background:var(--card);box-shadow:4px 4px 0 var(--orange)}
 .card-main{display:block;width:calc(100% - 43px);padding:0;border:0;background:none;text-align:left;color:inherit}
 .card-top{display:flex;align-items:center;gap:9px;min-height:24px}
 .category-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;line-height:1.3;white-space:nowrap}
@@ -103,6 +105,8 @@ h1,h2,h3{font-family:Archivo,Arial,sans-serif}
 .bookmark[aria-pressed=true]{border-color:#f7cab9;background:var(--peach);color:var(--orange-dark)}
 .bookmark[aria-pressed=true]:hover{border-color:#e9ac94;background:#ffe5d9;color:#a33310}
 .bookmark:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.project-card.selected .bookmark{border:2px solid var(--ink);color:var(--ink)}
+.project-card.selected .bookmark[aria-pressed=true],.project-card.selected .bookmark[aria-pressed=true]:hover{border-color:var(--ink);background:var(--orange);color:var(--ink)}
 .card-bottom{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:3px;padding-top:15px;border-top:1px solid #eceeeb}
 .card-facts{display:flex;gap:26px;margin:0}
 .card-facts div{min-width:70px}
