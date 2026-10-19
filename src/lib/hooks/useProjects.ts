@@ -5,6 +5,18 @@ import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/util/formatters";
 
+const SAVED_PROJECTS_KEY = "frevo-saved-projects";
+
+function loadSavedProjectIds(): Set<string> {
+  try {
+    const stored = sessionStorage.getItem(SAVED_PROJECTS_KEY);
+    if (stored) return new Set(JSON.parse(stored) as string[]);
+  } catch {
+    // Keep bookmarks available in memory if browser storage is unavailable.
+  }
+  return new Set(["spa"]);
+}
+
 function currentTalentId() {
   const user = mockStorage.getActiveUser();
   if (user.role === "freelancer" && user.actingIdentity?.type === "team") return "may-creative";
@@ -31,7 +43,7 @@ export function useProjects() {
   const [minimumBudget, setMinimumBudget] = useState(0);
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("newest");
-  const [saved, setSaved] = useState(() => new Set(["spa"]));
+  const [saved, setSaved] = useState(loadSavedProjectIds);
   const [applied, setApplied] = useState(appliedProjectIds);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [applyingId, setApplyingId] = useState<string | null>(null);
@@ -137,6 +149,11 @@ export function useProjects() {
       const next = new Set(previous);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      try {
+        sessionStorage.setItem(SAVED_PROJECTS_KEY, JSON.stringify([...next]));
+      } catch {
+        // The current page still reflects the user's choice.
+      }
       return next;
     });
   }

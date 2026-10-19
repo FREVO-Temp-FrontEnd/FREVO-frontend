@@ -1,14 +1,17 @@
 import { Link } from "react-router";
 import { NotificationsBell } from "./NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { useFreelancer } from "@/lib/hooks/useFreelancer";
 import { externalNavConfig } from "@/lib/config/navigation";
-import { Button, Chip } from "@mui/material";
-import { ExternalLink, ArrowLeftRight, Mail, Briefcase, Users } from "lucide-react";
+import { Chip } from "@mui/material";
+import { ExternalLink, ArrowLeftRight, Menu } from "lucide-react";
 
-export function FreelancerHeader() {
+interface FreelancerHeaderProps {
+  mobileNavOpen: boolean;
+  onToggleMobileNav: () => void;
+}
+
+export function FreelancerHeader({ mobileNavOpen, onToggleMobileNav }: FreelancerHeaderProps) {
   const { user, role, switchRole } = useAuthSession();
-  const { pendingInvitationsCount } = useFreelancer();
 
   const isGuest = role === "guest";
   const displayName = user?.name || (role === "client" ? "Nắng Studio" : "Minh Anh");
@@ -24,7 +27,17 @@ export function FreelancerHeader() {
   return (
     <header className="site-header freelancer-header flex items-center justify-between">
       <div className="header-left flex items-center gap-3">
-        <Link to="/" aria-label="FREVO - Khám phá dự án">
+        <button
+          type="button"
+          className="freelancer-mobile-menu"
+          aria-label="Mở menu điều hướng"
+          aria-expanded={mobileNavOpen}
+          aria-controls="freelancer-mobile-navigation"
+          onClick={onToggleMobileNav}
+        >
+          <Menu size={22} aria-hidden="true" />
+        </button>
+        <Link to="/" className="freelancer-header-logo" aria-label="FREVO - Khám phá dự án">
           <img className="logo" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
         </Link>
         <span className="header-divider" aria-hidden="true" />
@@ -32,53 +45,12 @@ export function FreelancerHeader() {
           {isGuest ? "Khám phá dự án (Khách)" : "Khám phá dự án"}
         </Link>
 
-        {/* Freelancer Invitations Link (FL-010) */}
-        {!isGuest && (
-          <Link
-            to="/freelancer/invitations"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Xem các lời mời hợp tác từ Doanh nghiệp (FL-010)"
-          >
-            <Mail size={13} />
-            <span>Lời mời</span>
-            {pendingInvitationsCount > 0 && (
-              <span className="bg-orange-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight">
-                {pendingInvitationsCount}
-              </span>
-            )}
-          </Link>
-        )}
-
-        {/* Freelancer Applications Link (FL-009) */}
-        {!isGuest && (
-          <Link
-            to="/freelancer/applications"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-1 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Quản lý các dự án đã ứng tuyển (FL-009)"
-          >
-            <Briefcase size={13} />
-            <span>Đã ứng tuyển</span>
-          </Link>
-        )}
-
-        {/* Team Profile Link (TEAM-001) */}
-        {!isGuest && (
-          <Link
-            to="/team/profile"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-1 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Hồ sơ Nhóm sáng tạo & Phân quyền (TEAM-001)"
-          >
-            <Users size={13} />
-            <span>Nhóm (Team)</span>
-          </Link>
-        )}
-
         {/* Link to external Next.js landing page per Decision 1 */}
         <a
           href={externalNavConfig.landingPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 flex items-center gap-1 ml-2 transition-colors"
+          className="freelancer-external-link text-xs font-semibold text-neutral-500 hover:text-neutral-900 flex items-center gap-1 ml-2 transition-colors"
           title="Mở Trang giới thiệu FREVO (Next.js)"
         >
           <span>Trang giới thiệu</span>
@@ -106,6 +78,7 @@ export function FreelancerHeader() {
           <>
             {/* Quick role switcher chip for easy prototype demoing */}
             <Chip
+              className="freelancer-role-chip"
               size="small"
               icon={<ArrowLeftRight size={14} />}
               label={`Vai trò: ${displayRole}`}
@@ -150,15 +123,6 @@ export function FreelancerHeader() {
               </Link>
             )}
 
-            <Button
-              size="small"
-              onClick={() => {
-                switchRole("guest");
-              }}
-              sx={{ color: "text.secondary", textTransform: "none", fontSize: 12, minWidth: "auto", px: 1 }}
-            >
-              Đăng xuất
-            </Button>
           </>
         )}
       </div>

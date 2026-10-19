@@ -1,43 +1,41 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import {
   Box,
   Typography,
   Button as MuiButton,
 } from "@mui/material";
 import {
-  ArrowLeft,
   BriefcaseBusiness,
   Eye,
   FolderOpen,
   Heart,
-  MapPin,
   Pencil,
   Plus,
   SlidersHorizontal,
-  Sparkles,
   UserRound,
   Users,
   Wallet,
 } from "lucide-react";
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import type { Work } from "@/lib/types/portfolio.types";
 import { EditProfileDialog, type EditRequest } from "../components/EditProfileDialog";
 import { PortfolioEditor } from "../components/PortfolioEditor";
 import { PortfolioCover } from "../components/PortfolioCover";
+import { CVTab } from "../components/CVTab";
+import { ProfileSidebar } from "../components/ProfileSidebar";
+import { PROFILE_TABS } from "../data/profile-tabs";
 
-const tabs = [
-  { id: "personal", label: "Thông tin cá nhân", icon: UserRound },
-  { id: "portfolio", label: "Portfolio", icon: FolderOpen },
-  { id: "experience", label: "Kinh nghiệm & Kỹ năng", icon: Sparkles },
-  { id: "services", label: "Dịch vụ & Báo giá", icon: Wallet },
-];
+const tabs = PROFILE_TABS;
 
 function splitTags(value: string) {
   return [...new Set(value.split(",").map((tag) => tag.trim()).filter(Boolean))];
 }
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useAuthSession();
   const [params] = useSearchParams();
   const activeTab = tabs.some((tab) => tab.id === params.get("tab"))
     ? params.get("tab")!
@@ -154,231 +152,30 @@ export default function ProfilePage() {
 
   return (
     <>
-      <a className="skip-link" href="#profile-content">
-        Đến nội dung hồ sơ
-      </a>
-      <header className="site-header">
-        <div className="header-left">
-          <Link to="/" aria-label="FREVO — Khám phá dự án">
-            <img className="logo" src="/assets/frevo-logo.png" alt="FREVO" />
-          </Link>
-          <span className="header-divider" />
-          <span className="screen-name">Hồ sơ của tôi</span>
-        </div>
-        <Link
-          to="/profile"
-          className="account"
-          aria-label={`Tài khoản của ${personal.name}`}
-          aria-current="page"
-        >
-          <span className="account-copy">
-            <strong>{personal.name}</strong>
-            <small>Freelancer</small>
-          </span>
-          <span className="avatar grid place-items-center">{initials}</span>
-        </Link>
-      </header>
-
       <Box
         sx={{
           maxWidth: "1480px",
           margin: "auto",
           display: { xs: "block", md: "grid" },
           gridTemplateColumns: {
-            md: "190px minmax(0, 1fr)",
-            lg: "215px minmax(0, 1fr)",
+            md: "220px minmax(0, 1fr)",
+            lg: "240px minmax(0, 1fr)",
           },
           gap: { md: "24px", lg: "32px" },
           p: { xs: "20px 16px 40px", md: "24px", lg: "28px 28px 60px" },
         }}
       >
         {/* Sidebar */}
-        <Box
-          component="aside"
-          sx={{
-            alignSelf: "start",
-            position: { xs: "static", md: "sticky" },
-            top: "104px",
+        <ProfileSidebar
+          personal={personal}
+          initials={initials}
+          activeTab={activeTab}
+          isAuthenticated={isAuthenticated}
+          onLogout={() => {
+            logout();
+            navigate("/");
           }}
-        >
-          <Link
-            to="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "9px",
-              color: "#5b605a",
-              fontSize: "13px",
-              textDecoration: "none",
-              marginBottom: "24px",
-            }}
-          >
-            <ArrowLeft size={16} /> Khám phá dự án
-          </Link>
-
-          <Box
-            sx={{
-              display: { xs: "none", md: "block" },
-              py: "30px 26px",
-              borderBottom: "1px solid var(--line, #e4e6e2)",
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                display: "grid",
-                placeItems: "center",
-                width: "76px",
-                height: "76px",
-                border: "2px solid var(--ink, #20201f)",
-                borderRadius: "50%",
-                bgcolor: "var(--peach, #fff0e9)",
-                fontSize: "25px",
-                fontWeight: 700,
-                boxShadow: "3px 3px 0 var(--ink, #20201f)",
-                mb: "20px",
-                "& > span": {
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  width: "17px",
-                  height: "17px",
-                  border: "3px solid var(--bg, #f7f8f6)",
-                  borderRadius: "50%",
-                  bgcolor: "#3c7650",
-                },
-              }}
-            >
-              {initials}
-              <span />
-            </Box>
-            <Typography
-              component="h2"
-              sx={{
-                fontSize: "28px",
-                fontWeight: 900,
-                letterSpacing: "-.045em",
-                fontFamily: "Archivo, Arial, sans-serif",
-                overflowWrap: "anywhere",
-                "& > span": { color: "var(--orange, #f4490b)" },
-              }}
-            >
-              {personal.name}
-              <span>.</span>
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: "13px",
-                mt: "5px",
-                color: "#5b605a",
-                overflowWrap: "anywhere",
-              }}
-            >
-              {personal.specialty}
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: "5px",
-                alignItems: "center",
-                fontSize: "12px",
-                color: "#656b63",
-                mt: "12px",
-              }}
-            >
-              <MapPin size={14} /> {personal.location}
-            </Box>
-            <Box
-              component="span"
-              sx={{
-                display: "inline-block",
-                color: "#336447",
-                bgcolor: "#eaf2e9",
-                borderRadius: "99px",
-                px: "10px",
-                py: "5px",
-                fontSize: "11px",
-                mt: "16px",
-                fontWeight: 600,
-              }}
-            >
-              {personal.availability}
-            </Box>
-          </Box>
-
-          <Box
-            component="nav"
-            aria-label="Các mục hồ sơ"
-            sx={{
-              display: { xs: "none", md: "grid" },
-              gap: "6px",
-              py: "22px 0",
-              "& a": {
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                borderRadius: "9px",
-                p: "12px 10px",
-                fontSize: "13px",
-                color: "#5b605a",
-                textDecoration: "none",
-                "&[aria-current=page]": {
-                  bgcolor: "var(--peach, #fff0e9)",
-                  color: "var(--orange-dark, #bd3d14)",
-                  fontWeight: 700,
-                },
-                "&:hover": {
-                  bgcolor: "var(--peach, #fff0e9)",
-                },
-                "& > span": {
-                  ml: "auto",
-                  fontSize: "11px",
-                },
-              },
-            }}
-          >
-            {tabs.map((tab) => (
-              <Link
-                key={tab.id}
-                to={`/profile?tab=${tab.id}`}
-                aria-current={activeTab === tab.id ? "page" : undefined}
-              >
-                <tab.icon size={18} />
-                {tab.label}
-                {tab.id === "portfolio" && <span>{works.length}</span>}
-              </Link>
-            ))}
-          </Box>
-
-          <Box
-            sx={{
-              display: { xs: "none", md: "block" },
-              mt: "28px",
-              p: "22px 18px",
-              bgcolor: "var(--peach, #fff0e9)",
-              borderRadius: "var(--radius, 13px)",
-              "& > svg": { color: "var(--orange-dark, #bd3d14)" },
-              "& h3": {
-                mt: "12px",
-                fontSize: "16px",
-                fontWeight: 800,
-                fontFamily: "Archivo, Arial, sans-serif",
-              },
-              "& p": {
-                mt: "9px",
-                fontSize: "12px",
-                lineHeight: 1.65,
-                color: "#72635b",
-              },
-            }}
-          >
-            <Sparkles size={22} />
-            <h3>Để tác phẩm lên tiếng.</h3>
-            <p>
-              Chia sẻ những dự án thể hiện rõ nhất cá tính và cách bạn sáng tạo.
-            </p>
-          </Box>
-        </Box>
+        />
 
         {/* Main Content */}
         <Box component="main" id="profile-content" sx={{ minWidth: 0 }}>
@@ -386,42 +183,40 @@ export default function ProfilePage() {
             component="nav"
             aria-label="Điều hướng hồ sơ"
             sx={{
-              display: "flex",
-              gap: { xs: "22px", sm: "20px", lg: "24px" },
-              borderBottom: "1px solid var(--line, #e4e6e2)",
-              overflowX: "auto",
+              display: { xs: "grid", md: "none" },
+              gridTemplateColumns: {
+                xs: "repeat(2, minmax(0, 1fr))",
+                sm: "repeat(3, minmax(0, 1fr))",
+              },
+              gap: "8px",
               "& a": {
-                position: "relative",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
-                whiteSpace: "nowrap",
-                p: { xs: "8px 0 15px", sm: "8px 0 19px" },
+                minWidth: 0,
+                minHeight: "56px",
+                p: "10px 12px",
+                border: "1px solid var(--line, #e4e6e2)",
+                borderRadius: "10px",
+                bgcolor: "#fff",
                 color: "#5b605a",
-                fontSize: { xs: "12px", sm: "11px", lg: "12px" },
-                fontWeight: 500,
+                fontSize: "12px",
+                fontWeight: 600,
+                lineHeight: 1.3,
                 textDecoration: "none",
+                overflowWrap: "anywhere",
                 "&[aria-current=page]": {
                   color: "var(--orange-dark, #bd3d14)",
                   fontWeight: 700,
-                  "&:after": {
-                    content: "''",
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "3px",
-                    bgcolor: "var(--orange, #f4490b)",
-                  },
-                },
-                "& > span": {
+                  borderColor: "#ffd4c3",
                   bgcolor: "var(--peach, #fff0e9)",
-                  px: "6px",
-                  borderRadius: "20px",
-                  fontSize: "10px",
+                },
+                "&:focus-visible": {
+                  outline: "2px solid var(--orange, #f4490b)",
+                  outlineOffset: "2px",
                 },
                 "& svg": {
-                  display: { xs: "block", sm: "none", md: "block" },
+                  flexShrink: 0,
                 },
               },
             }}
@@ -434,7 +229,6 @@ export default function ProfilePage() {
               >
                 <tab.icon size={16} />
                 {tab.label}
-                {tab.id === "portfolio" && <span>{works.length}</span>}
               </Link>
             ))}
           </Box>
@@ -490,30 +284,18 @@ export default function ProfilePage() {
                 </div>
                 <MuiButton
                   variant="contained"
+                  color="primary"
+                  startIcon={<Plus size={17} />}
                   onClick={() => setPortfolioEditor({ work: null })}
                   sx={{
                     width: { xs: "100%", sm: "auto" },
                     flexShrink: 0,
                     minHeight: "45px",
                     px: "20px",
-                    borderRadius: "999px",
-                    bgcolor: "var(--orange, #f4490b)",
-                    color: "#1b1b19",
                     fontSize: "13px",
-                    fontWeight: 900,
-                    textTransform: "none",
-                    boxShadow: "2px 3px 0 #242521",
-                    border: "2px solid #262724",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "7px",
-                    "&:hover": {
-                      bgcolor: "#ff5b1c",
-                      boxShadow: "2px 3px 0 #242521",
-                    },
                   }}
                 >
-                  <Plus size={17} /> Thêm dự án mới
+                  Thêm dự án mới
                 </MuiButton>
               </Box>
 
@@ -889,6 +671,8 @@ export default function ProfilePage() {
                 </Box>
               </Box>
             </>
+          ) : activeTab === "cv" ? (
+            <CVTab ownerId={isAuthenticated ? user?.id : undefined} seedDemoResumes={isAuthenticated} />
           ) : activeTab === "personal" ? (
             <>
               <Box
