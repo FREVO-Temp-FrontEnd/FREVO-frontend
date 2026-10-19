@@ -3,9 +3,14 @@ import { NotificationsBell } from "./NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { externalNavConfig } from "@/lib/config/navigation";
 import { Chip } from "@mui/material";
-import { ExternalLink, ArrowLeftRight } from "lucide-react";
+import { ExternalLink, ArrowLeftRight, Menu } from "lucide-react";
 
-export function FreelancerHeader() {
+interface FreelancerHeaderProps {
+  mobileNavOpen: boolean;
+  onToggleMobileNav: () => void;
+}
+
+export function FreelancerHeader({ mobileNavOpen, onToggleMobileNav }: FreelancerHeaderProps) {
   const { user, role, switchRole } = useAuthSession();
 
   const isGuest = role === "guest";
@@ -22,7 +27,17 @@ export function FreelancerHeader() {
   return (
     <header className="site-header freelancer-header flex items-center justify-between">
       <div className="header-left flex items-center gap-3">
-        <Link to="/" aria-label="FREVO - Khám phá dự án">
+        <button
+          type="button"
+          className="freelancer-mobile-menu"
+          aria-label="Mở menu điều hướng"
+          aria-expanded={mobileNavOpen}
+          aria-controls="freelancer-mobile-navigation"
+          onClick={onToggleMobileNav}
+        >
+          <Menu size={22} aria-hidden="true" />
+        </button>
+        <Link to="/" className="freelancer-header-logo" aria-label="FREVO - Khám phá dự án">
           <img className="logo" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
         </Link>
         <span className="header-divider" aria-hidden="true" />
@@ -35,7 +50,7 @@ export function FreelancerHeader() {
           href={externalNavConfig.landingPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 flex items-center gap-1 ml-2 transition-colors"
+          className="freelancer-external-link text-xs font-semibold text-neutral-500 hover:text-neutral-900 flex items-center gap-1 ml-2 transition-colors"
           title="Mở Trang giới thiệu FREVO (Next.js)"
         >
           <span>Trang giới thiệu</span>
@@ -63,6 +78,7 @@ export function FreelancerHeader() {
           <>
             {/* Quick role switcher chip for easy prototype demoing */}
             <Chip
+              className="freelancer-role-chip"
               size="small"
               icon={<ArrowLeftRight size={14} />}
               label={`Vai trò: ${displayRole}`}

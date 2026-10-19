@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { Typography } from "@mui/material";
+import { Drawer, Typography, useMediaQuery } from "@mui/material";
 import { FreelancerHeader } from "../components/FreelancerHeader";
 import { GuestBanner } from "@/features/public/components/GuestBanner";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
@@ -13,7 +13,12 @@ export default function FreelancerLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [navNotice, setNavNotice] = useState("");
+  const [mobileNavRoute, setMobileNavRoute] = useState<string | null>(null);
+  const isMobileNav = useMediaQuery("(max-width:780px)");
+  const mobileNavOpen = mobileNavRoute === location.key;
   const currentPath = location.pathname.replace(/\/+$/, "") || "/";
+  const selectedView = new URLSearchParams(location.search).get("view");
+  const projectView: ProjectView = selectedView === "saved" || selectedView === "recommended" ? selectedView : "discover";
   const secondaryPaths = ["/freelancer/invitations", "/freelancer/applications", "/team/profile"];
   const showSecondaryNav = secondaryPaths.includes(currentPath);
   const skipTarget = currentPath === "/profile"
@@ -32,7 +37,33 @@ export default function FreelancerLayout() {
         Đi đến nội dung chính
       </a>
       {role === "guest" && <GuestBanner />}
-      <FreelancerHeader />
+      <FreelancerHeader
+        mobileNavOpen={mobileNavOpen}
+        onToggleMobileNav={() => setMobileNavRoute(mobileNavOpen ? null : location.key)}
+      />
+      <Drawer
+        anchor="left"
+        open={mobileNavOpen && isMobileNav}
+        onClose={() => setMobileNavRoute(null)}
+        className="freelancer-mobile-drawer"
+        sx={{ zIndex: 10000 }}
+        slotProps={{ paper: { id: "freelancer-mobile-navigation" } }}
+      >
+        <FreelancerNav
+          view={projectView}
+          showBrand
+          jobNavId="freelancer-mobile-job-nav-options"
+          onViewChange={(view) => {
+            setMobileNavRoute(null);
+            openProjectView(view);
+          }}
+          onUnavailable={(label) => {
+            setMobileNavRoute(null);
+            setNavNotice(`${label} đang được phát triển.`);
+          }}
+          onNavigate={() => setMobileNavRoute(null)}
+        />
+      </Drawer>
       {isDemoMode && (
         <Typography
           sx={{
