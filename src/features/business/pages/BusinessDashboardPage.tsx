@@ -187,7 +187,10 @@ export function BusinessDashboardPage() {
                     <strong>{task.title}</strong>
                     <small>{task.detail}</small>
                   </div>
-                  <Link to={task.href}>
+                  <Link
+                    className={`fb-button fb-button-small ${task.tone === "orange" ? "fb-button-primary" : "fb-button-secondary"}`}
+                    to={task.href}
+                  >
                     {task.action} <ArrowRight size={14} />
                   </Link>
                 </div>

@@ -9,7 +9,7 @@ import {
   keyframes,
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
-import { Send, X, Info, Coffee, Leaf, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
+import { Send, RotateCcw, X, Info, Coffee, Leaf, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/util/formatters";
 import { isDemoMode } from "@/lib/api/projectsApi";
 
@@ -33,6 +33,7 @@ interface ProjectApplyDialogProps {
   isOpen: boolean;
   onClose: () => void;
   project?: Project;
+  reapplying: boolean;
   proposal: string;
   setProposal: (val: string) => void;
   portfolio: string;
@@ -46,6 +47,7 @@ export function ProjectApplyDialog({
   isOpen,
   onClose,
   project,
+  reapplying,
   proposal,
   setProposal,
   portfolio,
@@ -134,7 +136,7 @@ export function ProjectApplyDialog({
                 flexShrink: 0,
               }}
             >
-              <Send size={18} />
+              {reapplying ? <RotateCcw size={18} aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
             </Box>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
@@ -149,7 +151,7 @@ export function ProjectApplyDialog({
                   m: 0,
                 }}
               >
-                Ứng tuyển dự án
+                {reapplying ? "Ứng tuyển lại dự án" : "Ứng tuyển dự án"}
                 <Typography component="span" sx={{ color: "#ab2e00", fontWeight: 900, fontSize: "inherit" }}>
                   .
                 </Typography>
@@ -230,6 +232,12 @@ export function ProjectApplyDialog({
               >
                 <Info size={13} aria-hidden="true" />
                 Thao tác ứng tuyển minh họa — dữ liệu không lưu thật.
+              </Typography>
+            )}
+
+            {reapplying && (
+              <Typography sx={{ mb: "16px", color: "#4c7651", fontSize: 12, fontWeight: 700 }}>
+                Bạn đã ứng tuyển dự án này. Gửi lại sẽ cập nhật hồ sơ hiện có.
               </Typography>
             )}
 
@@ -402,11 +410,10 @@ export function ProjectApplyDialog({
                   htmlFor="proposal"
                   sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c" }}
                 >
-                  Thư đề xuất &amp; Kế hoạch (Proposal){" "}
-                  <span style={{ color: "#ab2e00" }}>*</span>
+                  Thư đề xuất &amp; Kế hoạch (Proposal)
                 </Typography>
                 <Typography component="span" sx={{ fontSize: 11, color: "#907067" }}>
-                  Bắt buộc
+                  Không bắt buộc
                 </Typography>
               </Box>
 
@@ -418,7 +425,6 @@ export function ProjectApplyDialog({
                 onChange={(e) => setProposal(e.target.value)}
                 maxLength={2000}
                 minLength={50}
-                required
                 placeholder="Vì sao bạn phù hợp với dự án này? Cách bạn sẽ tiếp cận..."
                 sx={{
                   width: "100%",
@@ -788,8 +794,8 @@ export function ProjectApplyDialog({
                 },
               }}
             >
-              <Send size={15} />
-              {submitting ? "Đang gửi..." : "Gửi đơn ứng tuyển"}
+              {reapplying ? <RotateCcw size={15} aria-hidden="true" /> : <Send size={15} aria-hidden="true" />}
+              {submitting ? "Đang gửi..." : reapplying ? "Gửi lại đơn ứng tuyển" : "Gửi đơn ứng tuyển"}
             </Button>
           </Box>
         </Box>

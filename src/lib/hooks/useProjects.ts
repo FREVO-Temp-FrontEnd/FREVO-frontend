@@ -1,9 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { projectsApi } from "@/lib/api/projectsApi";
+import { isDemoMode, projectsApi } from "@/lib/api/projectsApi";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/util/formatters";
+
+function currentTalentId() {
+  const user = mockStorage.getActiveUser();
+  if (user.role === "freelancer" && user.actingIdentity?.type === "team") return "may-creative";
+  return mockStorage.getTalents().some((talent) => talent.id === user.id) ? user.id : "minh-anh";
+}
+
+function appliedProjectIds() {
+  const talentId = currentTalentId();
+  return new Set(
+    mockStorage.getCandidates()
+      .filter((candidate) => candidate.talentId === talentId && candidate.source.includes("Ứng tuyển"))
+      .map((candidate) => candidate.projectId)
+  );
+}
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>(() =>
@@ -17,7 +32,7 @@ export function useProjects() {
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [saved, setSaved] = useState(() => new Set(["spa"]));
-  const [applied, setApplied] = useState(() => new Set(["bakery"]));
+  const [applied, setApplied] = useState(appliedProjectIds);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [proposal, setProposal] = useState("");
@@ -56,6 +71,7 @@ export function useProjects() {
     // Reactive subscription to cross-role project creations/publications
     const unsub = mockStorage.subscribe(() => {
       setProjects((prev) => mergeProjectsWithStorage(prev, mockStorage.getProjects()));
+      setApplied(appliedProjectIds());
     });
 
     return () => {
@@ -139,6 +155,15 @@ export function useProjects() {
   async function submitApplication(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!applyingId || !event.currentTarget.reportValidity()) return;
+    if (proposal.trim() && proposal.trim().length < 50) {
+      setSubmitError("Thư đề xuất cần ít nhất 50 ký tự nếu bạn chọn nhập.");
+      return;
+    }
+    const reapplying = applied.has(applyingId);
+    if (reapplying && !isDemoMode) {
+      setSubmitError("Chưa thể ứng tuyển lại khi kết nối API: dịch vụ hiện chưa có luồng cập nhật đơn ứng tuyển.");
+      return;
+    }
     const formData = new FormData(event.currentTarget);
     const proposedBudget = String(formData.get("proposedBudget") ?? "").trim();
     const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
@@ -160,16 +185,12 @@ export function useProjects() {
         proposal: applicationProposal,
         portfolioUrl: portfolio,
       });
-      const activeUser = mockStorage.getActiveUser();
-      const talentId =
-        activeUser.role === "freelancer"
-          ? (activeUser.actingIdentity?.type === "team" ? "may-creative" : (activeUser.id || "minh-anh"))
-          : "minh-anh";
-      mockStorage.submitApplication(applyingId, talentId, applicationProposal);
-      setApplied((previous) => new Set(previous).add(applyingId));
+      mockStorage.submitApplication(applyingId, currentTalentId(), applicationProposal);
       closeApplication();
       setToast(
-        "Ứng tuyển đã được gửi thành công. Doanh nghiệp sẽ xem xét hồ sơ của bạn (BR-002, BR-003)."
+        reapplying
+          ? "Đã cập nhật đơn ứng tuyển của bạn. Doanh nghiệp sẽ thấy nội dung mới trong cùng hồ sơ."
+          : "Ứng tuyển đã được gửi thành công. Doanh nghiệp sẽ xem xét hồ sơ của bạn (BR-002, BR-003)."
       );
       if (toastTimer.current) clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(""), 4000);

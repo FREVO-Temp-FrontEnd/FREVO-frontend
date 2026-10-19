@@ -1,3 +1,4 @@
+import { RotateCcw } from "lucide-react";
 import type { Project } from "@/lib/types/project.types";
 import { formatBudget } from "@/lib/util/formatters";
 import { BookmarkButton } from "../dashboard/BookmarkButton";
@@ -24,6 +25,7 @@ export function ProjectDetail({
         <h2 id="detail-title" tabIndex={-1}>
           {project.title}
         </h2>
+        {applied && <span className="applied-pill">✓ Đã ứng tuyển</span>}
         <p className="detail-company">
           {project.company} · {project.city} ·{" "}
           {project.remote ? "Làm việc từ xa" : "Làm việc tại chỗ"}
@@ -66,17 +68,14 @@ export function ProjectDetail({
         </section>
       </div>
       <div className="detail-actions flex items-center">
-        {applied ? (
-          <p className="applied-message">✓ Bạn đã ứng tuyển dự án này</p>
-        ) : (
-          <button
-            className="primary-button"
-            type="button"
-            onClick={() => onApply(project.id)}
-          >
-            Ứng tuyển dự án
-          </button>
-        )}
+        <button
+          className={`primary-button inline-flex items-center justify-center gap-2${applied ? " is-reapply" : ""}`}
+          type="button"
+          onClick={() => onApply(project.id)}
+        >
+          {applied && <RotateCcw size={18} aria-hidden="true" />}
+          {applied ? "Ứng tuyển lại" : "Ứng tuyển dự án"}
+        </button>
         <BookmarkButton project={project} saved={saved} onToggle={onSave} />
       </div>
     </article>
