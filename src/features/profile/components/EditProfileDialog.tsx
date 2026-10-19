@@ -306,21 +306,11 @@ export function EditProfileDialog({
           <MuiButton
             type="submit"
             variant="contained"
+            color="primary"
             sx={{
               minHeight: "45px",
               px: "20px",
-              borderRadius: "999px",
-              bgcolor: "var(--orange, #f4490b)",
-              color: "#1b1b19",
               fontSize: "13px",
-              fontWeight: 900,
-              textTransform: "none",
-              boxShadow: "2px 3px 0 #242521",
-              border: "2px solid #262724",
-              "&:hover": {
-                bgcolor: "#ff5b1c",
-                boxShadow: "2px 3px 0 #242521",
-              },
             }}
           >
             Lưu thay đổi

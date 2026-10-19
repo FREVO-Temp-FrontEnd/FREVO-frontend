@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import {
   Box,
   Typography,
@@ -9,8 +9,10 @@ import {
   ArrowLeft,
   BriefcaseBusiness,
   Eye,
+  FileText,
   FolderOpen,
   Heart,
+  LogOut,
   MapPin,
   Pencil,
   Plus,
@@ -21,14 +23,17 @@ import {
   Wallet,
 } from "lucide-react";
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import type { Work } from "@/lib/types/portfolio.types";
 import { EditProfileDialog, type EditRequest } from "../components/EditProfileDialog";
 import { PortfolioEditor } from "../components/PortfolioEditor";
 import { PortfolioCover } from "../components/PortfolioCover";
+import { CVTab } from "../components/CVTab";
 
 const tabs = [
   { id: "personal", label: "Thông tin cá nhân", icon: UserRound },
   { id: "portfolio", label: "Portfolio", icon: FolderOpen },
+  { id: "cv", label: "CV của tôi", icon: FileText },
   { id: "experience", label: "Kinh nghiệm & Kỹ năng", icon: Sparkles },
   { id: "services", label: "Dịch vụ & Báo giá", icon: Wallet },
 ];
@@ -38,6 +43,8 @@ function splitTags(value: string) {
 }
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useAuthSession();
   const [params] = useSearchParams();
   const activeTab = tabs.some((tab) => tab.id === params.get("tab"))
     ? params.get("tab")!
@@ -154,31 +161,6 @@ export default function ProfilePage() {
 
   return (
     <>
-      <a className="skip-link" href="#profile-content">
-        Đến nội dung hồ sơ
-      </a>
-      <header className="site-header">
-        <div className="header-left">
-          <Link to="/" aria-label="FREVO — Khám phá dự án">
-            <img className="logo" src="/assets/frevo-logo.png" alt="FREVO" />
-          </Link>
-          <span className="header-divider" />
-          <span className="screen-name">Hồ sơ của tôi</span>
-        </div>
-        <Link
-          to="/profile"
-          className="account"
-          aria-label={`Tài khoản của ${personal.name}`}
-          aria-current="page"
-        >
-          <span className="account-copy">
-            <strong>{personal.name}</strong>
-            <small>Freelancer</small>
-          </span>
-          <span className="avatar grid place-items-center">{initials}</span>
-        </Link>
-      </header>
-
       <Box
         sx={{
           maxWidth: "1480px",
@@ -350,6 +332,30 @@ export default function ProfilePage() {
             ))}
           </Box>
 
+          {isAuthenticated && (
+            <MuiButton
+              fullWidth
+              startIcon={<LogOut size={17} />}
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              sx={{
+                justifyContent: "flex-start",
+                color: "text.secondary",
+                textTransform: "none",
+                fontSize: "13px",
+                fontWeight: 700,
+                borderRadius: "9px",
+                px: "12px",
+                py: "10px",
+                "&:hover": { bgcolor: "#fff0e9", color: "#bd3d14" },
+              }}
+            >
+              Đăng xuất
+            </MuiButton>
+          )}
+
           <Box
             sx={{
               display: { xs: "none", md: "block" },
@@ -490,30 +496,18 @@ export default function ProfilePage() {
                 </div>
                 <MuiButton
                   variant="contained"
+                  color="primary"
+                  startIcon={<Plus size={17} />}
                   onClick={() => setPortfolioEditor({ work: null })}
                   sx={{
                     width: { xs: "100%", sm: "auto" },
                     flexShrink: 0,
                     minHeight: "45px",
                     px: "20px",
-                    borderRadius: "999px",
-                    bgcolor: "var(--orange, #f4490b)",
-                    color: "#1b1b19",
                     fontSize: "13px",
-                    fontWeight: 900,
-                    textTransform: "none",
-                    boxShadow: "2px 3px 0 #242521",
-                    border: "2px solid #262724",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "7px",
-                    "&:hover": {
-                      bgcolor: "#ff5b1c",
-                      boxShadow: "2px 3px 0 #242521",
-                    },
                   }}
                 >
-                  <Plus size={17} /> Thêm dự án mới
+                  Thêm dự án mới
                 </MuiButton>
               </Box>
 
@@ -889,6 +883,8 @@ export default function ProfilePage() {
                 </Box>
               </Box>
             </>
+          ) : activeTab === "cv" ? (
+            <CVTab ownerId={isAuthenticated ? user?.id : undefined} seedDemoResumes={isAuthenticated} />
           ) : activeTab === "personal" ? (
             <>
               <Box
