@@ -23,7 +23,7 @@ export const PortfolioAttributionSelector: React.FC<PortfolioAttributionSelector
   onRoleChange,
 }) => {
   return (
-    <Box sx={{ my: 2, p: 2, bgcolor: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+    <Box sx={{ my: 2, p: 2, bgcolor: "#f8fafc", borderRadius: "10px", border: "1px solid", borderColor: "divider" }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#1e293b", mb: 0.5 }}>
         Hình thức thực hiện & Đóng góp (BR-027)
       </Typography>

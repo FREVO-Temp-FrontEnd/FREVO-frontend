@@ -23,7 +23,7 @@ export const NotSelectedNoticeCard: React.FC<NotSelectedNoticeCardProps> = ({
         p: 3,
         borderRadius: "12px",
         bgcolor: "#f8fafc",
-        border: "1px solid #e2e8f0",
+        border: "1px solid", borderColor: "divider",
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "flex-start", sm: "center" },

@@ -223,7 +223,7 @@ export function InvitationsHubPage() {
                     justifyContent: { xs: "space-between", md: "center" },
                     gap: 1.5,
                     pt: { xs: 2, md: 0 },
-                    borderTop: { xs: "1px solid #f3f4f6", md: "none" },
+                    borderTop: { xs: "1px solid var(--line)", md: "none" },
                   }}
                 >
                   <Button
@@ -269,7 +269,7 @@ export function InvitationsHubPage() {
             textAlign: "center",
             bgcolor: "#fafaf9",
             borderRadius: 3,
-            border: "1px dashed #d6d3d1",
+            border: "1px dashed", borderColor: "divider",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
