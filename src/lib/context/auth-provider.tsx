@@ -15,6 +15,7 @@ export default function AuthSessionProvider({ children }: { children: ReactNode 
   }, []);
 
   const login = async (email: string, targetRole?: UserRole) => {
+    const isTeam = email.includes("team") || email.includes("pixelcraft");
     const determinedRole: UserRole =
       targetRole ||
       (email.includes("client") || email.includes("nang") || email.includes("business")
@@ -29,12 +30,21 @@ export default function AuthSessionProvider({ children }: { children: ReactNode 
       name:
         determinedRole === "client"
           ? "Nắng Studio (Doanh nghiệp)"
-          : determinedRole === "freelancer"
-          ? "Minh Anh (Freelancer)"
-          : "Quản trị viên FREVO",
+          : determinedRole === "admin"
+          ? "Quản trị viên FREVO"
+          : isTeam
+          ? "Pixel Craft Studio (Đại diện Team)"
+          : "Minh Anh (Freelancer)",
       role: determinedRole,
       companyName: determinedRole === "client" ? "Nắng Studio" : undefined,
-      actingIdentity: { type: "individual" },
+      actingIdentity: isTeam
+        ? {
+            type: "team",
+            teamId: "team-001",
+            teamName: "Pixel Craft Studio",
+            roleInTeam: "representative",
+          }
+        : { type: "individual" },
       verified: true,
     };
 

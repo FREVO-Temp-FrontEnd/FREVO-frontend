@@ -217,10 +217,10 @@ export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
               {agreement.milestones.map((m, idx) => (
                 <TableRow key={m.id}>
                   <TableCell sx={{ fontWeight: 600, fontSize: "13px" }}>
-                    {idx + 1}. {m.name}
+                    {idx + 1}. {m.name || (m as any).title || `Giai đoạn ${idx + 1}`}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px", color: "#475569" }}>
-                    {m.deliverable}
+                    {m.deliverable || (m as any).description || "Sản phẩm theo mô tả thỏa thuận"}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                     {m.deadline}
@@ -229,7 +229,7 @@ export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
                     {m.amount}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px" }}>
-                    {m.revisionAllowance.allowed} lượt
+                    {m.revisionAllowance?.allowed ?? (m as any).maxRevisions ?? 2} lượt
                   </TableCell>
                 </TableRow>
               ))}

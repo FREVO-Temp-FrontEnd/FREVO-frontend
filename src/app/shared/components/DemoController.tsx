@@ -27,6 +27,15 @@ import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { mockStorage } from "@/lib/storage/mockStorage";
 
 export const DemoController: React.FC = () => {
+  const isEnabled =
+    typeof window !== "undefined" &&
+    (localStorage.getItem("frevo_show_demo_controller") === "true" ||
+      new URLSearchParams(window.location.search).get("debug") === "true");
+
+  if (!isEnabled) {
+    return null;
+  }
+
   const navigate = useNavigate();
   const { role, actingIdentity, switchRole, switchActingIdentity } = useAuthSession();
 

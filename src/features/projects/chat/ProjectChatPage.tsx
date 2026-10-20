@@ -16,7 +16,7 @@ export const ProjectChatPage: React.FC = () => {
   const { projects, candidates, talents, unlockChat } = useBusiness();
 
   // Find project
-  const project = projects.find((p) => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
 
   // Determine candidate/talent to chat with
   const queryTalentId = searchParams.get("talent");

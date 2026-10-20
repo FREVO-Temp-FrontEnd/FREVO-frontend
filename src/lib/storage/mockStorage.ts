@@ -482,12 +482,12 @@ class MockStorageAdapter {
       return getInitialState();
     }
     try {
-      const stored = sessionStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
         return JSON.parse(stored) as MarketplaceState;
       }
     } catch {
-      // Ignore sessionStorage parsing or quota errors
+      // Ignore storage parsing or quota errors
     }
     const fresh = getInitialState();
     this.saveToStorage(fresh);
@@ -498,6 +498,7 @@ class MockStorageAdapter {
     this.memoryState = state;
     if (typeof window !== "undefined") {
       try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         window.dispatchEvent(new CustomEvent(STORAGE_EVENT));
       } catch {
@@ -846,7 +847,10 @@ class MockStorageAdapter {
 
   public getEffectiveAgreement(projectId: string): AgreementProposal | undefined {
     return this.memoryState.agreements.find(
-      (a) => a.projectId === projectId && a.isEffective && a.status === "confirmed"
+      (a) =>
+        a.projectId === projectId &&
+        a.isEffective &&
+        a.status === "confirmed"
     );
   }
 
@@ -1161,3 +1165,7 @@ class MockStorageAdapter {
 }
 
 export const mockStorage = new MockStorageAdapter();
+
+if (typeof window !== "undefined") {
+  (window as unknown as { __frevo_storage__: MockStorageAdapter }).__frevo_storage__ = mockStorage;
+}

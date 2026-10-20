@@ -110,25 +110,92 @@ export function BusinessProjectDetailPage() {
       </div>
 
       <nav className="fb-tabs" aria-label="Các mục của dự án">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.segment}
-            to={tab.segment ? `/business/projects/${project.id}/${tab.segment}` : `/business/projects/${project.id}`}
-            aria-current={currentTab === tab.segment ? "page" : undefined}
-          >
-            {tab.label}
-            {tab.count !== undefined && <span>{tab.count}</span>}
-          </Link>
-        ))}
+        {tabs.map((tab) => {
+          let targetPath = tab.segment
+            ? `/business/projects/${project.id}/${tab.segment}`
+            : `/business/projects/${project.id}`;
+          if (tab.segment === "messages") {
+            targetPath = `/projects/${project.id}/chat`;
+          } else if (tab.segment === "agreement") {
+            targetPath = `/projects/${project.id}/agreement`;
+          } else if (tab.segment === "progress") {
+            targetPath = `/workspace/${project.id}`;
+          }
+
+          return (
+            <Link
+              key={tab.segment}
+              to={targetPath}
+              aria-current={currentTab === tab.segment ? "page" : undefined}
+            >
+              {tab.label}
+              {tab.count !== undefined && <span>{tab.count}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Tab Switcher: Suggestions (BUS-007) / Invitations (BUS-010) / Applicants (BUS-011) / Brief View (BUS-005) */}
+      {/* Tab Switcher: Suggestions (BUS-007) / Invitations (BUS-010) / Applicants (BUS-011) / Executor / Brief View (BUS-005) */}
       {currentTab === "suggestions" && project.status === "published" ? (
         <CandidateSuggestionsTab project={project} />
       ) : currentTab === "invitations" && project.status === "published" ? (
         <SentInvitationsTab project={project} />
       ) : currentTab === "applicants" && project.status !== "draft" ? (
         <ProjectApplicantsTab project={project} />
+      ) : currentTab === "executor" && project.status === "ongoing" ? (
+        <div className="fb-detail-grid">
+          <section className="fb-panel fb-executor">
+            <span className="fb-eyebrow">NGƯỜI THỰC HIỆN DỰ ÁN</span>
+            {selectedTalent ? (
+              <>
+                <div className="fb-executor-head">
+                  <span
+                    className="fb-avatar fb-avatar-lg"
+                    style={{ background: selectedTalent.color }}
+                  >
+                    {selectedTalent.initials}
+                  </span>
+                  <div>
+                    <span className="fb-badge fb-badge-green">Đã chốt hợp tác</span>
+                    <h2>{selectedTalent.name}</h2>
+                    <p>
+                      {selectedTalent.role} · {selectedTalent.kind} · {selectedTalent.location}
+                    </p>
+                  </div>
+                </div>
+                <p>{selectedTalent.about}</p>
+                <div className="fb-facts">
+                  <div>
+                    <small>Dự án</small>
+                    <strong>{project.title}</strong>
+                  </div>
+                  <div>
+                    <small>Ngân sách đã chốt</small>
+                    <strong>{project.budget}</strong>
+                  </div>
+                </div>
+                <div className="fb-executor-actions">
+                  <Link
+                    className="fb-button fb-button-primary"
+                    to={`/projects/${project.id}/chat`}
+                  >
+                    Mở hội thoại <ArrowRight size={17} />
+                  </Link>
+                  <Link
+                    className="fb-button fb-button-secondary"
+                    to={`/workspace/${project.id}`}
+                  >
+                    Xem tiến độ & Không gian làm việc
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <p style={{ marginTop: "16px", color: "#777" }}>
+                Chưa có thông tin người thực hiện được chọn.
+              </p>
+            )}
+          </section>
+        </div>
       ) : (
       <div className="fb-detail-grid">
         <div>
@@ -244,13 +311,13 @@ export function BusinessProjectDetailPage() {
                 <>
                   <Link
                     className="fb-button fb-button-primary"
-                    to={`/business/projects/${project.id}/messages`}
+                    to={`/projects/${project.id}/chat`}
                   >
                     Tin nhắn dự án <ArrowRight size={17} />
                   </Link>
                   <Link
                     className="fb-button fb-button-secondary"
-                    to={`/business/projects/${project.id}/progress`}
+                    to={`/workspace/${project.id}`}
                   >
                     Xem tiến độ & Hợp đồng
                   </Link>

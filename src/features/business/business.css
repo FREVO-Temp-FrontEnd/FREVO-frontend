@@ -7,7 +7,7 @@
 .fb-app h1,.fb-app h2,.fb-app h3{font-family:Archivo,Arial,sans-serif;letter-spacing:-.035em}
 .fb-skip{position:fixed;top:-50px;left:16px;z-index:100;padding:10px 14px;background:var(--fb-ink);color:#fff!important}
 .fb-skip:focus{top:12px}
-.fb-sidebar{position:sticky;top:0;z-index:30;display:flex;flex:0 0 248px;flex-direction:column;height:100dvh;padding:26px 15px 17px;background:#fff;border-right:1px solid var(--fb-line)}
+.fb-sidebar{position:sticky;top:0;z-index:30;display:flex;flex:0 0 248px;flex-direction:column;height:100dvh;overflow-y:auto;overflow-x:hidden;padding:26px 15px 17px;background:#fff;border-right:1px solid var(--fb-line)}
 .fb-brand{display:flex;align-items:center;gap:11px;width:max-content;margin:0 12px 52px;font-size:12px;font-weight:800;color:var(--fb-orange-ink)!important}
 .fb-brand img{width:100px;height:auto;max-height:36px;object-fit:contain}
 .fb-brand span{padding:5px 8px;border-left:1px solid var(--fb-line)}

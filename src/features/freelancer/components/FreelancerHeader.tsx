@@ -1,13 +1,14 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { NotificationsBell } from "./NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
 import { externalNavConfig } from "@/lib/config/navigation";
-import { Button, Chip } from "@mui/material";
-import { ExternalLink, ArrowLeftRight, Mail, Briefcase, Users } from "lucide-react";
+import { Button } from "@mui/material";
+import { ExternalLink, Mail, Briefcase, Users } from "lucide-react";
 
 export function FreelancerHeader() {
-  const { user, role, switchRole } = useAuthSession();
+  const { user, role, logout } = useAuthSession();
+  const navigate = useNavigate();
   const { pendingInvitationsCount } = useFreelancer();
 
   const isGuest = role === "guest";
@@ -22,63 +23,59 @@ export function FreelancerHeader() {
       .toUpperCase() || (role === "client" ? "NS" : "MA");
 
   return (
-    <header className="site-header freelancer-header flex items-center justify-between">
-      <div className="header-left flex items-center gap-3">
-        <Link to="/" aria-label="FREVO - Khám phá dự án">
-          <img className="logo" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
+    <header className="site-header freelancer-header flex items-center justify-between px-4 py-2 border-b border-neutral-200 bg-white">
+      <div className="header-left flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+        <Link to="/" aria-label="FREVO - Khám phá dự án" className="shrink-0">
+          <img className="logo h-8 sm:h-9 w-auto" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
         </Link>
-        <span className="header-divider" aria-hidden="true" />
-        <Link to="/projects" className="screen-name hover:text-orange-600 transition-colors">
+        <span className="header-divider hidden sm:inline-block w-px h-5 bg-neutral-300" aria-hidden="true" />
+        <Link to="/projects" className="screen-name text-xs sm:text-sm font-bold text-neutral-800 hover:text-orange-600 transition-colors whitespace-nowrap">
           {isGuest ? "Khám phá dự án (Khách)" : "Khám phá dự án"}
         </Link>
 
-        {/* Freelancer Invitations Link (FL-010) */}
+        {/* Freelancer navigation links - shown on medium and desktop screens */}
         {!isGuest && (
-          <Link
-            to="/freelancer/invitations"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Xem các lời mời hợp tác từ Doanh nghiệp (FL-010)"
-          >
-            <Mail size={13} />
-            <span>Lời mời</span>
-            {pendingInvitationsCount > 0 && (
-              <span className="bg-orange-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight">
-                {pendingInvitationsCount}
-              </span>
-            )}
-          </Link>
+          <div className="hidden md:flex items-center gap-1.5 ml-1">
+            <Link
+              to="/freelancer/invitations"
+              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
+              title="Xem các lời mời hợp tác từ Doanh nghiệp (FL-010)"
+            >
+              <Mail size={13} />
+              <span>Lời mời</span>
+              {pendingInvitationsCount > 0 && (
+                <span className="bg-orange-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight">
+                  {pendingInvitationsCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/freelancer/applications"
+              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
+              title="Quản lý các dự án đã ứng tuyển (FL-009)"
+            >
+              <Briefcase size={13} />
+              <span>Đã ứng tuyển</span>
+            </Link>
+
+            <Link
+              to="/team/profile"
+              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
+              title="Hồ sơ Nhóm sáng tạo & Phân quyền (TEAM-001)"
+            >
+              <Users size={13} />
+              <span>Nhóm (Team)</span>
+            </Link>
+          </div>
         )}
 
-        {/* Freelancer Applications Link (FL-009) */}
-        {!isGuest && (
-          <Link
-            to="/freelancer/applications"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-1 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Quản lý các dự án đã ứng tuyển (FL-009)"
-          >
-            <Briefcase size={13} />
-            <span>Đã ứng tuyển</span>
-          </Link>
-        )}
-
-        {/* Team Profile Link (TEAM-001) */}
-        {!isGuest && (
-          <Link
-            to="/team/profile"
-            className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 ml-1 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors"
-            title="Hồ sơ Nhóm sáng tạo & Phân quyền (TEAM-001)"
-          >
-            <Users size={13} />
-            <span>Nhóm (Team)</span>
-          </Link>
-        )}
-
-        {/* Link to external Next.js landing page per Decision 1 */}
+        {/* Link to external Next.js landing page */}
         <a
           href={externalNavConfig.landingPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 flex items-center gap-1 ml-2 transition-colors"
+          className="hidden lg:flex text-xs font-semibold text-neutral-500 hover:text-neutral-900 items-center gap-1 ml-2 transition-colors whitespace-nowrap"
           title="Mở Trang giới thiệu FREVO (Next.js)"
         >
           <span>Trang giới thiệu</span>
@@ -86,65 +83,51 @@ export function FreelancerHeader() {
         </a>
       </div>
 
-      <div className="header-actions flex items-center gap-3">
+      <div className="header-actions flex items-center gap-2 sm:gap-3 shrink-0">
         {isGuest ? (
           <div className="flex items-center gap-2">
             <Link
               to="/login"
-              className="text-sm font-bold text-neutral-800 hover:text-orange-600 px-3 py-1.5 transition-colors"
+              className="text-xs sm:text-sm font-bold text-neutral-800 hover:text-orange-600 px-2 sm:px-3 py-1.5 transition-colors"
             >
               Đăng nhập
             </Link>
             <Link
               to="/register"
-              className="text-sm font-extrabold text-neutral-900 bg-[#ff6c37] hover:bg-[#ff5518] px-3.5 py-1.5 rounded-full border border-neutral-900 shadow-[2px_2px_0_#20201f] transition-all"
+              className="text-xs sm:text-sm font-extrabold text-neutral-900 bg-[#ff6c37] hover:bg-[#ff5518] px-2.5 sm:px-3.5 py-1.5 rounded-full border border-neutral-900 shadow-[2px_2px_0_#20201f] transition-all whitespace-nowrap"
             >
               Đăng ký
             </Link>
           </div>
         ) : (
           <>
-            {/* Quick role switcher chip for easy prototype demoing */}
-            <Chip
-              size="small"
-              icon={<ArrowLeftRight size={14} />}
-              label={`Vai trò: ${displayRole}`}
-              clickable
-              onClick={() => {
-                const nextRole = role === "client" ? "freelancer" : "client";
-                switchRole(nextRole);
-              }}
-              title="Nhấn để đổi nhanh vai trò Doanh nghiệp / Freelancer trong demo"
-              sx={{ fontWeight: 600, fontSize: 12, bgcolor: "#fff0e9", color: "#ab2e00" }}
-            />
-
             <NotificationsBell />
 
             {role === "client" ? (
               <Link
                 to="/business"
-                className="account flex items-center"
+                className="account flex items-center gap-2"
                 aria-label="Chuyển đến Không gian Doanh nghiệp"
               >
-                <span className="account-copy">
-                  <strong>{displayName}</strong>
-                  <small className="text-orange-600 font-bold">Bảng quản trị</small>
+                <span className="account-copy hidden sm:inline-block text-right">
+                  <strong className="block text-xs font-bold text-neutral-900">{displayName}</strong>
+                  <small className="text-orange-600 font-bold text-[11px]">Bảng quản trị</small>
                 </span>
-                <span className="avatar grid place-items-center" aria-hidden="true">
+                <span className="avatar grid place-items-center w-8 h-8 rounded-full bg-neutral-900 text-white text-xs font-bold" aria-hidden="true">
                   {initials}
                 </span>
               </Link>
             ) : (
               <Link
                 to="/profile"
-                className="account flex items-center"
+                className="account flex items-center gap-2"
                 aria-label={`Tài khoản của ${displayName}`}
               >
-                <span className="account-copy">
-                  <strong>{displayName}</strong>
-                  <small>{displayRole}</small>
+                <span className="account-copy hidden sm:inline-block text-right">
+                  <strong className="block text-xs font-bold text-neutral-900">{displayName}</strong>
+                  <small className="text-neutral-500 text-[11px]">{displayRole}</small>
                 </span>
-                <span className="avatar grid place-items-center" aria-hidden="true">
+                <span className="avatar grid place-items-center w-8 h-8 rounded-full bg-orange-600 text-white text-xs font-bold" aria-hidden="true">
                   {initials}
                 </span>
               </Link>
@@ -153,7 +136,8 @@ export function FreelancerHeader() {
             <Button
               size="small"
               onClick={() => {
-                switchRole("guest");
+                logout();
+                navigate("/login", { replace: true, state: {} });
               }}
               sx={{ color: "text.secondary", textTransform: "none", fontSize: 12, minWidth: "auto", px: 1 }}
             >
