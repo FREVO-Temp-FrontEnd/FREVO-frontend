@@ -9,6 +9,7 @@ import "../freelancer-home.css";
 export default function FreelancerLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { role } = useAuthSession();
   const [navNotice, setNavNotice] = useState("");
   const [mobileNavRoute, setMobileNavRoute] = useState<string | null>(null);
   const isMobileNav = useMediaQuery("(max-width:780px)");
@@ -27,6 +28,11 @@ export default function FreelancerLayout() {
   const openProjectView = (view: ProjectView) => {
     navigate(view === "discover" ? "/projects" : `/projects?view=${view}`);
   };
+
+  const legacyChatMatch = currentPath.match(/^\/projects\/([^/]+)\/chat$/);
+  if ((role === "client" || role === "admin") && legacyChatMatch) {
+    return <Navigate to={`/business/projects/${legacyChatMatch[1]}/messages${location.search}`} replace />;
+  }
 
   return (
     <ThemeProvider theme={freelancerTheme}>

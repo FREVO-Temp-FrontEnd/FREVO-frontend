@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   BriefcaseBusiness,
   CirclePlus,
+  MessageCircleMore,
   UserRound,
   Settings2,
   Bell,
@@ -21,13 +22,18 @@ import "@/features/business/business.css";
 const navItems = [
   { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
+  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
   { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
 ];
 
 function isCurrentNavItem(href: string, pathname: string) {
   if (href === "/business") return pathname === href;
   if (href === "/business/projects") {
-    return (pathname === href || pathname.startsWith(`${href}/`)) && pathname !== "/business/projects/new";
+    return (
+      (pathname === href || pathname.startsWith(`${href}/`)) &&
+      pathname !== "/business/projects/new" &&
+      pathname !== "/business/messages"
+    );
   }
   return pathname === href;
 }
@@ -217,35 +223,52 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
             >
               {businessName.charAt(0).toLocaleUpperCase("vi")}
             </span>
-            <button
+            <Box
+              component="button"
               type="button"
               onClick={() => {
                 logout();
                 navigate("/login", { replace: true, state: {} });
               }}
               className="fb-button fb-button-secondary fb-button-small"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                cursor: "pointer",
-              }}
+              sx={{ display: { xs: "none", sm: "inline-flex" }, alignItems: "center", gap: "6px", cursor: "pointer" }}
               title="Đăng xuất khỏi tài khoản"
               aria-label="Đăng xuất"
             >
               <LogOut size={15} />
               <span>Đăng xuất</span>
-            </button>
+            </Box>
           </div>
         </header>
 
-        <main id="fb-content" className="fb-main">
+        <Box
+          component="main"
+          id="fb-content"
+          className="fb-main"
+          sx={
+            currentPath === "/business/messages"
+              ? {
+                  "&&": {
+                    maxWidth: "none",
+                    padding: 0,
+                    height: { xs: "calc(100dvh - 60px)", sm: "calc(100dvh - 71px)" },
+                    minHeight: "unset",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                  },
+                }
+              : undefined
+          }
+        >
           {children ? children : <Outlet />}
-        </main>
+        </Box>
 
-        <div className="fb-demo-foot">
-          FREVO Business Space · Dữ liệu tương tác được đồng bộ hai chiều với Freelancer Hub qua mockStorage adapter.
-        </div>
+        {currentPath !== "/business/messages" && (
+          <div className="fb-demo-foot">
+            FREVO Business Space · Dữ liệu tương tác được đồng bộ hai chiều với Freelancer Hub qua mockStorage adapter.
+          </div>
+        )}
       </div>
 
       {mobileNav && (

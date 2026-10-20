@@ -7,8 +7,21 @@ import { useBusiness } from "@/lib/hooks/useBusiness";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { ProjectChatRoom } from "./ProjectChatRoom";
 
-export const ProjectChatPage: React.FC = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+interface ProjectChatPageProps {
+  projectIdOverride?: string;
+  talentIdOverride?: string;
+  embedded?: boolean;
+  onBackToList?: () => void;
+}
+
+export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
+  projectIdOverride,
+  talentIdOverride,
+  embedded = false,
+  onBackToList,
+}) => {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+  const projectId = projectIdOverride ?? routeProjectId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -19,12 +32,11 @@ export const ProjectChatPage: React.FC = () => {
   const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
 
   // Determine candidate/talent to chat with
-  const queryTalentId = searchParams.get("talent");
+  const queryTalentId = talentIdOverride ?? searchParams.get("talent");
   const projectCandidates = candidates.filter((c) => c.projectId === projectId);
 
   let targetCandidate = projectCandidates.find((c) => c.talentId === queryTalentId);
   if (!targetCandidate && projectCandidates.length > 0) {
-    // If freelancer is logged in, pick their own candidate record
     if (role === "freelancer") {
       targetCandidate = projectCandidates.find((c) => c.talentId === "minh-anh" || c.talentId === "ha-vy") || projectCandidates[0];
     } else {
@@ -76,8 +88,9 @@ export const ProjectChatPage: React.FC = () => {
   }
 
   const handleSendMessage = (body: string, attachment?: { name: string; url: string }) => {
-    const senderRole = role === "client" ? "business" : "talent";
-    const senderName = user?.name || (role === "client" ? project.company : targetTalent.name);
+    const isBusiness = role === "client" || role === "admin";
+    const senderRole = isBusiness ? "business" : "talent";
+    const senderName = user?.name || (isBusiness ? project.company : targetTalent.name);
 
     const newMsg = mockStorage.sendMessage(
       project.id,
@@ -98,32 +111,43 @@ export const ProjectChatPage: React.FC = () => {
     navigate(`/business/projects/${project.id}/agreement?talent=${targetTalent.id}`);
   };
 
+  const chatRoom = (
+    <ProjectChatRoom
+      project={project}
+      candidate={targetCandidate}
+      talent={targetTalent}
+      currentUserRole={role}
+      currentUserName={user?.name || "Người dùng"}
+      messages={messages}
+      onSendMessage={handleSendMessage}
+      onApproveChat={handleApproveChat}
+      onNavigateToAgreement={handleNavigateToAgreement}
+      inboxMode={embedded}
+      onBackToList={onBackToList}
+    />
+  );
+
+  if (embedded) return chatRoom;
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <ProjectBreadcrumbs items={role === "client"
-        ? [
-            { label: "Dự án của tôi", to: "/business/projects" },
-            { label: project.title, to: `/business/projects/${project.id}` },
-            { label: "Tin nhắn" },
-          ]
-        : [
-            { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
-            { label: project.title, to: `/projects/${project.id}/details` },
-            { label: "Tin nhắn" },
-          ]}
+      <ProjectBreadcrumbs
+        items={
+          role === "client" || role === "admin"
+            ? [
+                { label: "Dự án của tôi", to: "/business/projects" },
+                { label: project.title, to: `/business/projects/${project.id}` },
+                { label: "Tin nhắn" },
+              ]
+            : [
+                { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
+                { label: project.title, to: `/projects/${project.id}/details` },
+                { label: "Tin nhắn" },
+              ]
+        }
       />
 
-      <ProjectChatRoom
-        project={project}
-        candidate={targetCandidate}
-        talent={targetTalent}
-        currentUserRole={role}
-        currentUserName={user?.name || "Người dùng"}
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        onApproveChat={handleApproveChat}
-        onNavigateToAgreement={handleNavigateToAgreement}
-      />
+      {chatRoom}
     </Container>
   );
 };
