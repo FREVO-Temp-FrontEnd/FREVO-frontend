@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
 import { Box, Drawer, ThemeProvider, useMediaQuery } from "@mui/material";
 import { FreelancerHeader } from "../components/FreelancerHeader";
 import { FreelancerNav, type ProjectView } from "../components/FreelancerNav";
 import { freelancerTheme } from "@/app/theme/freelancerTheme";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import "../freelancer-home.css";
 
 export default function FreelancerLayout() {
