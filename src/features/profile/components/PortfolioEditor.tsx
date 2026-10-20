@@ -881,7 +881,7 @@ export function PortfolioEditor({
                 fontWeight: 800,
                 textTransform: "none",
                 "&:hover": {
-                  borderColor: "#d5d7d2",
+                  borderColor: "text.secondary",
                   bgcolor: "#f7f8f6",
                 },
               }}

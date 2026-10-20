@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { Box, Pagination } from "@mui/material";
+import { useProjectPagination } from "./hooks/useProjectPagination";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
 import { ProjectFilters } from "@/features/projects/dashboard/ProjectFilters";
-import { FreelancerNav, type ProjectView } from "./components/FreelancerNav";
+import { type ProjectView } from "./components/FreelancerNav";
 import { ProjectList } from "@/features/projects/dashboard/ProjectList";
 import { ProjectDetail } from "@/features/projects/details/ProjectDetail";
 import { ProjectApplyDialog } from "@/features/projects/application/ProjectApplyDialog";
@@ -18,7 +19,6 @@ export default function FreelancerHomePage() {
   const { currentTalent } = useFreelancer();
   const selectedView = searchParams.get("view");
   const view: ProjectView = selectedView === "saved" || selectedView === "recommended" ? selectedView : "discover";
-  const [navNotice, setNavNotice] = useState("");
 
   const {
     projects,
@@ -66,7 +66,9 @@ export default function FreelancerHomePage() {
       ? saved.has(project.id)
       : project.skills.some((skill) => talentSkills.has(skill.toLocaleLowerCase("vi").trim())))
   );
-  const selected = displayed.find((project) => project.id === (projectId ?? "coffee")) ?? displayed[0];
+  const filterKey = JSON.stringify([view, query, selectedCategories, minimumBudget, sortMode]);
+  const { page, pageCount, pageProjects, firstResult, lastResult, changePage } = useProjectPagination(displayed, filterKey, projectId);
+  const selected = pageProjects.find((project) => project.id === projectId);
   const applyingProject = projects.find((project) => project.id === applyingId);
 
   function selectProject(id: string) {
@@ -90,15 +92,10 @@ export default function FreelancerHomePage() {
     }
   }
 
-  function changeView(nextView: ProjectView) {
-    setNavNotice("");
-    navigate(nextView === "discover" ? "/projects" : `/projects?view=${nextView}`);
-  }
 
   return (
     <>
       <div className="page-grid grid freelancer-home">
-        <FreelancerNav view={view} onViewChange={changeView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />
 
         <main id="main" className="main-column min-w-0">
           <h1>{view === "saved" ? "Việc làm đã lưu" : view === "recommended" ? "Việc làm phù hợp với bạn" : "Dự án đang mở"}<span>.</span></h1>
@@ -127,17 +124,39 @@ export default function FreelancerHomePage() {
             ) : (
               <>
                 <strong>{displayed.length}</strong> dự án phù hợp
+                {displayed.length > 0 && <> · Hiển thị {firstResult}-{lastResult}</>}
               </>
             )}
           </p>
           <ProjectList
-            projects={displayed}
+            projects={pageProjects}
             selectedId={selected?.id}
             savedIds={saved}
             appliedIds={applied}
             onSelect={selectProject}
             onSave={toggleSaved}
           />
+          {!loading && !loadError && displayed.length > 0 && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3, mb: 1 }}>
+              <Pagination
+                count={pageCount}
+                page={page}
+                color="primary"
+                size="large"
+                siblingCount={0}
+                aria-label="Phân trang dự án"
+                getItemAriaLabel={(type, itemPage, selected) => type === "page"
+                  ? `${selected ? "Trang hiện tại, trang" : "Đến trang"} ${itemPage}`
+                  : type === "previous" ? "Trang trước" : type === "next" ? "Trang sau" : type === "first" ? "Trang đầu" : "Trang cuối"}
+                onChange={(_, nextPage) => {
+                  changePage(nextPage);
+                  document.getElementById("main")?.scrollIntoView({ block: "start", behavior: "instant" });
+                  document.getElementById("detail-region")?.scrollTo({ top: 0 });
+                }}
+                sx={{ "& .MuiPagination-ul": { flexWrap: "wrap", justifyContent: "center", gap: 0.5 } }}
+              />
+            </Box>
+          )}
           {loadError && (
             <div className="empty-state">
               <strong>Không tải được danh sách dự án.</strong>
@@ -169,7 +188,9 @@ export default function FreelancerHomePage() {
             />
           ) : !loading && !loadError ? (
             <p className="detail-empty">
-              Chọn bộ lọc khác để xem chi tiết dự án.
+              {displayed.length > 0
+                ? "Chọn một dự án trong danh sách để xem chi tiết."
+                : "Chưa có dự án phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc."}
             </p>
           ) : null}
         </aside>
@@ -194,7 +215,6 @@ export default function FreelancerHomePage() {
           {toast}
         </div>
       )}
-      {navNotice && <div id="nav-notice" role="status" onClick={() => setNavNotice("")}>{navNotice}</div>}
     </>
   );
 }

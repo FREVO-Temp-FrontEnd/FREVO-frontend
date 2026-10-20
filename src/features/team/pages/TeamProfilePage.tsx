@@ -53,7 +53,7 @@ export const TeamProfilePage: React.FC = () => {
         sx={{
           p: { xs: 3, md: 4 },
           borderRadius: "16px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid", borderColor: "divider",
           bgcolor: "#ffffff",
           mb: 4,
         }}
