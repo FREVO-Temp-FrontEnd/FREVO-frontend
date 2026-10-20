@@ -100,30 +100,6 @@ export default function PortfolioDetailPage() {
 
   return (
     <>
-      <a className="skip-link" href="#work-main">
-        Đến nội dung dự án
-      </a>
-      <header className="site-header">
-        <div className="header-left">
-          <Link to="/" aria-label="FREVO — Khám phá dự án">
-            <img className="logo" src="/assets/frevo-logo.png" alt="FREVO" />
-          </Link>
-          <span className="header-divider" />
-          <span className="screen-name">Portfolio sáng tạo</span>
-        </div>
-        <Link
-          to="/profile"
-          className="account"
-          aria-label="Tài khoản của Minh Anh"
-        >
-          <span className="account-copy">
-            <strong>Minh Anh</strong>
-            <small>Freelancer</small>
-          </span>
-          <span className="avatar grid place-items-center">MA</span>
-        </Link>
-      </header>
-
       {!work ? (
         <Box
           component="main"
@@ -938,29 +914,16 @@ export default function PortfolioDetailPage() {
                     target="_blank"
                     rel="noreferrer"
                     variant="contained"
+                    color="primary"
+                    endIcon={<ArrowUpRight size={16} />}
                     sx={{
                       width: "100%",
                       minHeight: "45px",
                       mt: "22px",
-                      borderRadius: "999px",
-                      bgcolor: "var(--orange, #f4490b)",
-                      color: "#1b1b19",
                       fontSize: "13px",
-                      fontWeight: 900,
-                      textTransform: "none",
-                      boxShadow: "2px 3px 0 #242521",
-                      border: "2px solid #262724",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      "&:hover": {
-                        bgcolor: "#ff5b1c",
-                        boxShadow: "2px 3px 0 #242521",
-                      },
                     }}
                   >
-                    Xem sản phẩm <ArrowUpRight size={16} />
+                    Xem sản phẩm
                   </MuiButton>
                 )}
               </Box>

@@ -6,10 +6,12 @@ import {
   Bookmark,
   CalendarDays,
   Camera,
+  CircleCheck,
   Clock3,
   Hourglass,
   MapPin,
   Monitor,
+  RotateCcw,
   Send,
   Share2,
   Store,
@@ -117,6 +119,14 @@ export function ProjectDetailContent({
             >
               Đang nhận ứng tuyển
             </Box>
+            {applied && (
+              <Box
+                component="span"
+                sx={{ display: "inline-flex", alignItems: "center", gap: "6px", px: "10px", py: "4px", borderRadius: "30px", bgcolor: "#e9f5ee", color: "#236747", fontSize: 11, fontWeight: 700 }}
+              >
+                <CircleCheck size={14} aria-hidden="true" /> Đã ứng tuyển
+              </Box>
+            )}
             <Box
               component="span"
               sx={{
@@ -337,26 +347,26 @@ export function ProjectDetailContent({
           {/* Action Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <Button
-              disabled={applied}
               onClick={() => onApply(project.id)}
               sx={{
-                bgcolor: "#ab2e00",
-                color: "#fff",
+                bgcolor: applied ? "#fff" : "#bd3d14",
+                color: applied ? "#bd3d14" : "#fff",
+                border: "1px solid #bd3d14",
                 borderRadius: "999px",
                 minHeight: 46,
                 px: "20px",
                 fontSize: "12px !important",
                 fontWeight: "700 !important",
                 textTransform: "none",
-                boxShadow: "0 4px 12px rgba(189, 61, 20, 0.17)",
+                boxShadow: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                "&:hover": { bgcolor: "#f4490b" },
+                "&:hover": { bgcolor: applied ? "#fff0e9" : "#9f310f", borderColor: applied ? "#bd3d14" : "#9f310f" },
               }}
             >
-              <Send size={18} />
-              {applied ? "Đã ứng tuyển dự án" : "Ứng tuyển dự án này"}
+              {applied ? <RotateCcw size={18} aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
+              {applied ? "Ứng tuyển lại" : "Ứng tuyển dự án này"}
             </Button>
 
             <Button

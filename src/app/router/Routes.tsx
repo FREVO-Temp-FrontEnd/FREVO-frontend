@@ -88,6 +88,14 @@ export const router = createBrowserRouter([
             element: <TeamProfilePage />,
           },
           {
+            path: "profile",
+            element: <ProfilePage />,
+          },
+          {
+            path: "profile/portfolio/:workId",
+            element: <PortfolioDetailPage />,
+          },
+          {
             path: "notifications",
             element: <NotificationCenterPage />,
           },
@@ -124,14 +132,6 @@ export const router = createBrowserRouter([
             <AdminDashboardPage />
           </RoleGuard>
         ),
-      },
-      {
-        path: "profile",
-        element: <ProfilePage />,
-      },
-      {
-        path: "profile/portfolio/:workId",
-        element: <PortfolioDetailPage />,
       },
       {
         path: "forbidden",

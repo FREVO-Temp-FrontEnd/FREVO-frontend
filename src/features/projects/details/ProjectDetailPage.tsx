@@ -204,6 +204,7 @@ export default function ProjectDetailPage() {
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={project}
+        reapplying={applyingId !== null && applied.has(applyingId)}
         proposal={proposal}
         setProposal={setProposal}
         portfolio={portfolio}

@@ -631,7 +631,7 @@ class MockStorageAdapter {
       // BR-011: Source merging
       candidateRecord = {
         ...existing,
-        source: "Ứng tuyển · Lời mời",
+        source: existing.source === "Lời mời" ? "Ứng tuyển · Lời mời" : existing.source,
         proposal: proposal || existing.proposal,
       };
       nextCandidates = this.memoryState.candidates.map((c) =>
@@ -658,7 +658,7 @@ class MockStorageAdapter {
     const nextNotifications: NotificationItem[] = [
       {
         id: `notif-app-${Date.now()}`,
-        title: `${talent?.name || "Ứng viên"} vừa nộp hồ sơ ứng tuyển`,
+        title: `${talent?.name || "Ứng viên"} vừa ${existing ? "cập nhật" : "nộp"} hồ sơ ứng tuyển`,
         detail: `Dự án: ${project?.title || "Dự án"}`,
         type: "application",
         time: "Vừa xong",

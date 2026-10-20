@@ -1,4 +1,5 @@
 import type { Project } from "@/lib/types/project.types";
+import { Bookmark } from "lucide-react";
 
 interface BookmarkButtonProps {
   project: Project;
@@ -9,19 +10,16 @@ interface BookmarkButtonProps {
 export function BookmarkButton({ project, saved, onToggle }: BookmarkButtonProps) {
   return (
     <button
-      className="bookmark grid place-items-center"
+      className="bookmark"
       type="button"
-      role="checkbox"
-      aria-checked={saved}
+      aria-pressed={saved}
       aria-label={`${saved ? "Bỏ lưu" : "Lưu"} ${project.title}`}
       onClick={(e) => {
         e.stopPropagation();
         onToggle(project.id);
       }}
     >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 3.5h12v17l-6-4-6 4z" />
-      </svg>
+      <Bookmark aria-hidden="true" size={19} strokeWidth={1.9} fill={saved ? "currentColor" : "none"} />
     </button>
   );
 }

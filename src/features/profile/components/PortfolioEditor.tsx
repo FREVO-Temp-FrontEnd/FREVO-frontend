@@ -891,26 +891,16 @@ export function PortfolioEditor({
             <MuiButton
               type="submit"
               variant="contained"
+              color="primary"
+              startIcon={<Check size={16} />}
               disabled={reading}
               sx={{
                 minHeight: "45px",
                 px: { xs: "14px", sm: "20px" },
-                borderRadius: "999px",
-                bgcolor: "var(--orange, #f4490b)",
-                color: "#1b1b19",
                 fontSize: { xs: "12px", sm: "13px" },
-                fontWeight: 900,
-                textTransform: "none",
-                boxShadow: "2px 3px 0 #242521",
-                border: "2px solid #262724",
-                gap: "7px",
-                "&:hover": {
-                  bgcolor: "#ff5b1c",
-                  boxShadow: "2px 3px 0 #242521",
-                },
               }}
             >
-              <Check size={16} /> {work ? "Lưu thay đổi" : "Thêm dự án"}
+              {work ? "Lưu thay đổi" : "Thêm dự án"}
             </MuiButton>
           </Box>
         </Box>

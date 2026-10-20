@@ -4,9 +4,14 @@ import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
 import { externalNavConfig } from "@/lib/config/navigation";
 import { Button } from "@mui/material";
-import { ExternalLink, Mail, Briefcase, Users } from "lucide-react";
+import { ExternalLink, Mail, Briefcase, Users, Menu } from "lucide-react";
 
-export function FreelancerHeader() {
+interface FreelancerHeaderProps {
+  mobileNavOpen?: boolean;
+  onToggleMobileNav?: () => void;
+}
+
+export function FreelancerHeader({ mobileNavOpen, onToggleMobileNav }: FreelancerHeaderProps = {}) {
   const { user, role, logout } = useAuthSession();
   const navigate = useNavigate();
   const { pendingInvitationsCount } = useFreelancer();
@@ -25,7 +30,19 @@ export function FreelancerHeader() {
   return (
     <header className="site-header freelancer-header flex items-center justify-between px-4 py-2 border-b border-neutral-200 bg-white">
       <div className="header-left flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-        <Link to="/" aria-label="FREVO - Khám phá dự án" className="shrink-0">
+        {onToggleMobileNav && (
+          <button
+            type="button"
+            className="freelancer-mobile-menu md:hidden p-1.5 rounded text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+            aria-label="Mở menu điều hướng"
+            aria-expanded={mobileNavOpen}
+            aria-controls="freelancer-mobile-navigation"
+            onClick={onToggleMobileNav}
+          >
+            <Menu size={22} aria-hidden="true" />
+          </button>
+        )}
+        <Link to="/" aria-label="FREVO - Khám phá dự án" className="freelancer-header-logo shrink-0">
           <img className="logo h-8 sm:h-9 w-auto" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
         </Link>
         <span className="header-divider hidden sm:inline-block w-px h-5 bg-neutral-300" aria-hidden="true" />
@@ -70,12 +87,12 @@ export function FreelancerHeader() {
           </div>
         )}
 
-        {/* Link to external Next.js landing page */}
+        {/* Link to external Next.js landing page per Decision 1 */}
         <a
           href={externalNavConfig.landingPageUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden lg:flex text-xs font-semibold text-neutral-500 hover:text-neutral-900 items-center gap-1 ml-2 transition-colors whitespace-nowrap"
+          className="freelancer-external-link hidden lg:flex text-xs font-semibold text-neutral-500 hover:text-neutral-900 items-center gap-1 ml-2 transition-colors whitespace-nowrap"
           title="Mở Trang giới thiệu FREVO (Next.js)"
         >
           <span>Trang giới thiệu</span>
