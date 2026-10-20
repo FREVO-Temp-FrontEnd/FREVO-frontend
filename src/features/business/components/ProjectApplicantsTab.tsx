@@ -60,7 +60,7 @@ function CandidateCard({ candidate, talent, project, onReview, onDecision }: {
         {canDecide && <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => onDecision("reject")}>Từ chối</button>}
         <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={onReview}>Xem chi tiết</button>
         {canDecide && <button type="button" className="fb-button fb-button-small fb-button-primary" onClick={() => onDecision("approve")}><CheckCircle2 size={14} /> Duyệt để trao đổi</button>}
-        {canChat && <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/messages?talent=${candidate.talentId}`}>Mở tin nhắn <ArrowRight size={14} /></Link>}
+        {canChat && <Link className="fb-button fb-button-small fb-button-primary" to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${candidate.talentId}`}>Mở tin nhắn <ArrowRight size={14} /></Link>}
       </div>
     </div>
   </article>;

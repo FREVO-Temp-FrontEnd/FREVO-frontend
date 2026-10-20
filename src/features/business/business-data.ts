@@ -132,7 +132,7 @@ export const initialBusinessState: BusinessState = {
   ],
   notices: [
     { id: "n1", title: "Minh Anh vừa ứng tuyển", detail: "Bộ nhận diện cho Nắng Studio", time: "09:42 hôm nay", read: false, href: "/business/projects/nang-brand/applicants" },
-    { id: "n2", title: "Bạn có tin nhắn mới", detail: "Khánh Linh đã gửi một tin nhắn trong dự án.", time: "10:18 hôm nay", read: false, href: "/business/projects/nang-brand/messages?talent=khanh-linh" },
+    { id: "n2", title: "Bạn có tin nhắn mới", detail: "Khánh Linh đã gửi một tin nhắn trong dự án.", time: "10:18 hôm nay", read: false, href: "/business/messages?view=project&scope=nang-brand&project=nang-brand&talent=khanh-linh" },
     { id: "n3", title: "Mây Creative đã ứng tuyển", detail: "Bộ nhận diện cho Nắng Studio", time: "Hôm qua", read: true, href: "/business/projects/nang-brand/applicants" },
   ],
 };

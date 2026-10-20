@@ -216,7 +216,7 @@ export function BusinessDashboardPage() {
                 return (
                   <Link
                     key={`${msg.projectId}-${msg.talentId}`}
-                    to={`/business/projects/${proj.id}/messages?talent=${talent.id}`}
+                    to={`/business/messages?view=project&scope=${proj.id}&project=${proj.id}&talent=${talent.id}`}
                   >
                     <span
                       className="fb-avatar fb-avatar-sm"

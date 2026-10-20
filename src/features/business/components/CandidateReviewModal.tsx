@@ -311,7 +311,7 @@ export function CandidateReviewModal({
             <>
               <Button
                 component={Link}
-                to={`/business/projects/${project.id}/messages?talent=${candidate.talentId}`}
+                to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${candidate.talentId}`}
                 variant="outlined"
                 startIcon={<MessageCircle size={16} />}
                 sx={{ borderRadius: 2, fontWeight: 600 }}

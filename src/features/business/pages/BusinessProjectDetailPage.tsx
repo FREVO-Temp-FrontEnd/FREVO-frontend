@@ -52,6 +52,11 @@ export function BusinessProjectDetailPage() {
   }
 
   const projectCandidates = candidates.filter((c) => c.projectId === project.id);
+  const firstChatCandidate = projectCandidates
+    .filter((candidate) => candidate.chatUnlocked)
+    .sort((a, b) => (b.chatUnlockedAt ?? "").localeCompare(a.chatUnlockedAt ?? ""))[0];
+  const projectInboxPath = `/business/messages?view=project&scope=${project.id}`
+    + (firstChatCandidate ? `&project=${project.id}&talent=${firstChatCandidate.talentId}` : "");
   const projectInvitations = invitations.filter((i) => i.projectId === project.id);
   const selectedCandidate = projectCandidates.find((c) => c.status === "selected");
   const selectedTalent = selectedCandidate
@@ -102,7 +107,7 @@ export function BusinessProjectDetailPage() {
           </div>
           {project.status !== "draft" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
             {project.status === "published" && <Link className="fb-button fb-button-small fb-button-secondary" to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Xem trang tin tuyển</Link>}
-            <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/messages`}><MessageCircleMore size={14} /> Hộp tin nhắn</Link>
+            <Link className="fb-button fb-button-small fb-button-primary" to={projectInboxPath}><MessageCircleMore size={14} /> Hộp tin nhắn</Link>
           </div>}
         </div>
       </header>
@@ -114,7 +119,7 @@ export function BusinessProjectDetailPage() {
             ? `/business/projects/${project.id}/${tab.segment}`
             : `/business/projects/${project.id}`;
           if (tab.segment === "messages") {
-            targetPath = `/business/projects/${project.id}/messages`;
+            targetPath = projectInboxPath;
           } else if (tab.segment === "agreement") {
             targetPath = `/projects/${project.id}/agreement`;
           } else if (tab.segment === "progress") {
@@ -182,7 +187,7 @@ export function BusinessProjectDetailPage() {
                 <div className="fb-executor-actions">
                   <Link
                     className="fb-button fb-button-small fb-button-primary"
-                    to={`/business/projects/${project.id}/messages`}
+                    to={projectInboxPath}
                   >
                     Mở hội thoại <ArrowRight size={17} />
                   </Link>
@@ -316,7 +321,7 @@ export function BusinessProjectDetailPage() {
                 <>
                   <Link
                     className="fb-button fb-button-small fb-button-primary"
-                    to={`/business/projects/${project.id}/messages`}
+                    to={projectInboxPath}
                   >
                     Hộp tin nhắn <ArrowRight size={17} />
                   </Link>

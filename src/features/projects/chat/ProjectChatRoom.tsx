@@ -192,7 +192,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               <Typography variant="caption" noWrap sx={{ color: "#747773", fontSize: inboxMode ? 12 : 10 }}>
                 {inboxMode ? `Dự án: ${project.title}` : `${project.title} · ${project.category}`}
               </Typography>
-              {inboxMode && <Link to={`/business/projects/${project.id}/messages?talent=${talent.id}`} className="shrink-0 text-[11px] font-semibold text-[#bd3d14] hover:underline">Xem trong dự án</Link>}
+              {inboxMode && <Link to={`/business/projects/${project.id}`} className="shrink-0 text-[11px] font-semibold text-[#bd3d14] hover:underline">Xem dự án</Link>}
             </Box>
           </Box>
         </Box>
