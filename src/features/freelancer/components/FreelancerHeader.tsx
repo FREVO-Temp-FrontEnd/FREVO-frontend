@@ -1,10 +1,8 @@
 import { Link, useNavigate } from "react-router";
 import { NotificationsBell } from "./NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { useFreelancer } from "@/lib/hooks/useFreelancer";
-import { externalNavConfig } from "@/lib/config/navigation";
 import { Button } from "@mui/material";
-import { ExternalLink, Mail, Briefcase, Users, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 
 interface FreelancerHeaderProps {
   mobileNavOpen?: boolean;
@@ -14,7 +12,6 @@ interface FreelancerHeaderProps {
 export function FreelancerHeader({ mobileNavOpen, onToggleMobileNav }: FreelancerHeaderProps = {}) {
   const { user, role, logout } = useAuthSession();
   const navigate = useNavigate();
-  const { pendingInvitationsCount } = useFreelancer();
 
   const isGuest = role === "guest";
   const displayName = user?.name || (role === "client" ? "Nắng Studio" : "Minh Anh");
@@ -45,59 +42,6 @@ export function FreelancerHeader({ mobileNavOpen, onToggleMobileNav }: Freelance
         <Link to="/" aria-label="FREVO - Khám phá dự án" className="freelancer-header-logo shrink-0">
           <img className="logo h-8 sm:h-9 w-auto" src="/assets/frevo-logo.png" width={112} height={45} alt="FREVO" />
         </Link>
-        <span className="header-divider hidden sm:inline-block w-px h-5 bg-neutral-300" aria-hidden="true" />
-        <Link to="/projects" className="screen-name text-xs sm:text-sm font-bold text-neutral-800 hover:text-orange-600 transition-colors whitespace-nowrap">
-          {isGuest ? "Khám phá dự án (Khách)" : "Khám phá dự án"}
-        </Link>
-
-        {/* Freelancer navigation links - shown on medium and desktop screens */}
-        {!isGuest && (
-          <div className="hidden md:flex items-center gap-1.5 ml-1">
-            <Link
-              to="/freelancer/invitations"
-              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
-              title="Xem các lời mời hợp tác từ Doanh nghiệp (FL-010)"
-            >
-              <Mail size={13} />
-              <span>Lời mời</span>
-              {pendingInvitationsCount > 0 && (
-                <span className="bg-orange-600 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight">
-                  {pendingInvitationsCount}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              to="/freelancer/applications"
-              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
-              title="Quản lý các dự án đã ứng tuyển (FL-009)"
-            >
-              <Briefcase size={13} />
-              <span>Đã ứng tuyển</span>
-            </Link>
-
-            <Link
-              to="/team/profile"
-              className="text-xs font-bold text-neutral-700 hover:text-orange-600 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 hover:bg-orange-50 transition-colors whitespace-nowrap"
-              title="Hồ sơ Nhóm sáng tạo & Phân quyền (TEAM-001)"
-            >
-              <Users size={13} />
-              <span>Nhóm (Team)</span>
-            </Link>
-          </div>
-        )}
-
-        {/* Link to external Next.js landing page per Decision 1 */}
-        <a
-          href={externalNavConfig.landingPageUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="freelancer-external-link hidden lg:flex text-xs font-semibold text-neutral-500 hover:text-neutral-900 items-center gap-1 ml-2 transition-colors whitespace-nowrap"
-          title="Mở Trang giới thiệu FREVO (Next.js)"
-        >
-          <span>Trang giới thiệu</span>
-          <ExternalLink size={12} />
-        </a>
       </div>
 
       <div className="header-actions flex items-center gap-2 sm:gap-3 shrink-0">

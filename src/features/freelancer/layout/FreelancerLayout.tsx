@@ -20,7 +20,7 @@ export default function FreelancerLayout() {
   const selectedView = new URLSearchParams(location.search).get("view");
   const projectView: ProjectView = selectedView === "saved" || selectedView === "recommended" ? selectedView : "discover";
   const secondaryPaths = ["/freelancer/invitations", "/freelancer/applications", "/team/profile"];
-  const showSecondaryNav = secondaryPaths.includes(currentPath);
+  const hasPageSidebar = currentPath === "/" || currentPath === "/explore" || currentPath === "/projects" || /^\/projects\/[^/]+$/.test(currentPath);
   const skipTarget = currentPath === "/profile"
     ? "#profile-content"
     : currentPath.startsWith("/profile/portfolio/")
@@ -83,10 +83,12 @@ export default function FreelancerLayout() {
           Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.
         </Typography>
       )}
-      {showSecondaryNav ? (
+      {!hasPageSidebar ? (
         <div className="freelancer-secondary-shell">
-          <FreelancerNav view="discover" onViewChange={openProjectView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />
-          <main id="main" className="freelancer-secondary-content"><Outlet /></main>
+          <FreelancerNav view={projectView} onViewChange={openProjectView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />
+          {secondaryPaths.includes(currentPath)
+            ? <main id="main" className="freelancer-secondary-content"><Outlet /></main>
+            : <div className="freelancer-secondary-content"><Outlet /></div>}
         </div>
       ) : <Outlet />}
       {navNotice && <div id="nav-notice" role="status" onClick={() => setNavNotice("")}>{navNotice}</div>}
