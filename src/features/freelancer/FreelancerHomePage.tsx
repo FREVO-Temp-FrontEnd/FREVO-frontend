@@ -3,7 +3,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
-import type { SortMode } from "@/lib/types/project.types";
 import { ProjectFilters } from "@/features/projects/dashboard/ProjectFilters";
 import { FreelancerNav, type ProjectView } from "./components/FreelancerNav";
 import { ProjectList } from "@/features/projects/dashboard/ProjectList";
@@ -32,8 +31,6 @@ export default function FreelancerHomePage() {
     toggleCategory,
     minimumBudget,
     setMinimumBudget,
-    remoteOnly,
-    setRemoteOnly,
     sortMode,
     setSortMode,
     hasFilters,
@@ -111,20 +108,14 @@ export default function FreelancerHomePage() {
               <span className="sr-only">Tìm kiếm dự án</span>
               <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm theo tên, doanh nghiệp, kỹ năng..." />
             </label>
-            <label className="sort-wrap" htmlFor="sort">
-              <span>Sắp xếp</span>
-              <select id="sort" value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
-                <option value="newest">Mới nhất</option><option value="budget">Ngân sách cao</option><option value="deadline">Hạn gần nhất</option>
-              </select>
-            </label>
           </div>
           <ProjectFilters
+          sortMode={sortMode}
+          setSortMode={setSortMode}
           selectedCategories={selectedCategories}
           toggleCategory={toggleCategory}
           minimumBudget={minimumBudget}
           setMinimumBudget={setMinimumBudget}
-          remoteOnly={remoteOnly}
-          setRemoteOnly={setRemoteOnly}
           hasFilters={hasFilters}
           clearFilters={clearFilters}
         />

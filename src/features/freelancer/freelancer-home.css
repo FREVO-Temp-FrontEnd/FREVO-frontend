@@ -24,13 +24,6 @@
 .job-nav-option.active{background:var(--peach);color:var(--orange-dark);font-weight:700}
 .nav-footer{margin-top:18px;padding-top:12px;border-top:1px solid #deded9}
 @media(min-width:781px){.freelancer-nav nav>.nav-item+.nav-item,.nav-footer>.nav-item+.nav-item{margin-top:4px}}
-.discovery-filters{margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
-.filter-chip-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px}.filter-chip-row-bottom{margin-top:10px;padding-top:10px;border-top:1px solid #f0f1ed}
-.filter-label{margin-right:3px;color:#9aa0a6;font-size:10px;font-weight:700;text-transform:uppercase;white-space:nowrap}
-.filter-chip,.budget-chip{display:inline-flex;align-items:center;gap:4px;min-height:25px;padding:3px 10px;border:1px solid #d6dad1;border-radius:999px;background:#f7f8f6;color:#4a4c48;font-size:10px;font-weight:600;white-space:nowrap}
-.filter-chip.is-selected{border-color:var(--ink);background:var(--ink);color:#fff}.budget-chip{min-height:23px;background:#fff}.budget-chip.is-selected{border-color:#ffd9c7;background:var(--peach);color:var(--orange-dark)}
-.filter-remote{display:inline-flex;align-items:center;gap:5px;font-size:10px;white-space:nowrap;cursor:pointer}.filter-remote input{width:13px;height:13px;margin:0;accent-color:var(--orange)}
-.clear-filters{margin-left:auto;padding:2px 0;border:0;background:transparent;color:#9aa0a6;font-size:10px;white-space:nowrap}.clear-filters:not(:disabled){color:var(--orange-dark)}
 .notifications-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--peach);font-size:13px}.notifications-head button{border:0;background:none;color:var(--orange);font-size:11px;font-weight:700}
 .notification-item{display:flex;gap:10px;padding:13px 16px;border-top:1px solid var(--line);font-size:11px}.notification-item strong{display:block;font-size:11px}.notification-item p{margin-top:3px;color:#5f6368}.notification-item small{display:block;margin-top:5px;color:#9aa0a6}
 .notification-dot{flex:none;width:8px;height:8px;margin-top:4px;border-radius:50%;background:var(--orange)}.notification-dot.is-read{background:#d9ddd7}

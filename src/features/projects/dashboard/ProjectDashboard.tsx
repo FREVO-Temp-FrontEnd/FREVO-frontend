@@ -1,7 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useProjects } from "@/lib/hooks/useProjects";
-import type { SortMode } from "@/lib/types/project.types";
 import { ProjectFilters } from "./ProjectFilters";
 import { ProjectList } from "./ProjectList";
 import { ProjectDetail } from "../details/ProjectDetail";
@@ -22,8 +21,6 @@ export default function ProjectDashboard() {
     toggleCategory,
     minimumBudget,
     setMinimumBudget,
-    remoteOnly,
-    setRemoteOnly,
     sortMode,
     setSortMode,
     hasFilters,
@@ -111,12 +108,12 @@ export default function ProjectDashboard() {
 
       <div className="page-grid grid">
         <ProjectFilters
+          sortMode={sortMode}
+          setSortMode={setSortMode}
           selectedCategories={selectedCategories}
           toggleCategory={toggleCategory}
           minimumBudget={minimumBudget}
           setMinimumBudget={setMinimumBudget}
-          remoteOnly={remoteOnly}
-          setRemoteOnly={setRemoteOnly}
           hasFilters={hasFilters}
           clearFilters={clearFilters}
         />
@@ -137,18 +134,6 @@ export default function ProjectDashboard() {
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo tên, doanh nghiệp, kỹ năng..."
               />
-            </label>
-            <label className="sort-wrap" htmlFor="sort">
-              <span>Sắp xếp</span>
-              <select
-                id="sort"
-                value={sortMode}
-                onChange={(event) => setSortMode(event.target.value as SortMode)}
-              >
-                <option value="newest">Mới nhất</option>
-                <option value="budget">Ngân sách cao</option>
-                <option value="deadline">Hạn gần nhất</option>
-              </select>
             </label>
           </div>
           <p className="result-line" role="status" aria-live="polite">
