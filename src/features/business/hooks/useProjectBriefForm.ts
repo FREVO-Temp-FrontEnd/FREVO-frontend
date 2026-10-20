@@ -1,0 +1,154 @@
+import { useState } from "react";
+import type { ProjectBrief } from "@/lib/types/marketplace.types";
+
+export interface BriefFields {
+  title: string;
+  category: string;
+  description: string;
+  skills: string[];
+  deliverables: string[];
+  duration: string;
+  budgetMin: string;
+  budgetMax: string;
+  deadline: string;
+  applicationDeadline: string;
+  preference: ProjectBrief["preference"];
+  referenceFiles: { name: string; size: number }[];
+}
+
+export type BriefField = keyof BriefFields;
+export type BriefErrors = Partial<Record<BriefField, string>>;
+
+function toInputDate(value?: string) {
+  if (!value) return "";
+  const [day, month, year] = value.split("/");
+  return day && month && year ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}` : "";
+}
+
+function toDisplayDate(value: string) {
+  if (!value) return "";
+  const [year, month, day] = value.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function initialFields(project?: ProjectBrief): BriefFields {
+  return {
+    title: project?.title === "Dự án chưa đặt tên" ? "" : project?.title ?? "",
+    category: project?.category ?? "Thiết kế thương hiệu",
+    description: project?.description ?? "",
+    skills: project?.skills ?? [],
+    deliverables: project?.deliverables.length ? project.deliverables : [""],
+    duration: project?.duration ?? "4 tuần",
+    budgetMin: project?.budgetMin ? String(project.budgetMin) : "",
+    budgetMax: project?.budgetMax ? String(project.budgetMax) : "",
+    deadline: toInputDate(project?.deadline),
+    applicationDeadline: toInputDate(project?.applicationDeadline),
+    preference: project?.preference ?? "both",
+    referenceFiles: project?.referenceFiles ?? [],
+  };
+}
+
+function validate(fields: BriefFields): BriefErrors {
+  const errors: BriefErrors = {};
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  if (!fields.title.trim()) errors.title = "Vui lòng nhập tên dự án.";
+  if (!fields.category.trim()) errors.category = "Vui lòng chọn lĩnh vực.";
+  if (!fields.description.trim()) errors.description = "Vui lòng mô tả dự án.";
+  if (!fields.skills.length) errors.skills = "Hãy thêm ít nhất một kỹ năng.";
+  if (!fields.deliverables.some((item) => item.trim())) errors.deliverables = "Hãy thêm ít nhất một sản phẩm bàn giao.";
+
+  const min = Number(fields.budgetMin);
+  const max = Number(fields.budgetMax);
+  if (!fields.budgetMin || !fields.budgetMax || !Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0 || max < min) {
+    errors.budgetMin = "Nhập khoảng ngân sách hợp lệ; mức tối đa không nhỏ hơn mức tối thiểu.";
+  }
+
+  if (!fields.deadline) errors.deadline = "Vui lòng chọn hạn hoàn thành.";
+  else if (fields.deadline <= today) errors.deadline = "Hạn hoàn thành phải sau hôm nay.";
+  if (fields.applicationDeadline && fields.applicationDeadline <= today) {
+    errors.applicationDeadline = "Hạn nhận hồ sơ phải sau hôm nay.";
+  }
+  if (fields.applicationDeadline && fields.deadline && fields.applicationDeadline >= fields.deadline) {
+    errors.applicationDeadline = "Hạn nhận hồ sơ phải trước hạn hoàn thành.";
+  }
+  return errors;
+}
+
+export function useProjectBriefForm(existingProject?: ProjectBrief) {
+  const [fields, setFields] = useState<BriefFields>(() => initialFields(existingProject));
+  const [errors, setErrors] = useState<BriefErrors>({});
+  const [skillInput, setSkillInput] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
+
+  function setField<K extends BriefField>(field: K, value: BriefFields[K]) {
+    setFields((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+  }
+
+  function addSkill() {
+    const skill = skillInput.trim().replace(/,$/, "");
+    if (skill && !fields.skills.some((item) => item.toLocaleLowerCase("vi") === skill.toLocaleLowerCase("vi"))) {
+      setField("skills", [...fields.skills, skill]);
+    }
+    setSkillInput("");
+  }
+
+  function openPreview() {
+    const pendingSkill = skillInput.trim().replace(/,$/, "");
+    const preparedFields = pendingSkill && !fields.skills.some((item) => item.toLocaleLowerCase("vi") === pendingSkill.toLocaleLowerCase("vi"))
+      ? { ...fields, skills: [...fields.skills, pendingSkill] }
+      : fields;
+    if (preparedFields !== fields) setFields(preparedFields);
+    setSkillInput("");
+    const nextErrors = validate(preparedFields);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return false;
+    setIsPreview(true);
+    return true;
+  }
+
+  function buildProject(status: "draft" | "published") {
+    if (status === "published") {
+      const nextErrors = validate(fields);
+      setErrors(nextErrors);
+      if (Object.keys(nextErrors).length) {
+        setIsPreview(false);
+        return undefined;
+      }
+    }
+    const min = Number(fields.budgetMin);
+    const max = Number(fields.budgetMax);
+    const hasBudget = min > 0 && max > 0 && max >= min;
+    const money = (value: number) => new Intl.NumberFormat("vi-VN").format(value);
+    const pendingSkill = skillInput.trim().replace(/,$/, "");
+    const skills = pendingSkill && !fields.skills.some((item) => item.toLocaleLowerCase("vi") === pendingSkill.toLocaleLowerCase("vi"))
+      ? [...fields.skills, pendingSkill]
+      : fields.skills;
+
+    return {
+      ...existingProject,
+      id: existingProject?.id ?? `project-${Date.now()}`,
+      title: fields.title.trim() || "Dự án chưa đặt tên",
+      category: fields.category,
+      company: existingProject?.company ?? "Nắng Studio",
+      remote: existingProject?.remote ?? true,
+      description: fields.description.trim(),
+      skills,
+      deliverables: fields.deliverables.map((item) => item.trim()).filter(Boolean),
+      referenceFiles: fields.referenceFiles,
+      budget: hasBudget ? `${money(min)}${min === max ? "" : `–${money(max)}`} VNĐ` : "",
+      budgetMin: min > 0 ? min : undefined,
+      budgetMax: max > 0 ? max : undefined,
+      duration: fields.duration,
+      deadline: toDisplayDate(fields.deadline),
+      applicationDeadline: toDisplayDate(fields.applicationDeadline),
+      preference: fields.preference,
+      status,
+      createdAt: existingProject?.createdAt ?? new Date().toISOString(),
+      publishedAt: status === "published" ? existingProject?.publishedAt ?? new Date().toISOString() : existingProject?.publishedAt,
+    } satisfies ProjectBrief;
+  }
+
+  return { fields, setField, errors, skillInput, setSkillInput, addSkill, isPreview, setIsPreview, openPreview, buildProject };
+}

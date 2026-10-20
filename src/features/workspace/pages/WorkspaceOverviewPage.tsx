@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import {
   Container,
   Box,
@@ -7,14 +8,11 @@ import {
   Paper,
   Button,
   Chip,
-  Breadcrumbs,
-  Link as MuiLink,
 } from "@mui/material";
 import {
   MessageCircle,
   FileText,
   DollarSign,
-  ArrowLeft,
   FileEdit,
 } from "lucide-react";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
@@ -113,28 +111,18 @@ export const WorkspaceOverviewPage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 2 }}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <MuiLink
-            component="button"
-            variant="body2"
-            onClick={() => navigate(isBusiness ? "/business/projects" : "/freelancer/applications")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
-              color: "#64748b",
-              textDecoration: "none",
-              "&:hover": { color: "#f4490b" },
-            }}
-          >
-            <ArrowLeft size={16} /> Quay lại danh sách
-          </MuiLink>
-          <Typography variant="body2" color="text.primary" sx={{ fontWeight: 600 }}>
-            Không gian làm việc: {project.title}
-          </Typography>
-        </Breadcrumbs>
-      </Box>
+      <ProjectBreadcrumbs items={isBusiness
+        ? [
+            { label: "Dự án của tôi", to: "/business/projects" },
+            { label: project.title, to: `/business/projects/${project.id}` },
+            { label: "Không gian làm việc" },
+          ]
+        : [
+            { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
+            { label: project.title, to: `/projects/${project.id}/details` },
+            { label: "Không gian làm việc" },
+          ]}
+      />
 
       {/* Header Banner */}
       <Paper

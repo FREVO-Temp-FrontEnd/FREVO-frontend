@@ -16,7 +16,6 @@ import {
   UserCheck,
   MessageCircle,
   X,
-  Check,
   ShieldCheck,
   Lock,
   ArrowRight,
@@ -24,7 +23,6 @@ import {
   FileText,
 } from "lucide-react";
 import type { Candidate, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
-import { calculateMatchingScore } from "@/lib/utils/matchingScore";
 
 interface CandidateReviewModalProps {
   open: boolean;
@@ -45,7 +43,9 @@ export function CandidateReviewModal({
 }: CandidateReviewModalProps) {
   if (!candidate || !talent) return null;
 
-  const evaluation = calculateMatchingScore(project, talent);
+  const matchedSkills = talent.skills.filter((skill) => project.skills.some((required) => required.toLocaleLowerCase("vi") === skill.toLocaleLowerCase("vi")));
+  const canApprove = project.status === "published" && (candidate.status === "new" || candidate.status === "under_review") && !candidate.chatUnlocked;
+  const canChat = candidate.chatUnlocked && candidate.status !== "not_selected";
   const formattedReceivedAt = new Date(candidate.receivedAt).toLocaleDateString("vi-VN");
 
   return (
@@ -60,6 +60,8 @@ export function CandidateReviewModal({
             borderRadius: 3,
             p: 1,
             boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
           },
         },
       }}
@@ -89,10 +91,10 @@ export function CandidateReviewModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
-              Thẩm định hồ sơ ứng viên (BUS-013)
+              Chi tiết hồ sơ ứng viên
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Nguồn: {candidate.source} (BR-011) · Nộp ngày {formattedReceivedAt}
+              Nguồn: {candidate.source} · Nộp ngày {formattedReceivedAt}
             </Typography>
           </Box>
         </Box>
@@ -101,7 +103,7 @@ export function CandidateReviewModal({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2.5, py: 2 }}>
+      <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2.5, py: 2, scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
         {/* Candidate Identity Header */}
         <Box
           sx={{
@@ -151,24 +153,14 @@ export function CandidateReviewModal({
             </Box>
           </Box>
 
-          <Box sx={{ textAlign: "right" }}>
-            <Chip
-              label={`${evaluation.score}% phù hợp AI`}
-              color={evaluation.score >= 80 ? "success" : "warning"}
-              size="small"
-              sx={{ fontWeight: 700 }}
-            />
-            <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: 0.5 }}>
-              Đối sánh theo brief (DEC-01)
-            </Typography>
-          </Box>
+          <Chip label={canChat ? "Đã duyệt trao đổi" : canApprove ? "Chờ xem xét" : "Lưu trong lịch sử"} size="small" color={canChat ? "success" : "default"} variant="outlined" />
         </Box>
 
         {/* Candidate Proposal Statement */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <FileText size={16} color="#f4490b" />
-            Nội dung đề xuất ứng tuyển:
+            Lời giới thiệu ứng tuyển
           </Typography>
           <Box
             sx={{
@@ -189,24 +181,14 @@ export function CandidateReviewModal({
         {/* Explainable Fit Badges & Overlap Skills */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            Đối sánh năng lực & Bằng chứng kỹ năng (FR-035, BR-026)
+            Kỹ năng liên quan đến brief
           </Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1.5 }}>
-            {evaluation.reasons.map((reason, idx) => (
-              <Chip
-                key={idx}
-                icon={<Check size={14} color="#15803d" />}
-                label={reason}
-                size="small"
-                sx={{ bgcolor: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0", fontWeight: 500 }}
-              />
-            ))}
-          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            {matchedSkills.length ? `${matchedSkills.length} kỹ năng trùng với yêu cầu dự án.` : "Chưa có kỹ năng trùng trực tiếp với brief."}
+          </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8 }}>
             {talent.skills.map((skill) => {
-              const matched = evaluation.skillOverlap
-                .map((s) => s.toLowerCase().trim())
-                .includes(skill.toLowerCase().trim());
+              const matched = matchedSkills.includes(skill);
               return (
                 <Chip
                   key={skill}
@@ -225,7 +207,7 @@ export function CandidateReviewModal({
         {talent.portfolio.length > 0 && (
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              Portfolio minh chứng năng lực (BR-027)
+              Portfolio minh chứng năng lực
             </Typography>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
               {talent.portfolio.slice(0, 4).map((item, idx) => (
@@ -259,7 +241,7 @@ export function CandidateReviewModal({
         <Divider />
 
         {/* GATED CHAT STATUS NOTICE (FR-031, BR-012, BR-013) */}
-        {candidate.chatUnlocked ? (
+        {canChat ? (
           <Alert
             severity="success"
             icon={<ShieldCheck size={18} />}
@@ -272,13 +254,13 @@ export function CandidateReviewModal({
             }}
           >
             <Typography variant="caption" sx={{ display: "block", fontWeight: 600 }}>
-              Kênh trao đổi đã được kích hoạt (FR-031)
+              Kênh trao đổi đã được mở
             </Typography>
             <Typography variant="caption" sx={{ display: "block" }}>
               Hồ sơ này đã được phê duyệt mở chat. Bạn và ứng viên có thể trực tiếp nhắn tin trao đổi về chi tiết phạm vi công việc.
             </Typography>
           </Alert>
-        ) : (
+        ) : canApprove ? (
           <Alert
             severity="warning"
             icon={<Lock size={18} />}
@@ -291,11 +273,15 @@ export function CandidateReviewModal({
             }}
           >
             <Typography variant="caption" sx={{ display: "block", fontWeight: 700 }}>
-              Kênh trao đổi đang bị khóa (BR-012, BR-013, FR-031)
+              Kênh trao đổi đang bị khóa
             </Typography>
             <Typography variant="caption" sx={{ display: "block" }}>
-              Để bảo vệ chất lượng trao đổi trên nền tảng, tính năng nhắn tin chỉ được kích hoạt sau khi Doanh nghiệp nhấn nút <strong>Phê duyệt trao đổi & Mở chat</strong> dưới đây.
+              Business cần duyệt hồ sơ trước khi có thể nhắn tin với ứng viên.
             </Typography>
+          </Alert>
+        ) : (
+          <Alert severity="info" sx={{ borderRadius: 2 }}>
+            Hồ sơ này được lưu trong lịch sử tuyển dụng. Hiện không thể duyệt hoặc mở thêm cuộc trao đổi.
           </Alert>
         )}
       </DialogContent>
@@ -306,7 +292,7 @@ export function CandidateReviewModal({
         </Button>
 
         <Box sx={{ display: "flex", gap: 1.5 }}>
-          {!candidate.chatUnlocked ? (
+          {canApprove ? (
             <Button
               variant="contained"
               startIcon={<ShieldCheck size={16} />}
@@ -317,13 +303,11 @@ export function CandidateReviewModal({
               sx={{
                 borderRadius: 2,
                 fontWeight: 700,
-                bgcolor: "#16a34a",
-                "&:hover": { bgcolor: "#15803d" },
               }}
             >
-              Phê duyệt trao đổi & Mở chat (FR-031)
+              Duyệt để trao đổi
             </Button>
-          ) : (
+          ) : canChat ? (
             <>
               <Button
                 component={Link}
@@ -343,14 +327,12 @@ export function CandidateReviewModal({
                 sx={{
                   borderRadius: 2,
                   fontWeight: 600,
-                  bgcolor: "#f4490b",
-                  "&:hover": { bgcolor: "#d63b04" },
                 }}
               >
-                Tạo đề xuất hợp tác (FR-032)
+                Tạo đề xuất hợp tác
               </Button>
             </>
-          )}
+          ) : null}
         </Box>
       </DialogActions>
     </Dialog>

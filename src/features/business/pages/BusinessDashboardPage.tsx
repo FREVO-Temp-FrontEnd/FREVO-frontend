@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import {
-  Plus,
   Users,
   Clock3,
   MessageCircle,
@@ -124,9 +123,6 @@ export function BusinessDashboardPage() {
             </h1>
             <p>Theo dõi tiến độ dự án và tìm cộng sự tài năng cho ý tưởng tiếp theo.</p>
           </div>
-          <Link className="fb-button fb-button-primary" to="/business/projects/new">
-            <Plus size={17} /> Đăng dự án mới
-          </Link>
         </section>
 
         {/* Stats Grid */}
