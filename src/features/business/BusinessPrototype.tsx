@@ -16,6 +16,8 @@ import { BusinessDashboardPage } from "./pages/BusinessDashboardPage";
 import { MyProjectsPage } from "./pages/MyProjectsPage";
 import { CreateBriefPage } from "./pages/CreateBriefPage";
 import { BusinessProjectDetailPage } from "./pages/BusinessProjectDetailPage";
+import { BusinessMessagesPage } from "./pages/BusinessMessagesPage";
+import { BusinessInboxPage } from "./pages/BusinessInboxPage";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import "./business.css";
 
@@ -87,7 +89,7 @@ export default function BusinessPrototype() {
   } else if (parts[1] === "projects" && projectId && (!section || section === "suggestions" || section === "invitations" || section === "applicants" || section === "executor")) {
     content = <BusinessProjectDetailPage />;
   } else if (parts[1] === "projects" && projectId && section === "messages") {
-    content = <Navigate to={`/projects/${projectId}/chat`} replace />;
+    content = <BusinessMessagesPage projectId={projectId} />;
   } else if (parts[1] === "projects" && projectId && (section === "agreement" || section === "propose")) {
     content = <Navigate to={`/projects/${projectId}/agreement`} replace />;
   } else if (parts[1] === "projects" && projectId && section === "progress") {
@@ -96,7 +98,8 @@ export default function BusinessPrototype() {
     content = <BusinessProjectDetailPage />;
   }
   else if (parts[1] === "talent" && parts[2]) content = <TalentProfile state={state} talentId={parts[2]} projectId={new URLSearchParams(location.search).get("project") ?? state.projects[0]?.id ?? ""} onInvite={sendInvitation} />;
-  else if (parts[1] === "messages" || parts[1] === "agreements") content = <Navigate to="/business/projects" replace />;
+  else if (parts[1] === "messages") content = <BusinessInboxPage />;
+  else if (parts[1] === "agreements") content = <Navigate to="/business/projects" replace />;
   else if (parts[1] === "notifications") content = <NotificationsPage notices={state.notices} onRead={id => setState(previous => ({ ...previous, notices: previous.notices.map(notice => notice.id === id ? { ...notice, read: true } : notice) }))} onReadAll={() => setState(previous => ({ ...previous, notices: previous.notices.map(notice => ({ ...notice, read: true })) }))} />;
   else if (parts[1] === "profile") content = <BusinessProfilePage name={state.businessName} projectCount={state.projects.length} />;
   else if (parts[1] === "settings") content = <SettingsPage name={state.businessName} onSave={name => { setState(previous => ({ ...previous, businessName: name })); setToast("Đã lưu thông tin Business trong phiên xem này."); }} />;

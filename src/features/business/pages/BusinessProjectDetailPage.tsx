@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircle, UserRoundPlus, UsersRound, Wallet } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircleMore, UsersRound, Wallet } from "lucide-react";
 import { Typography } from "@mui/material";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -71,7 +71,7 @@ export function BusinessProjectDetailPage() {
   if (project.status === "ongoing") {
     tabs.push(
       { segment: "executor", label: "Người thực hiện" },
-      { segment: "messages", label: "Tin nhắn" },
+      { segment: "messages", label: "Hộp tin nhắn" },
       { segment: "progress", label: "Tiến độ" },
       { segment: "agreement", label: "Hợp đồng" }
     );
@@ -80,7 +80,7 @@ export function BusinessProjectDetailPage() {
   } else if (project.status === "closed") {
     tabs.push(
       { segment: "applicants", label: "Ứng viên", count: projectCandidates.length },
-      { segment: "messages", label: "Tin nhắn" }
+      { segment: "messages", label: "Hộp tin nhắn" }
     );
   }
 
@@ -100,9 +100,9 @@ export function BusinessProjectDetailPage() {
               <span className="rounded-full bg-[#f2f3f0] px-2 py-0.5 text-[#62625e]">{project.category}</span>
             </div>
           </div>
-          {project.status === "published" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-            <Link className="fb-button fb-button-small fb-button-secondary" to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Xem trang tin tuyển</Link>
-            <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/suggestions`}><UserRoundPlus size={14} /> Tìm thêm đối tác</Link>
+          {project.status !== "draft" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
+            {project.status === "published" && <Link className="fb-button fb-button-small fb-button-secondary" to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Xem trang tin tuyển</Link>}
+            <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/messages`}><MessageCircleMore size={14} /> Hộp tin nhắn</Link>
           </div>}
         </div>
       </header>
@@ -114,7 +114,7 @@ export function BusinessProjectDetailPage() {
             ? `/business/projects/${project.id}/${tab.segment}`
             : `/business/projects/${project.id}`;
           if (tab.segment === "messages") {
-            targetPath = `/projects/${project.id}/chat`;
+            targetPath = `/business/projects/${project.id}/messages`;
           } else if (tab.segment === "agreement") {
             targetPath = `/projects/${project.id}/agreement`;
           } else if (tab.segment === "progress") {
@@ -137,7 +137,6 @@ export function BusinessProjectDetailPage() {
         </div>
         {project.status === "published" && <div className="hidden shrink-0 items-center gap-3 text-xs text-[#747773] xl:flex">
           <Link to={`/business/projects/${project.id}/brief`} className={`hover:text-[#bd3d14] ${currentTab === "brief" ? "font-bold text-[#bd3d14]" : ""}`}>Xem brief</Link>
-          <Link to={`/projects/${project.id}/chat`} className="inline-flex items-center gap-1 hover:text-[#bd3d14]"><MessageCircle size={14} /> Tin nhắn</Link>
         </div>}
       </nav>
 
@@ -183,7 +182,7 @@ export function BusinessProjectDetailPage() {
                 <div className="fb-executor-actions">
                   <Link
                     className="fb-button fb-button-small fb-button-primary"
-                    to={`/projects/${project.id}/chat`}
+                    to={`/business/projects/${project.id}/messages`}
                   >
                     Mở hội thoại <ArrowRight size={17} />
                   </Link>
@@ -317,9 +316,9 @@ export function BusinessProjectDetailPage() {
                 <>
                   <Link
                     className="fb-button fb-button-small fb-button-primary"
-                    to={`/projects/${project.id}/chat`}
+                    to={`/business/projects/${project.id}/messages`}
                   >
-                    Tin nhắn dự án <ArrowRight size={17} />
+                    Hộp tin nhắn <ArrowRight size={17} />
                   </Link>
                   <Link
                     className="fb-button fb-button-small fb-button-secondary"
