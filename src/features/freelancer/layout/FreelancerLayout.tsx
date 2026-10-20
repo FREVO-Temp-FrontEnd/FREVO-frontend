@@ -32,7 +32,14 @@ export default function FreelancerLayout() {
 
   const legacyChatMatch = currentPath.match(/^\/projects\/([^/]+)\/chat$/);
   if ((role === "client" || role === "admin") && legacyChatMatch) {
-    return <Navigate to={`/business/projects/${legacyChatMatch[1]}/messages${location.search}`} replace />;
+    const projectId = legacyChatMatch[1];
+    const talentId = new URLSearchParams(location.search).get("talent");
+    const inboxParams = new URLSearchParams({ view: "project", scope: projectId });
+    if (talentId) {
+      inboxParams.set("project", projectId);
+      inboxParams.set("talent", talentId);
+    }
+    return <Navigate to={`/business/messages?${inboxParams.toString()}`} replace />;
   }
 
   return (

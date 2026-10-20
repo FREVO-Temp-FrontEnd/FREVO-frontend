@@ -7,16 +7,19 @@ import {
   MessageCircleMore,
   UserRound,
   Settings2,
-  Bell,
   Check,
   X,
   ExternalLink,
   LogOut,
+  ChevronDown,
+  LifeBuoy,
 } from "lucide-react";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import { useBusiness } from "@/lib/hooks/useBusiness";
+import { BusinessNotificationPopover } from "../components/BusinessNotificationPopover";
 import { externalNavConfig } from "@/lib/config/navigation";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { Box, Chip } from "@mui/material";
+import { Avatar, Box, Chip, Menu, MenuItem } from "@mui/material";
 import "@/features/business/business.css";
 
 const navItems = [
@@ -42,11 +45,10 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
   const location = useLocation();
   const currentPath = location.pathname.replace(/\/+$/, "") || "/";
   const navigate = useNavigate();
-  const { businessName, notifications, toast, setToast } = useBusiness();
+  const { businessName, toast, setToast } = useBusiness();
   const { logout } = useAuthSession();
   const [mobileNav, setMobileNav] = useState(false);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState<HTMLElement | null>(null);
 
   return (
     <Box
@@ -184,7 +186,7 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
 
           <span>Không gian doanh nghiệp · {businessName}</span>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Box sx={{ "&&": { display: "flex", alignItems: "center", gap: { xs: 2, sm: 3 } } }}>
             <Chip
               size="small"
               label="BẢN XEM TRƯỚC"
@@ -196,49 +198,67 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
                 letterSpacing: "0.05em",
               }}
             />
-            <Link
-              to="/business/notifications"
-              aria-label={`Thông báo, ${unreadCount} chưa đọc`}
-              style={{ position: "relative" }}
-            >
-              <Bell size={19} />
-              {unreadCount > 0 && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: -4,
-                    right: -4,
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    backgroundColor: "#ff5e22",
-                  }}
-                />
-              )}
-            </Link>
-            <span
-              className="fb-top-avatar"
-              title={businessName}
-              aria-label={`Tài khoản ${businessName}`}
-            >
-              {businessName.charAt(0).toLocaleUpperCase("vi")}
-            </span>
+            <BusinessNotificationPopover />
             <Box
               component="button"
               type="button"
-              onClick={() => {
-                logout();
-                navigate("/login", { replace: true, state: {} });
+              onClick={(event) => setAccountMenuAnchor(event.currentTarget)}
+              aria-label={`Tài khoản ${businessName}`}
+              aria-haspopup="menu"
+              aria-expanded={Boolean(accountMenuAnchor)}
+              aria-controls={accountMenuAnchor ? "business-account-menu" : undefined}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                minWidth: 72,
+                height: 42,
+                p: "5px 8px 5px 5px",
+                borderRadius: 999,
+                bgcolor: "#f3f5f3",
+                color: "#4e5a62",
+                border: "1px solid #e4e6e2",
+                cursor: "pointer",
+                transition: "background-color 150ms ease",
+                "&:hover": { bgcolor: "#e9eeeb" },
+                "&:focus-visible": { outline: "2px solid #f4490b", outlineOffset: 3 },
               }}
-              className="fb-button fb-button-secondary fb-button-small"
-              sx={{ display: { xs: "none", sm: "inline-flex" }, alignItems: "center", gap: "6px", cursor: "pointer" }}
-              title="Đăng xuất khỏi tài khoản"
-              aria-label="Đăng xuất"
             >
-              <LogOut size={15} />
-              <span>Đăng xuất</span>
+              <Avatar sx={{ width: 32, height: 32, bgcolor: "#dfe5e9", color: "#fff" }}>
+                <PersonRoundedIcon sx={{ fontSize: 27 }} />
+              </Avatar>
+              <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
             </Box>
-          </div>
+            <Menu
+              id="business-account-menu"
+              anchorEl={accountMenuAnchor}
+              open={Boolean(accountMenuAnchor)}
+              onClose={() => setAccountMenuAnchor(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              slotProps={{ paper: { sx: { mt: 1, minWidth: 180, border: "1px solid #e4e6e2", borderRadius: 2, boxShadow: "0 12px 30px rgba(32,32,31,.12)" } } }}
+            >
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  setToast("Kênh hỗ trợ đang được hoàn thiện trong bản xem trước.");
+                }}
+                sx={{ gap: 1.5, py: 1.25, fontFamily: '"Space Grotesk", Arial, sans-serif', fontSize: 13, fontWeight: 600 }}
+              >
+                <LifeBuoy size={17} aria-hidden="true" /> Hỗ trợ
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setAccountMenuAnchor(null);
+                  logout();
+                  navigate("/login", { replace: true, state: {} });
+                }}
+                sx={{ gap: 1.5, py: 1.25, fontFamily: '"Space Grotesk", Arial, sans-serif', fontSize: 13, fontWeight: 600, color: "#a34a31" }}
+              >
+                <LogOut size={17} aria-hidden="true" /> Đăng xuất
+              </MenuItem>
+            </Menu>
+          </Box>
         </header>
 
         <Box

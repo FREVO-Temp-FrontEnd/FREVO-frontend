@@ -122,7 +122,7 @@ export function MyProjectsPage() {
       </div>
 
       <div className="mb-5 flex flex-col gap-4">
-        <div role="group" aria-label="Lọc trạng thái dự án" className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-[#eeefec] p-1 sm:w-fit">
+        <div role="group" aria-label="Lọc trạng thái dự án" className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-[#e4e6e2] bg-white p-1 sm:w-fit">
           {activeFilters.map((item) => (
             <Button
               key={item.value}
@@ -131,14 +131,21 @@ export function MyProjectsPage() {
               onClick={() => setFilter(item.value)}
               sx={{
                 flexShrink: 0, minHeight: 36, px: 1.75, py: 0.75, borderRadius: 999,
-                color: filter === item.value ? "#fff" : "#62645e",
-                bgcolor: filter === item.value ? "#20201f" : "transparent",
-                "&&": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 12, fontWeight: 600, textTransform: "none" },
-                "&:hover": { bgcolor: filter === item.value ? "#20201f" : "#e4e6e2" },
+                "&&": {
+                  color: filter === item.value ? "#fff" : "#62645e",
+                  bgcolor: filter === item.value ? "#f4490b" : "transparent",
+                  fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: 12,
+                  fontWeight: filter === item.value ? 700 : 600, textTransform: "none",
+                },
+                "&&:hover": {
+                  color: filter === item.value ? "#fff" : "#bd3d14",
+                  bgcolor: filter === item.value ? "#bd3d14" : "#fff0e9",
+                },
+                "&&:focus-visible": { outline: "2px solid #f4490b", outlineOffset: 2 },
               }}
             >
               {item.label}
-              <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] leading-none ${filter === item.value ? "bg-white/20 text-white" : "bg-white text-[#62645e]"}`}>{counts[item.value]}</span>
+              <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] leading-none ${filter === item.value ? "bg-white/20 text-white" : "bg-[#f2f3f0] text-[#62645e]"}`}>{counts[item.value]}</span>
             </Button>
           ))}
         </div>

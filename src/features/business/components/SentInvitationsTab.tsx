@@ -250,7 +250,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
                       </button>
                     )}
                     {isAccepted && candidateRecord?.chatUnlocked && (
-                      <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/messages?talent=${inv.talentId}`}>
+                      <Link className="fb-button fb-button-small fb-button-primary" to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${inv.talentId}`}>
                         Mở tin nhắn <ArrowRight size={14} />
                       </Link>
                     )}

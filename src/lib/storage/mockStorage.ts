@@ -419,7 +419,7 @@ export const initialNotificationsSeed: NotificationItem[] = [
     time: "10:18 hôm nay",
     timestamp: Date.now() - 3600000,
     read: false,
-    href: "/business/projects/nang-brand/messages?talent=khanh-linh",
+    href: "/business/messages?view=project&scope=nang-brand&project=nang-brand&talent=khanh-linh",
   },
   {
     id: "n3",
