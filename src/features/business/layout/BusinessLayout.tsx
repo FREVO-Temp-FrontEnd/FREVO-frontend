@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from "react-router";
 import {
   LayoutDashboard,
   BriefcaseBusiness,
+  CirclePlus,
   UserRound,
   Settings2,
   Bell,
@@ -14,16 +15,26 @@ import {
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { externalNavConfig } from "@/lib/config/navigation";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { Chip } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import "@/features/business/business.css";
 
 const navItems = [
   { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
+  { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
 ];
+
+function isCurrentNavItem(href: string, pathname: string) {
+  if (href === "/business") return pathname === href;
+  if (href === "/business/projects") {
+    return (pathname === href || pathname.startsWith(`${href}/`)) && pathname !== "/business/projects/new";
+  }
+  return pathname === href;
+}
 
 export function BusinessLayout({ children }: { children?: ReactNode }) {
   const location = useLocation();
+  const currentPath = location.pathname.replace(/\/+$/, "") || "/";
   const navigate = useNavigate();
   const { businessName, notifications, toast, setToast } = useBusiness();
   const { logout } = useAuthSession();
@@ -32,7 +43,20 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="fb-app">
+    <Box
+      className="fb-app"
+      sx={{
+        "&& .fb-button": {
+          fontFamily: '"Be Vietnam Pro", sans-serif',
+          fontSize: "13px",
+          fontWeight: 700,
+          letterSpacing: 0,
+          lineHeight: 1.35,
+          textTransform: "none",
+        },
+        "&& .fb-button-small": { fontSize: "12px", fontWeight: 600 },
+      }}
+    >
       <a className="fb-skip" href="#fb-content">
         Đi đến nội dung chính
       </a>
@@ -55,15 +79,7 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               key={item.href}
               to={item.href}
               onClick={() => setMobileNav(false)}
-              aria-current={
-                item.href === "/business"
-                  ? location.pathname === item.href
-                    ? "page"
-                    : undefined
-                  : location.pathname.startsWith(item.href)
-                  ? "page"
-                  : undefined
-              }
+              aria-current={isCurrentNavItem(item.href, currentPath) ? "page" : undefined}
             >
               <item.icon size={19} strokeWidth={1.8} />
               <span>{item.label}</span>
@@ -254,6 +270,6 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
           </button>
         </div>
       )}
-    </div>
+    </Box>
   );
 }

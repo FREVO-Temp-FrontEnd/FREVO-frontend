@@ -1,4 +1,4 @@
-import { Box, Card, Typography, Chip, Button } from "@mui/material";
+import { Box, Card, Typography, Chip } from "@mui/material";
 import { Link } from "react-router";
 import { Sparkles, Check, ArrowRight, Briefcase } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
@@ -71,7 +71,7 @@ export function TalentEvidenceCard({
 
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 0.5 }}>
             <Chip
-              label={`${evaluation.score}% phù hợp`}
+              label={evaluation.score >= 85 ? "Phù hợp nổi bật" : "Có tiêu chí phù hợp"}
               size="small"
               sx={{
                 bgcolor: evaluation.score >= 80 ? "#f0fdf4" : "#fff7ed",
@@ -93,7 +93,7 @@ export function TalentEvidenceCard({
         {/* Explainable Rationale Badges (BR-026) */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 0.5 }}>
-            Lý do phù hợp (BR-026):
+            Lý do phù hợp
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
             {evaluation.reasons.map((reason, idx) => (
@@ -136,7 +136,7 @@ export function TalentEvidenceCard({
         {talent.portfolio.length > 0 && (
           <Box sx={{ mb: 2, pt: 1, borderTop: "1px dashed #f0f0f0" }}>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 0.8 }}>
-              Dự án tiêu biểu (BR-027):
+              Dự án tiêu biểu
             </Typography>
             <Box sx={{ display: "flex", gap: 1 }}>
               {talent.portfolio.slice(0, 2).map((item, idx) => (
@@ -186,53 +186,23 @@ export function TalentEvidenceCard({
         }}
       >
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            size="small"
-            variant="text"
-            startIcon={<Sparkles size={14} color="#f4490b" />}
-            onClick={() => onOpenAIAnalysis(talent)}
-            sx={{
-              color: "#f4490b",
-              fontWeight: 600,
-              fontSize: "0.8rem",
-              textTransform: "none",
-            }}
-          >
-            Phân tích AI
-          </Button>
-
-          <Button
-            component={Link}
-            to={`/business/talent/${talent.id}?project=${brief.id}`}
-            size="small"
-            variant="text"
-            sx={{
-              color: "text.secondary",
-              fontSize: "0.8rem",
-              textTransform: "none",
-            }}
-          >
+          <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => onOpenAIAnalysis(talent)}>
+            <Sparkles size={14} /> Phân tích AI
+          </button>
+          <Link className="fb-button fb-button-small fb-button-secondary" to={`/business/talent/${talent.id}?project=${brief.id}`}>
             Hồ sơ
-          </Button>
+          </Link>
         </Box>
 
-        <Button
-          size="small"
-          variant="contained"
+        <button
+          type="button"
+          className="fb-button fb-button-small fb-button-primary"
           disabled={isInvited || brief.status !== "published"}
           onClick={() => onOpenInvite(talent)}
-          endIcon={!isInvited && <ArrowRight size={14} />}
-          sx={{
-            bgcolor: "#f4490b",
-            "&:hover": { bgcolor: "#d63b04" },
-            fontWeight: 600,
-            fontSize: "0.8rem",
-            textTransform: "none",
-            borderRadius: 2,
-          }}
         >
           {isInvited ? "Đã gửi lời mời" : "Mời dự án"}
-        </Button>
+          {!isInvited && <ArrowRight size={14} />}
+        </button>
       </Box>
     </Card>
   );

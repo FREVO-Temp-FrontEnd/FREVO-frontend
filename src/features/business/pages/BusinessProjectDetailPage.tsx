@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Check } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircle, UserRoundPlus, UsersRound, Wallet } from "lucide-react";
+import { Typography } from "@mui/material";
+import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { CloseProjectDialog } from "@/features/business/components/CloseProjectDialog";
 import { CandidateSuggestionsTab } from "@/features/business/components/CandidateSuggestionsTab";
@@ -42,7 +44,7 @@ export function BusinessProjectDetailPage() {
         <BriefcaseBusiness size={32} strokeWidth={1.6} aria-hidden="true" />
         <h3>Không tìm thấy dự án</h3>
         <p>Dự án này không tồn tại hoặc đã bị xóa.</p>
-        <Link className="fb-button fb-button-primary" to="/business/projects">
+        <Link className="fb-button fb-button-small fb-button-primary" to="/business/projects">
           Về danh sách dự án
         </Link>
       </div>
@@ -56,11 +58,15 @@ export function BusinessProjectDetailPage() {
     ? talents.find((t) => t.id === selectedCandidate.talentId)
     : undefined;
 
-  const currentTab = parts[3] || "";
+  const currentTab = parts[3] || (project.status === "published" ? "applicants" : "");
 
-  const tabs: { segment: string; label: string; count?: number }[] = [
-    { segment: "", label: "Brief" },
-  ];
+  const tabs: { segment: string; label: string; count?: number }[] = project.status === "published"
+    ? [
+        { segment: "applicants", label: "Ứng viên", count: projectCandidates.length },
+        { segment: "suggestions", label: "Gợi ý phù hợp" },
+        { segment: "invitations", label: "Lời mời đã gửi", count: projectInvitations.length },
+      ]
+    : [{ segment: "", label: "Brief" }];
 
   if (project.status === "ongoing") {
     tabs.push(
@@ -70,12 +76,7 @@ export function BusinessProjectDetailPage() {
       { segment: "agreement", label: "Hợp đồng" }
     );
   } else if (project.status === "published") {
-    tabs.push(
-      { segment: "applicants", label: "Ứng viên", count: projectCandidates.length },
-      { segment: "suggestions", label: "Gợi ý" },
-      { segment: "invitations", label: "Lời mời", count: projectInvitations.length },
-      { segment: "messages", label: "Tin nhắn" }
-    );
+    // Recruitment tabs are the primary workflow; brief and chat remain in the utility links.
   } else if (project.status === "closed") {
     tabs.push(
       { segment: "applicants", label: "Ứng viên", count: projectCandidates.length },
@@ -83,33 +84,31 @@ export function BusinessProjectDetailPage() {
     );
   }
 
-  const badgeTone =
-    project.status === "published" || project.status === "ongoing"
-      ? "green"
-      : project.status === "closed"
-      ? "neutral"
-      : "soft";
-
   return (
     <>
-      <Link className="fb-back" to="/business/projects">
-        <ArrowLeft size={16} /> Dự án của tôi
-      </Link>
+      <ProjectBreadcrumbs items={[{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title }]} />
 
-      <div className="fb-project-header">
-        <div>
-          <span className={`fb-badge fb-badge-${badgeTone}`}>{statusLabel(project.status)}</span>
-          <h1>{project.title}</h1>
-          <p>
-            {project.category} <span>·</span> {project.budget}
-          </p>
+      <header className="rounded-[24px] border border-[#eceae7] bg-white px-5 py-5 sm:px-7 sm:py-6">
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+          <div className="min-w-0">
+            <Typography component="h1" variant="h4" sx={{ maxWidth: 540, lineHeight: 1.16, fontSize: { xs: "1.5rem", sm: "1.75rem" }, fontWeight: 800 }}>{project.title}</Typography>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#747773]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f7ef] px-2 py-0.5 font-semibold text-[#16805b]"><span className="size-1.5 rounded-full bg-[#16805b]" aria-hidden="true" />{statusLabel(project.status)}</span>
+              <span className="inline-flex items-center gap-1"><Wallet size={14} className="text-[#bd3d14]" /> Ngân sách dự kiến: <strong className="text-[#bd3d14]">{project.budget || "Chưa đặt"}</strong></span>
+              <span className="inline-flex items-center gap-1"><CalendarDays size={14} /> Hạn chót ứng tuyển: <strong className="text-[#20201f]">{project.applicationDeadline || "Chưa đặt"}</strong></span>
+              <span className="inline-flex items-center gap-1"><UsersRound size={14} /> Tổng nhận: <strong className="text-[#20201f]">{projectCandidates.length} hồ sơ</strong></span>
+              <span className="rounded-full bg-[#f2f3f0] px-2 py-0.5 text-[#62625e]">{project.category}</span>
+            </div>
+          </div>
+          {project.status === "published" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
+            <Link className="fb-button fb-button-small fb-button-secondary" to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Xem trang tin tuyển</Link>
+            <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/suggestions`}><UserRoundPlus size={14} /> Tìm thêm đối tác</Link>
+          </div>}
         </div>
-        <span className="fb-project-monogram">
-          <BriefcaseBusiness size={28} strokeWidth={1.6} />
-        </span>
-      </div>
+      </header>
 
-      <nav className="fb-tabs" aria-label="Các mục của dự án">
+      <nav className="mb-4 mt-3 flex items-center justify-between gap-2 overflow-x-auto border border-[#eceae7] bg-white px-2 sm:px-4" aria-label="Các mục của dự án">
+        <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
         {tabs.map((tab) => {
           let targetPath = tab.segment
             ? `/business/projects/${project.id}/${tab.segment}`
@@ -127,12 +126,19 @@ export function BusinessProjectDetailPage() {
               key={tab.segment}
               to={targetPath}
               aria-current={currentTab === tab.segment ? "page" : undefined}
+              className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-xs font-semibold transition-colors sm:px-4 ${currentTab === tab.segment ? "border-[#f4490b] text-[#bd3d14]" : "border-transparent text-[#747773] hover:text-[#20201f]"}`}
             >
               {tab.label}
-              {tab.count !== undefined && <span>{tab.count}</span>}
+              {tab.count !== undefined && <span className={`rounded-full px-2 py-0.5 text-xs ${currentTab === tab.segment ? "bg-[#fff0e9] text-[#bd3d14]" : "bg-[#f2f3f0] text-[#747773]"}`}>{tab.count}</span>}
             </Link>
           );
         })}
+        {project.status === "published" && <Link to={`/business/projects/${project.id}/brief`} aria-current={currentTab === "brief" ? "page" : undefined} className={`inline-flex min-h-11 shrink-0 items-center border-b-2 px-3 text-xs font-semibold xl:hidden ${currentTab === "brief" ? "border-[#f4490b] text-[#bd3d14]" : "border-transparent text-[#747773]"}`}>Brief</Link>}
+        </div>
+        {project.status === "published" && <div className="hidden shrink-0 items-center gap-3 text-xs text-[#747773] xl:flex">
+          <Link to={`/business/projects/${project.id}/brief`} className={`hover:text-[#bd3d14] ${currentTab === "brief" ? "font-bold text-[#bd3d14]" : ""}`}>Xem brief</Link>
+          <Link to={`/projects/${project.id}/chat`} className="inline-flex items-center gap-1 hover:text-[#bd3d14]"><MessageCircle size={14} /> Tin nhắn</Link>
+        </div>}
       </nav>
 
       {/* Tab Switcher: Suggestions (BUS-007) / Invitations (BUS-010) / Applicants (BUS-011) / Executor / Brief View (BUS-005) */}
@@ -176,13 +182,13 @@ export function BusinessProjectDetailPage() {
                 </div>
                 <div className="fb-executor-actions">
                   <Link
-                    className="fb-button fb-button-primary"
+                    className="fb-button fb-button-small fb-button-primary"
                     to={`/projects/${project.id}/chat`}
                   >
                     Mở hội thoại <ArrowRight size={17} />
                   </Link>
                   <Link
-                    className="fb-button fb-button-secondary"
+                    className="fb-button fb-button-small fb-button-secondary"
                     to={`/workspace/${project.id}`}
                   >
                     Xem tiến độ & Không gian làm việc
@@ -302,7 +308,7 @@ export function BusinessProjectDetailPage() {
             <div className="fb-aside-actions">
               {project.status === "draft" ? (
                 <Link
-                  className="fb-button fb-button-primary"
+                  className="fb-button fb-button-small fb-button-primary"
                   to={`/business/projects/${project.id}/edit`}
                 >
                   Tiếp tục brief <ArrowRight size={17} />
@@ -310,13 +316,13 @@ export function BusinessProjectDetailPage() {
               ) : project.status === "ongoing" ? (
                 <>
                   <Link
-                    className="fb-button fb-button-primary"
+                    className="fb-button fb-button-small fb-button-primary"
                     to={`/projects/${project.id}/chat`}
                   >
                     Tin nhắn dự án <ArrowRight size={17} />
                   </Link>
                   <Link
-                    className="fb-button fb-button-secondary"
+                    className="fb-button fb-button-small fb-button-secondary"
                     to={`/workspace/${project.id}`}
                   >
                     Xem tiến độ & Hợp đồng
@@ -324,7 +330,7 @@ export function BusinessProjectDetailPage() {
                 </>
               ) : project.status === "closed" ? (
                 <Link
-                  className="fb-button fb-button-secondary"
+                  className="fb-button fb-button-small fb-button-secondary"
                   to={`/business/projects/${project.id}/applicants`}
                 >
                   Xem hồ sơ đã ứng tuyển
@@ -332,13 +338,13 @@ export function BusinessProjectDetailPage() {
               ) : (
                 <>
                   <Link
-                    className="fb-button fb-button-primary"
+                    className="fb-button fb-button-small fb-button-primary"
                     to={`/business/projects/${project.id}/applicants`}
                   >
                     Xem ứng viên ({projectCandidates.length}) <ArrowRight size={17} />
                   </Link>
                   <Link
-                    className="fb-button fb-button-secondary"
+                    className="fb-button fb-button-small fb-button-secondary"
                     to={`/business/projects/${project.id}/suggestions`}
                   >
                     Khám phá gợi ý

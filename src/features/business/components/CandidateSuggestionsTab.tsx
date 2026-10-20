@@ -5,10 +5,8 @@ import {
   TextField,
   InputAdornment,
   Chip,
-  ToggleButtonGroup,
-  ToggleButton,
 } from "@mui/material";
-import { Search, Sparkles } from "lucide-react";
+import { Search } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { TalentEvidenceCard } from "./TalentEvidenceCard";
@@ -102,52 +100,35 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Header Eyebrow & AI Recommendation Banner */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography variant="overline" sx={{ color: "#f4490b", fontWeight: 700, letterSpacing: 1 }}>
-            GỢI Ý THEO BRIEF (BUS-007)
-          </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
-            Ứng viên & Đội ngũ phù hợp
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Hệ thống đối sánh kỹ năng và portfolio minh họa để gợi ý các hồ sơ tương thích nhất (FR-017, BR-026).
-          </Typography>
-        </Box>
-
-        <Chip
-          icon={<Sparkles size={16} color="#f4490b" />}
-          label="Gợi ý thông minh (DEC-01)"
-          variant="outlined"
-          sx={{
-            borderColor: "#fed7aa",
-            bgcolor: "#fff7ed",
-            color: "#c2410c",
-            fontWeight: 700,
-          }}
-        />
-      </Box>
-
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        fontFamily: '"Be Vietnam Pro", sans-serif',
+        "&& button:not(.fb-button), && .MuiButton-root": {
+          fontFamily: '"Be Vietnam Pro", sans-serif',
+          fontSize: "12px",
+          fontWeight: 600,
+          letterSpacing: 0,
+          lineHeight: 1.4,
+          textTransform: "none",
+        },
+        "&& input": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "13px" },
+        "&& .MuiTypography-root": { fontFamily: '"Be Vietnam Pro", sans-serif', letterSpacing: 0 },
+        "&& .MuiChip-root": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "12px" },
+      }}
+    >
       {/* Filter & Search Toolbar (BUS-008) */}
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 1.5,
-          p: 2,
-          bgcolor: "#fafaf9",
-          borderRadius: 2.5,
-          border: "1px solid #e7e5e4",
+          gap: 1,
+          px: 1.5,
+          py: 1,
+          bgcolor: "#fff",
+          border: "1px solid #eceae7",
         }}
       >
         <Box
@@ -156,52 +137,38 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: 2,
+            gap: 1.5,
           }}
         >
           {/* Entity Segmented Control */}
-          <ToggleButtonGroup
-            value={entityFilter}
-            exclusive
-            onChange={(_, val) => val && setEntityFilter(val)}
-            size="small"
-            sx={{
-              "& .MuiToggleButton-root": {
-                textTransform: "none",
-                fontWeight: 600,
-                px: 2,
-                fontSize: "0.85rem",
-              },
-            }}
-          >
-            <ToggleButton value="all">Tất cả</ToggleButton>
-            <ToggleButton value="Cá nhân">Cá nhân</ToggleButton>
-            <ToggleButton value="Team">Team (BR-028)</ToggleButton>
-          </ToggleButtonGroup>
+          <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Lọc theo loại hồ sơ">
+            {([ ["all", "Tất cả"], ["Cá nhân", "Cá nhân"], ["Team", "Team"] ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setEntityFilter(value)}
+                aria-pressed={entityFilter === value}
+                className={`rounded-full px-3 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4490b] ${entityFilter === value ? "bg-[#20201f] text-white" : "bg-[#f7f7f6] text-[#20201f] hover:bg-[#eeeae7]"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
           {/* Min Score Filter */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Độ phù hợp:
-            </Typography>
-            <ToggleButtonGroup
-              value={minScoreFilter}
-              exclusive
-              onChange={(_, val) => val !== null && setMinScoreFilter(val)}
-              size="small"
-              sx={{
-                "& .MuiToggleButton-root": {
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 1.5,
-                  fontSize: "0.8rem",
-                },
-              }}
-            >
-              <ToggleButton value={0}>Tất cả</ToggleButton>
-              <ToggleButton value={75}>&gt;= 75%</ToggleButton>
-              <ToggleButton value={85}>&gt;= 85%</ToggleButton>
-            </ToggleButtonGroup>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>Mức phù hợp:</Typography>
+            {([ [0, "Tất cả"], [75, "Có nhiều tiêu chí"], [85, "Nổi bật"] ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setMinScoreFilter(value)}
+                aria-pressed={minScoreFilter === value}
+                className={`rounded-full px-3 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4490b] ${minScoreFilter === value ? "bg-[#20201f] text-white" : "bg-[#f7f7f6] text-[#20201f] hover:bg-[#eeeae7]"}`}
+              >
+                {label}
+              </button>
+            ))}
           </Box>
 
           {/* Search Bar */}
@@ -211,6 +178,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             slotProps={{
+              htmlInput: { "aria-label": "Tìm hồ sơ phù hợp" },
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
@@ -219,15 +187,15 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
                 ),
               },
             }}
-            sx={{ minWidth: 260 }}
+            sx={{ minWidth: { xs: "100%", md: 220 }, "& .MuiOutlinedInput-root": { height: 36, borderRadius: 999, bgcolor: "#f7f7f6", fontSize: 13 }, "& fieldset": { borderColor: "transparent" } }}
           />
         </Box>
 
         {/* Skill filter chips */}
         {project.skills.length > 0 && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", pt: 1, borderTop: "1px dashed #e7e5e4" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", pt: 1, borderTop: "1px solid #eceae7" }}>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Lọc theo kỹ năng dự án:
+              Kỹ năng:
             </Typography>
             {project.skills.map((skill) => {
               const isSelected = selectedSkillFilter === skill;
@@ -242,7 +210,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
                   sx={{
                     fontWeight: 600,
                     cursor: "pointer",
-                    fontSize: "0.75rem",
+                    fontSize: "12px",
+                    fontFamily: '"Be Vietnam Pro", sans-serif',
                     ...(isSelected
                       ? { bgcolor: "#f4490b", color: "#fff" }
                       : { bgcolor: "#fff" }),
@@ -255,7 +224,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
                 label="Bỏ chọn kỹ năng"
                 size="small"
                 onDelete={() => setSelectedSkillFilter(null)}
-                sx={{ fontSize: "0.75rem" }}
+                sx={{ fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "12px" }}
               />
             )}
           </Box>
@@ -267,7 +236,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+            gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))", xl: "repeat(3, minmax(0, 1fr))" },
             gap: 2.5,
           }}
         >
@@ -295,9 +264,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
         <EmptyMatchingState onResetFilters={handleResetFilters} />
       )}
 
-      {/* Advisory Legal Note */}
       <Typography variant="caption" sx={{ color: "text.secondary", textAlign: "center", display: "block" }}>
-        Dữ liệu gợi ý được tính toán minh họa theo thuật toán đối sánh heuristic (DEC-01) của FREVO. Khuyến cáo quy định theo FR-036.
+        Gợi ý được mô phỏng từ kỹ năng và hồ sơ năng lực. Hãy xem hồ sơ trước khi gửi lời mời.
       </Typography>
 
       {/* AI Fit Breakdown Modal (BUS-015) */}

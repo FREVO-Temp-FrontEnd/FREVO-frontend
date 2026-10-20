@@ -26,6 +26,7 @@ import type {
 } from "@/lib/types/marketplace.types";
 
 const STORAGE_KEY = "frevo_marketplace_data_v2";
+const PENDING_CANDIDATES_DEMO_KEY = "frevo_nang_brand_pending_candidates_demo_v1";
 const STORAGE_EVENT = "frevo_marketplace_storage_change";
 
 // Base Talents Seed Data (Traceable to business-data.ts talents)
@@ -259,13 +260,12 @@ export const initialCandidatesSeed: Candidate[] = [
     projectId: "nang-brand",
     talentId: "khanh-linh",
     source: "Ứng tuyển",
-    status: "discussing",
+    status: "new",
     proposal:
       "Mình có kinh nghiệm xây dựng brandbook cho studio nhỏ và muốn trao đổi thêm về các điểm chạm ưu tiên.",
     receivedAt: "2026-10-15T11:08:00.000Z",
-    unread: false,
-    chatUnlocked: true, // Approved by Business
-    chatUnlockedAt: "2026-10-15T11:30:00.000Z",
+    unread: true,
+    chatUnlocked: false, // Locked until Business review for the demo
     fitScore: 85,
   },
   {
@@ -484,13 +484,38 @@ class MockStorageAdapter {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored) as MarketplaceState;
+        const state = JSON.parse(stored) as MarketplaceState;
+        const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
+        if (alreadyPrepared) return state;
+
+        const nextState: MarketplaceState = {
+          ...state,
+          candidates: state.candidates.map((candidate) =>
+            candidate.projectId === "nang-brand"
+              ? { ...candidate, status: "new" as const, unread: true, chatUnlocked: false, chatUnlockedAt: undefined }
+              : candidate
+          ),
+        };
+        this.saveToStorage(nextState);
+        try {
+          localStorage.setItem(PENDING_CANDIDATES_DEMO_KEY, "1");
+          sessionStorage.setItem(PENDING_CANDIDATES_DEMO_KEY, "1");
+        } catch {
+          // Keep the migrated state in memory if storage is unavailable.
+        }
+        return nextState;
       }
     } catch {
       // Ignore storage parsing or quota errors
     }
     const fresh = getInitialState();
     this.saveToStorage(fresh);
+    try {
+      localStorage.setItem(PENDING_CANDIDATES_DEMO_KEY, "1");
+      sessionStorage.setItem(PENDING_CANDIDATES_DEMO_KEY, "1");
+    } catch {
+      // Demo state still works in memory when storage is unavailable.
+    }
     return fresh;
   }
 

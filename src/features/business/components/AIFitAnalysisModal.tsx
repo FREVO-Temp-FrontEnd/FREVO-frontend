@@ -46,6 +46,8 @@ export function AIFitAnalysisModal({
             borderRadius: 3,
             p: 1,
             boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
           },
         },
       }}
@@ -87,7 +89,7 @@ export function AIFitAnalysisModal({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2.5, py: 2 }}>
+      <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2.5, py: 2, scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
         {/* Candidate & Project Header Banner */}
         <Box
           sx={{

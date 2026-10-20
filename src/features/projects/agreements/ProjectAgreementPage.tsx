@@ -3,12 +3,11 @@ import { useParams, useSearchParams, useNavigate } from "react-router";
 import {
   Box,
   Container,
-  Breadcrumbs,
-  Link as MuiLink,
   Typography,
   Button,
 } from "@mui/material";
-import { ArrowLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { mockStorage } from "@/lib/storage/mockStorage";
@@ -91,34 +90,20 @@ export const ProjectAgreementPage: React.FC = () => {
     setIsDraftingNew(true);
   };
 
-  const backLink = isBusiness
-    ? `/business/projects/${project.id}`
-    : `/freelancer/applications`;
-
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 2 }}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <MuiLink
-            component="button"
-            variant="body2"
-            onClick={() => navigate(backLink)}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
-              color: "#64748b",
-              textDecoration: "none",
-              "&:hover": { color: "#f4490b" },
-            }}
-          >
-            <ArrowLeft size={16} /> Quay lại dự án
-          </MuiLink>
-          <Typography variant="body2" color="text.primary" sx={{ fontWeight: 600 }}>
-            Thỏa thuận hợp tác: {project.title}
-          </Typography>
-        </Breadcrumbs>
-      </Box>
+      <ProjectBreadcrumbs items={isBusiness
+        ? [
+            { label: "Dự án của tôi", to: "/business/projects" },
+            { label: project.title, to: `/business/projects/${project.id}` },
+            { label: "Thỏa thuận hợp tác" },
+          ]
+        : [
+            { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
+            { label: project.title, to: `/projects/${project.id}/details` },
+            { label: "Thỏa thuận hợp tác" },
+          ]}
+      />
 
       {/* Selection Closed Banner if agreed */}
       {project.status === "ongoing" && effectiveAgreement && (

@@ -1,10 +1,16 @@
+import { useState } from "react";
 import {
   Box,
   Typography,
   Chip,
-  Button,
   Card,
   Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Snackbar,
 } from "@mui/material";
 import { Link } from "react-router";
 import { Clock, CheckCircle2, XCircle, ArrowRight, Sparkles, Mail } from "lucide-react";
@@ -17,12 +23,35 @@ interface SentInvitationsTabProps {
 }
 
 export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
-  const { invitations, talents, candidates } = useBusiness();
+  const { invitations, talents, candidates, unlockChat } = useBusiness();
+  const [reviewTalentId, setReviewTalentId] = useState<string | null>(null);
+  const [reviewError, setReviewError] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const projectInvitations = invitations.filter((i) => i.projectId === project.id);
+  const reviewTalent = talents.find((talent) => talent.id === reviewTalentId);
 
   const handleSimulateAccept = (invitationId: string) => {
     mockStorage.respondToInvitation(invitationId, true);
+  };
+
+  const handleApprove = () => {
+    if (!reviewTalentId) return;
+    const latest = mockStorage.getState();
+    const latestProject = latest.projects.find((item) => item.id === project.id);
+    const latestInvitation = latest.invitations.find((item) => item.projectId === project.id && item.talentId === reviewTalentId && item.status === "accepted");
+    const latestCandidate = latest.candidates.find((item) => item.projectId === project.id && item.talentId === reviewTalentId);
+    const hasSelectedExecutor = latest.candidates.some((item) => item.projectId === project.id && item.status === "selected");
+
+    if (latestProject?.status !== "published" || !latestInvitation || !latestCandidate || !["new", "under_review"].includes(latestCandidate.status) || latestCandidate.chatUnlocked || hasSelectedExecutor) {
+      setReviewError("Trạng thái lời mời hoặc hồ sơ đã thay đổi. Hãy kiểm tra lại danh sách ứng viên.");
+      return;
+    }
+
+    unlockChat(project.id, reviewTalentId);
+    setReviewTalentId(null);
+    setReviewError("");
+    setFeedback(`Đã duyệt ${reviewTalent?.name ?? "ứng viên"} và mở kênh trao đổi.`);
   };
 
   return (
@@ -49,23 +78,9 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
           </Typography>
         </Box>
 
-        <Button
-          component={Link}
-          to={`/business/projects/${project.id}/suggestions`}
-          variant="outlined"
-          startIcon={<Sparkles size={16} />}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            borderColor: "#fed7aa",
-            color: "#c2410c",
-            bgcolor: "#fff7ed",
-            "&:hover": { bgcolor: "#ffedd5", borderColor: "#fdba74" },
-          }}
-        >
-          Tìm thêm ứng viên phù hợp
-        </Button>
+        <Link className="fb-button fb-button-small fb-button-secondary" to={`/business/projects/${project.id}/suggestions`}>
+          <Sparkles size={14} /> Tìm thêm ứng viên phù hợp
+        </Link>
       </Box>
 
       {/* 7-Day Guarantee Banner */}
@@ -224,39 +239,25 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
                   {/* Actions */}
                   <Box sx={{ display: "flex", gap: 1 }}>
                     {isPending && project.status === "published" && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => handleSimulateAccept(inv.id)}
-                        sx={{
-                          borderRadius: 2,
-                          textTransform: "none",
-                          fontSize: "0.8rem",
-                          fontWeight: 600,
-                        }}
-                      >
+                      <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => handleSimulateAccept(inv.id)}>
                         Mô phỏng chấp nhận
-                      </Button>
+                      </button>
                     )}
 
-                    {isAccepted && (
-                      <Button
-                        component={Link}
-                        to={`/business/projects/${project.id}/applicants`}
-                        size="small"
-                        variant="contained"
-                        endIcon={<ArrowRight size={14} />}
-                        sx={{
-                          borderRadius: 2,
-                          textTransform: "none",
-                          fontSize: "0.8rem",
-                          fontWeight: 600,
-                          bgcolor: "#f4490b",
-                          "&:hover": { bgcolor: "#d63b04" },
-                        }}
-                      >
-                        Xem ứng viên
-                      </Button>
+                    {isAccepted && candidateRecord && !candidateRecord.chatUnlocked && (candidateRecord.status === "new" || candidateRecord.status === "under_review") && project.status === "published" && (
+                      <button type="button" className="fb-button fb-button-small fb-button-primary" onClick={() => { setReviewTalentId(inv.talentId); setReviewError(""); }}>
+                        <CheckCircle2 size={14} /> Duyệt để trao đổi
+                      </button>
+                    )}
+                    {isAccepted && candidateRecord?.chatUnlocked && (
+                      <Link className="fb-button fb-button-small fb-button-primary" to={`/projects/${project.id}/chat?talent=${inv.talentId}`}>
+                        Mở tin nhắn <ArrowRight size={14} />
+                      </Link>
+                    )}
+                    {isAccepted && !candidateRecord && (
+                      <Link className="fb-button fb-button-small fb-button-secondary" to={`/business/projects/${project.id}/applicants`}>
+                        Kiểm tra hồ sơ <ArrowRight size={14} />
+                      </Link>
                     )}
                   </Box>
                 </Box>
@@ -300,23 +301,33 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
           <Typography variant="body2" sx={{ color: "text.secondary", maxWidth: 440, mb: 1 }}>
             Dự án này chưa gửi lời mời nào. Bạn có thể khám phá danh sách gợi ý phù hợp để gửi lời mời trực tiếp đến Freelancer hoặc Team.
           </Typography>
-          <Button
-            component={Link}
-            to={`/business/projects/${project.id}/suggestions`}
-            variant="contained"
-            endIcon={<ArrowRight size={15} />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              fontWeight: 600,
-              bgcolor: "#f4490b",
-              "&:hover": { bgcolor: "#d63b04" },
-            }}
-          >
-            Xem danh sách gợi ý
-          </Button>
+          <Link className="fb-button fb-button-small fb-button-primary" to={`/business/projects/${project.id}/suggestions`}>
+            Xem danh sách gợi ý <ArrowRight size={14} />
+          </Link>
         </Box>
       )}
+      <Dialog
+        open={Boolean(reviewTalentId)}
+        onClose={() => { setReviewTalentId(null); setReviewError(""); }}
+        maxWidth="xs"
+        fullWidth
+        slotProps={{ paper: { sx: { scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } } } }}
+      >
+        <DialogTitle>Duyệt để trao đổi?</DialogTitle>
+        <DialogContent sx={{ scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
+          <Typography variant="body2">
+            Sau khi duyệt {reviewTalent?.name ?? "ứng viên"}, kênh nhắn tin của dự án sẽ được mở. Việc chấp nhận lời mời trước đó chưa tự mở chat.
+          </Typography>
+          {reviewError && <Alert severity="error" sx={{ mt: 2 }}>{reviewError}</Alert>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setReviewTalentId(null); setReviewError(""); }}>Quay lại</Button>
+          <Button variant="contained" onClick={handleApprove}>Duyệt hồ sơ</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={Boolean(feedback)} autoHideDuration={4500} onClose={() => setFeedback("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity="success" onClose={() => setFeedback("")}>{feedback}</Alert>
+      </Snackbar>
     </Box>
   );
 }

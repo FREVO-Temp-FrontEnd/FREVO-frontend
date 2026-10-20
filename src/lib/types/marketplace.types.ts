@@ -234,6 +234,7 @@ export interface ProjectBrief {
   skills: string[];
   description: string;
   deliverables: string[];
+  referenceFiles?: { name: string; size: number }[]; // Local prototype metadata only; no file content upload.
   preference: "both" | "individual" | "team";
   status: ProjectStatus;
   createdAt: string;
