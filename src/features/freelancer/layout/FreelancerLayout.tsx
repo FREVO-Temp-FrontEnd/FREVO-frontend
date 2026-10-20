@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { Drawer, Typography, useMediaQuery } from "@mui/material";
+import { Drawer, useMediaQuery } from "@mui/material";
 import { FreelancerHeader } from "../components/FreelancerHeader";
-import { GuestBanner } from "@/features/public/components/GuestBanner";
-import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { isDemoMode } from "@/lib/api/projectsApi";
 import { FreelancerNav, type ProjectView } from "../components/FreelancerNav";
 import "../freelancer-home.css";
 
 export default function FreelancerLayout() {
-  const { role } = useAuthSession();
   const location = useLocation();
   const navigate = useNavigate();
   const [navNotice, setNavNotice] = useState("");
@@ -36,7 +32,6 @@ export default function FreelancerLayout() {
       <a className="skip-link" href={skipTarget}>
         Đi đến nội dung chính
       </a>
-      {role === "guest" && <GuestBanner />}
       <FreelancerHeader
         mobileNavOpen={mobileNavOpen}
         onToggleMobileNav={() => setMobileNavRoute(mobileNavOpen ? null : location.key)}
@@ -64,25 +59,6 @@ export default function FreelancerLayout() {
           onNavigate={() => setMobileNavRoute(null)}
         />
       </Drawer>
-      {isDemoMode && (
-        <Typography
-          sx={{
-            minHeight: "44px",
-            py: "10px",
-            px: { xs: "16px", sm: "28px" },
-            bgcolor: "#fff0e9",
-            color: "#ab2e00",
-            fontSize: 13,
-            lineHeight: 1.4,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-          }}
-        >
-          Prototype dùng dữ liệu minh họa — thao tác ứng tuyển không gửi dữ liệu thật.
-        </Typography>
-      )}
       {!hasPageSidebar ? (
         <div className="freelancer-secondary-shell">
           <FreelancerNav view={projectView} onViewChange={openProjectView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />

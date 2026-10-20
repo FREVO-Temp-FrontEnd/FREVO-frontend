@@ -41,7 +41,6 @@ export function useProjects() {
   const [query, setQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minimumBudget, setMinimumBudget] = useState(0);
-  const [remoteOnly, setRemoteOnly] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [saved, setSaved] = useState(loadSavedProjectIds);
   const [applied, setApplied] = useState(appliedProjectIds);
@@ -106,7 +105,6 @@ export function useProjects() {
           (selectedCategories.length === 0 ||
             selectedCategories.includes(project.category)) &&
           project.min >= minimumBudget &&
-          (!remoteOnly || project.remote) &&
           (!term ||
             normalized(
               [
@@ -125,10 +123,10 @@ export function useProjects() {
           ? deadlineTime(a.deadline) - deadlineTime(b.deadline)
           : a.age - b.age
       );
-  }, [projects, query, selectedCategories, minimumBudget, remoteOnly, sortMode]);
+  }, [projects, query, selectedCategories, minimumBudget, sortMode]);
 
   const hasFilters =
-    selectedCategories.length > 0 || minimumBudget > 0 || remoteOnly;
+    selectedCategories.length > 0 || minimumBudget > 0;
 
   function toggleCategory(category: string) {
     setSelectedCategories((previous) =>
@@ -141,7 +139,6 @@ export function useProjects() {
   function clearFilters() {
     setSelectedCategories([]);
     setMinimumBudget(0);
-    setRemoteOnly(false);
   }
 
   function toggleSaved(id: string) {
@@ -232,8 +229,6 @@ export function useProjects() {
     toggleCategory,
     minimumBudget,
     setMinimumBudget,
-    remoteOnly,
-    setRemoteOnly,
     sortMode,
     setSortMode,
     hasFilters,
