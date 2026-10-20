@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
-import { Drawer, useMediaQuery } from "@mui/material";
+import { Box, Drawer, ThemeProvider, useMediaQuery } from "@mui/material";
 import { FreelancerHeader } from "../components/FreelancerHeader";
 import { FreelancerNav, type ProjectView } from "../components/FreelancerNav";
+import { freelancerTheme } from "@/app/theme/freelancerTheme";
 import "../freelancer-home.css";
 
 export default function FreelancerLayout() {
@@ -28,11 +29,13 @@ export default function FreelancerLayout() {
   };
 
   return (
-    <>
+    <ThemeProvider theme={freelancerTheme}>
+      <Box sx={{ display: "contents", "--line": freelancerTheme.palette.divider }}>
       <a className="skip-link" href={skipTarget}>
         Đi đến nội dung chính
       </a>
       <FreelancerHeader
+        navigation={<FreelancerNav view={projectView} onViewChange={openProjectView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />}
         mobileNavOpen={mobileNavOpen}
         onToggleMobileNav={() => setMobileNavRoute(mobileNavOpen ? null : location.key)}
       />
@@ -61,13 +64,13 @@ export default function FreelancerLayout() {
       </Drawer>
       {!hasPageSidebar ? (
         <div className="freelancer-secondary-shell">
-          <FreelancerNav view={projectView} onViewChange={openProjectView} onUnavailable={(label) => setNavNotice(`${label} đang được phát triển.`)} />
           {secondaryPaths.includes(currentPath)
             ? <main id="main" className="freelancer-secondary-content"><Outlet /></main>
             : <div className="freelancer-secondary-content"><Outlet /></div>}
         </div>
       ) : <Outlet />}
       {navNotice && <div id="nav-notice" role="status" onClick={() => setNavNotice("")}>{navNotice}</div>}
-    </>
+      </Box>
+    </ThemeProvider>
   );
 }

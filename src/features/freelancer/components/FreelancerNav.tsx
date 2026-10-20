@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link, NavLink, matchPath, useLocation } from "react-router";
-import { BriefcaseBusiness, ChevronDown, ExternalLink, FileText, Mail, MessageCircle, Search, Settings, Sparkles, UserRound, Bookmark, Users } from "lucide-react";
+import { Link, matchPath, useLocation } from "react-router";
+import { BriefcaseBusiness, ChevronDown, FileText, Mail, MessageCircle, Search, Sparkles, Bookmark, Users } from "lucide-react";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
-import { externalNavConfig } from "@/lib/config/navigation";
 
 export type ProjectView = "discover" | "saved" | "recommended";
 
@@ -29,8 +28,8 @@ export function FreelancerNav({ view, onViewChange, onUnavailable, onNavigate, j
   const recommendedActive = discoveryActive && view === "recommended";
   const jobsActive = savedActive || recommendedActive || applicationsActive;
   const navigationKey = location.pathname + location.search;
-  const [jobsMenu, setJobsMenu] = useState({ key: navigationKey, open: jobsActive });
-  const jobsOpen = jobsMenu.key === navigationKey ? jobsMenu.open : jobsActive;
+  const [jobsMenu, setJobsMenu] = useState({ key: navigationKey, open: false });
+  const jobsOpen = jobsMenu.key === navigationKey ? jobsMenu.open : false;
   const { pendingInvitationsCount } = useFreelancer();
   const showFreelancerItems = isAuthenticated && (role === "freelancer" || role === "client" || applicationsActive || invitationsActive || teamActive);
 
@@ -49,7 +48,29 @@ export function FreelancerNav({ view, onViewChange, onUnavailable, onNavigate, j
     <nav aria-label="Freelancer Hub">
       {isAuthenticated && <p className="nav-caption">Freelancer Hub</p>}
       <button type="button" className={`nav-item ${discoverViewActive ? "active" : ""}`} aria-current={discoverViewActive ? "page" : undefined} onClick={() => onViewChange("discover")} title="Khám phá dự án"><Search size={17} /><span>Khám phá dự án</span></button>
-      {showFreelancerItems && <div className="job-nav-group">
+      {showFreelancerItems && <div
+        className="job-nav-group"
+        onPointerEnter={(event) => {
+          if (event.pointerType === "mouse" && window.matchMedia("(min-width:781px) and (hover:hover)").matches) {
+            setJobsMenu({ key: navigationKey, open: true });
+          }
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType === "mouse" && !event.currentTarget.contains(document.activeElement)) {
+            setJobsMenu({ key: navigationKey, open: false });
+          }
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setJobsMenu({ key: navigationKey, open: false });
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            event.currentTarget.querySelector("button")?.focus();
+            setJobsMenu({ key: navigationKey, open: false });
+          }
+        }}
+      >
         <button
           type="button"
           className={`nav-item job-nav-trigger ${jobsActive ? "active" : ""}`}
@@ -73,11 +94,6 @@ export function FreelancerNav({ view, onViewChange, onUnavailable, onNavigate, j
       {showFreelancerItems && <Link className={`nav-item ${teamActive ? "active" : ""}`} to="/team/profile" onClick={enterFreelancerArea} aria-current={teamActive ? "page" : undefined} title="Hồ sơ Nhóm sáng tạo"><Users size={17} /><span>Nhóm</span></Link>}
       {isAuthenticated && <button type="button" className="nav-item" onClick={() => onUnavailable("Tin nhắn")} title="Tin nhắn"><MessageCircle size={17} /><span>Tin nhắn</span></button>}
     </nav>
-    {isAuthenticated && <div className="nav-footer">
-      <p className="nav-caption">Hồ sơ &amp; tài khoản</p>
-      <NavLink className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} to="/profile" onClick={onNavigate} title="Hồ sơ & Portfolio"><UserRound size={17} /><span>Hồ sơ &amp; Portfolio</span></NavLink>
-      <NavLink className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`} to="/settings" onClick={onNavigate} title="Cài đặt"><Settings size={16} /><span>Cài đặt</span></NavLink>
-      <a className="nav-item" href={externalNavConfig.landingPageUrl} target="_blank" rel="noopener noreferrer"><ExternalLink size={16} /><span>Trang giới thiệu</span></a>
-    </div>}
+
   </aside>;
 }

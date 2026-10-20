@@ -99,7 +99,7 @@ export function InvitationDetailDialog({
             p: 2,
             bgcolor: "#fafaf9",
             borderRadius: 2,
-            border: "1px solid #e7e5e4",
+            border: "1px solid", borderColor: "divider",
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>

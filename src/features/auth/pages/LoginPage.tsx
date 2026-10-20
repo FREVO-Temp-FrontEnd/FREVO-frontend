@@ -84,7 +84,7 @@ export default function LoginPage() {
       } else if (isClient) {
         navigate("/business", { replace: true });
       } else {
-        navigate("/freelancer/invitations", { replace: true });
+        navigate("/projects", { replace: true });
       }
     }
   }

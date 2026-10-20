@@ -617,7 +617,7 @@ export default function ProfilePage() {
                           fontWeight: 800,
                           textTransform: "none",
                           "&:hover": {
-                            borderColor: "#d5d7d2",
+                            borderColor: "text.secondary",
                             bgcolor: "#f7f8f6",
                           },
                         }}
@@ -718,7 +718,7 @@ export default function ProfilePage() {
                     textTransform: "none",
                     gap: "7px",
                     "&:hover": {
-                      borderColor: "#d5d7d2",
+                      borderColor: "text.secondary",
                       bgcolor: "#f7f8f6",
                     },
                   }}
@@ -923,7 +923,7 @@ export default function ProfilePage() {
                           textTransform: "none",
                           gap: "7px",
                           "&:hover": {
-                            borderColor: "#d5d7d2",
+                            borderColor: "text.secondary",
                             bgcolor: "#f7f8f6",
                           },
                         }}
@@ -973,7 +973,7 @@ export default function ProfilePage() {
                       textTransform: "none",
                       gap: "7px",
                       "&:hover": {
-                        borderColor: "#d5d7d2",
+                        borderColor: "text.secondary",
                         bgcolor: "#f7f8f6",
                       },
                     }}
@@ -1140,7 +1140,7 @@ export default function ProfilePage() {
                         textTransform: "none",
                         gap: "7px",
                         "&:hover": {
-                          borderColor: "#d5d7d2",
+                          borderColor: "text.secondary",
                           bgcolor: "#f7f8f6",
                         },
                       }}
