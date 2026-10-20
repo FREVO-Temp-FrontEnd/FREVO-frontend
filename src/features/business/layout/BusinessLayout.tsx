@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Link, useLocation, Outlet } from "react-router";
+import { Link, useLocation, useNavigate, Outlet } from "react-router";
 import {
   LayoutDashboard,
   BriefcaseBusiness,
@@ -9,6 +9,7 @@ import {
   Check,
   X,
   ExternalLink,
+  LogOut,
 } from "lucide-react";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { externalNavConfig } from "@/lib/config/navigation";
@@ -23,8 +24,9 @@ const navItems = [
 
 export function BusinessLayout({ children }: { children?: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { businessName, notifications, toast, setToast } = useBusiness();
-  const { switchRole } = useAuthSession();
+  const { logout } = useAuthSession();
   const [mobileNav, setMobileNav] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -82,16 +84,6 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
             <ExternalLink size={17} strokeWidth={1.8} />
             <span>Trang giới thiệu (Next.js)</span>
           </a>
-          <Link
-            to="/"
-            onClick={() => {
-              setMobileNav(false);
-              switchRole("freelancer");
-            }}
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
-          >
-            <span>Chuyển sang Freelancer Hub</span>
-          </Link>
         </nav>
 
         <div className="fb-sidebar-account">
@@ -117,6 +109,40 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               <Settings2 size={19} strokeWidth={1.8} />
               <span>Cài đặt</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileNav(false);
+                logout();
+                navigate("/login", { replace: true, state: {} });
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "13px",
+                minHeight: "47px",
+                padding: "0 15px",
+                borderRadius: "9px",
+                color: "#a34a31",
+                fontSize: "13px",
+                fontWeight: 700,
+                background: "none",
+                border: "none",
+                width: "100%",
+                cursor: "pointer",
+                textAlign: "left",
+                transition: "background .15s, color .15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#fff0e9";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "none";
+              }}
+            >
+              <LogOut size={19} strokeWidth={1.8} />
+              <span>Đăng xuất</span>
+            </button>
           </nav>
         </div>
       </aside>
@@ -175,6 +201,25 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
             >
               {businessName.charAt(0).toLocaleUpperCase("vi")}
             </span>
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                navigate("/login", { replace: true, state: {} });
+              }}
+              className="fb-button fb-button-secondary fb-button-small"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                cursor: "pointer",
+              }}
+              title="Đăng xuất khỏi tài khoản"
+              aria-label="Đăng xuất"
+            >
+              <LogOut size={15} />
+              <span>Đăng xuất</span>
+            </button>
           </div>
         </header>
 

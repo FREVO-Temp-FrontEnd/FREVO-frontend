@@ -349,7 +349,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
                     size="small"
                     type="number"
                     label="Số lượt sửa đổi (DEC-03)"
-                    value={typeof milestone.revisionAllowance.allowed === "number" ? milestone.revisionAllowance.allowed : 2}
+                    value={typeof milestone.revisionAllowance?.allowed === "number" ? milestone.revisionAllowance.allowed : 2}
                     onChange={(e) =>
                       handleUpdateMilestone(
                         milestone.id,

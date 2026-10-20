@@ -24,9 +24,15 @@ export const ProjectReviewPage: React.FC = () => {
   const { user, role } = useAuthSession();
   const { projects, agreements, talents } = useBusiness();
 
-  const project = projects.find((p) => p.id === projectId) || projects[0];
-  const effectiveAgreement = agreements.find((a) => a.projectId === project?.id && a.isEffective) || agreements[0];
-  const talent = talents.find((t) => t.id === effectiveAgreement?.talentId) || talents[0];
+  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
+  const targetAgreement =
+    agreements.find((a) => a.projectId === projectId && a.isEffective) ||
+    agreements.find((a) => a.projectId === projectId);
+  const talentId = project?.selectedTalentId || targetAgreement?.talentId || "minh-anh";
+  const talent =
+    talents.find((t) => t.id === talentId) ||
+    talents.find((t) => t.id === "minh-anh") ||
+    talents[0];
 
   const [reviews, setReviews] = useState<ReviewItem[]>(() =>
     project ? mockStorage.getReviews(project.id) : []

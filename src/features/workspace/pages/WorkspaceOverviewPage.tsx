@@ -34,8 +34,11 @@ export const WorkspaceOverviewPage: React.FC = () => {
   const { role } = useAuthSession();
   const { projects, agreements, talents } = useBusiness();
 
-  const project = projects.find((p) => p.id === projectId);
-  const effectiveAgreement = agreements.find((a) => a.projectId === projectId && a.isEffective);
+  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
+  const effectiveAgreement =
+    agreements.find((a) => a.projectId === projectId && a.isEffective) ||
+    agreements.find((a) => a.projectId === projectId && a.status === "confirmed") ||
+    mockStorage.getEffectiveAgreement(projectId || "");
   const talent = talents.find((t) => t.id === effectiveAgreement?.talentId) || talents[0];
 
   const isBusiness = role === "client" || role === "admin";

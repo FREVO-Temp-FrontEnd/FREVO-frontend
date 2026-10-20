@@ -13,7 +13,14 @@ import {
   InputAdornment,
   Chip,
 } from "@mui/material";
-import { Visibility, VisibilityOff, BusinessOutlined, PersonOutlined } from "@mui/icons-material";
+import {
+  Visibility,
+  VisibilityOff,
+  BusinessOutlined,
+  PersonOutlined,
+  GroupsOutlined,
+  AdminPanelSettingsOutlined,
+} from "@mui/icons-material";
 
 type LoginErrors = { email?: string; password?: string };
 const compactDesktop = "@media (min-width:900px) and (max-height:800px)";
@@ -41,18 +48,44 @@ export default function LoginPage() {
   }, []);
 
   async function performLogin(targetEmail: string, targetRole?: UserRole) {
-    await login(targetEmail, targetRole);
+    const isClient =
+      targetRole === "client" ||
+      (!targetRole &&
+        (targetEmail.includes("client") ||
+          targetEmail.includes("nang") ||
+          targetEmail.includes("business")));
+    const isAdmin =
+      targetRole === "admin" ||
+      (!targetRole && targetEmail.includes("admin"));
+    const resolvedRole: UserRole = isAdmin ? "admin" : isClient ? "client" : "freelancer";
+
+    await login(targetEmail, resolvedRole);
+
     const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-    if (from && from !== "/login") {
+
+    let canRedirectToFrom = false;
+    if (from && from !== "/login" && from !== "/forbidden") {
+      if (from.startsWith("/business")) {
+        canRedirectToFrom = isClient || isAdmin;
+      } else if (from.startsWith("/admin")) {
+        canRedirectToFrom = isAdmin;
+      } else if (from.startsWith("/freelancer")) {
+        canRedirectToFrom = resolvedRole === "freelancer";
+      } else {
+        canRedirectToFrom = true;
+      }
+    }
+
+    if (canRedirectToFrom && from) {
       navigate(from, { replace: true });
     } else {
-      const isClient =
-        targetRole === "client" ||
-        (!targetRole &&
-          (targetEmail.includes("client") ||
-            targetEmail.includes("nang") ||
-            targetEmail.includes("business")));
-      navigate(isClient ? "/business" : "/projects", { replace: true });
+      if (isAdmin) {
+        navigate("/admin", { replace: true });
+      } else if (isClient) {
+        navigate("/business", { replace: true });
+      } else {
+        navigate("/freelancer/invitations", { replace: true });
+      }
     }
   }
 
@@ -63,12 +96,15 @@ export default function LoginPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       nextErrors.email = "Email chưa đúng định dạng.";
     if (!password) nextErrors.password = "Vui lòng nhập mật khẩu.";
+    else if (password.length < 6) nextErrors.password = "Mật khẩu phải có ít nhất 6 ký tự.";
 
     setErrors(nextErrors);
     setNotice("");
     if (nextErrors.email) emailRef.current?.focus();
     else if (nextErrors.password) passwordRef.current?.focus();
-    else {
+    else if (password === "wrong" || password === "sai" || password === "wrongpassword") {
+      setNotice("Tài khoản hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại thông tin đăng nhập.");
+    } else {
       performLogin(email.trim());
     }
   }
@@ -407,32 +443,53 @@ export default function LoginPage() {
                 Đăng nhập
               </Button>
 
-              {/* Demo Mode Quick Access */}
-              <Box sx={{ mt: 3, pt: 2, borderTop: "1px dashed #e4dfd7", textAlign: "center" }}>
-                <Typography variant="caption" sx={{ color: "#7a7d7b", display: "block", mb: 1.5 }}>
-                  Chế độ thử nghiệm · Đăng nhập nhanh một chạm:
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", flexWrap: "wrap" }}>
-                  <Chip
-                    icon={<BusinessOutlined />}
-                    label="Doanh nghiệp (Nắng Studio)"
-                    clickable
-                    color="primary"
-                    variant="outlined"
-                    onClick={() => performLogin("contact@nangstudio.vn", "client")}
-                    sx={{ fontWeight: 600, py: 1 }}
-                  />
-                  <Chip
-                    icon={<PersonOutlined />}
-                    label="Freelancer (Minh Anh)"
-                    clickable
-                    color="default"
-                    variant="outlined"
-                    onClick={() => performLogin("minhanh.design@frevo.vn", "freelancer")}
-                    sx={{ fontWeight: 600, py: 1 }}
-                  />
-                </Box>
-              </Box>
+              {/* Developer Quick Access (debug mode only) */}
+              {typeof window !== "undefined" &&
+                new URLSearchParams(window.location.search).get("debug") === "true" && (
+                  <Box sx={{ mt: 3, pt: 2, borderTop: "1px dashed #e4dfd7", textAlign: "center" }}>
+                    <Typography variant="caption" sx={{ color: "#7a7d7b", display: "block", mb: 1.5 }}>
+                      Chế độ thử nghiệm · Đăng nhập nhanh:
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1.5, justifyContent: "center", flexWrap: "wrap" }}>
+                      <Chip
+                        icon={<BusinessOutlined />}
+                        label="Doanh nghiệp (Nắng Studio)"
+                        clickable
+                        color="primary"
+                        variant="outlined"
+                        onClick={() => performLogin("contact@nangstudio.vn", "client")}
+                        sx={{ fontWeight: 600, py: 1 }}
+                      />
+                      <Chip
+                        icon={<PersonOutlined />}
+                        label="Freelancer (Minh Anh)"
+                        clickable
+                        color="default"
+                        variant="outlined"
+                        onClick={() => performLogin("minhanh.design@frevo.vn", "freelancer")}
+                        sx={{ fontWeight: 600, py: 1 }}
+                      />
+                      <Chip
+                        icon={<GroupsOutlined />}
+                        label="Team (Pixel Craft)"
+                        clickable
+                        color="default"
+                        variant="outlined"
+                        onClick={() => performLogin("contact@pixelcraft.vn", "freelancer")}
+                        sx={{ fontWeight: 600, py: 1 }}
+                      />
+                      <Chip
+                        icon={<AdminPanelSettingsOutlined />}
+                        label="Quản trị (Admin)"
+                        clickable
+                        color="secondary"
+                        variant="outlined"
+                        onClick={() => performLogin("admin@frevo.vn", "admin")}
+                        sx={{ fontWeight: 600, py: 1 }}
+                      />
+                    </Box>
+                  </Box>
+                )}
 
               {notice && (
                 <Box

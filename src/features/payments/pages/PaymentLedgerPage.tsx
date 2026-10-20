@@ -25,8 +25,11 @@ export const PaymentLedgerPage: React.FC = () => {
 
   const { projects, agreements } = useBusiness();
 
-  const project = projects.find((p) => p.id === projectId) || projects[0];
-  const effectiveAgreement = agreements.find((a) => a.projectId === project?.id && a.isEffective) || agreements[0];
+  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
+  const effectiveAgreement =
+    agreements.find((a) => a.projectId === project?.id && a.isEffective) ||
+    agreements.find((a) => a.projectId === project?.id) ||
+    agreements[0];
 
   const [payments, setPayments] = useState<PaymentSimulation[]>(() =>
     project ? mockStorage.getPayments(project.id) : []

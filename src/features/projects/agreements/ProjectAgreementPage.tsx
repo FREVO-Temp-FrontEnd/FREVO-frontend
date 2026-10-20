@@ -26,7 +26,7 @@ export const ProjectAgreementPage: React.FC = () => {
   const { role } = useAuthSession();
   const { projects, candidates, talents, agreements, confirmAgreement } = useBusiness();
 
-  const project = projects.find((p) => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
   const projectAgreements = agreements.filter((a) => a.projectId === projectId);
 
   const [selectedVersion, setSelectedVersion] = useState<number>(() => {
