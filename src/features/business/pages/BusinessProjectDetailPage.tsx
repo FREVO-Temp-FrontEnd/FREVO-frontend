@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircleMore, MoreVertical, Wallet } from "lucide-react";
-import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, Eye, MessageCircleMore, Wallet } from "lucide-react";
+import { Box, Button, Typography } from "@mui/material";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { CloseProjectDialog } from "@/features/business/components/CloseProjectDialog";
 import { CandidateSuggestionsTab } from "@/features/business/components/CandidateSuggestionsTab";
 import { SentInvitationsTab } from "@/features/business/components/SentInvitationsTab";
+import { BusinessProjectBrief } from "@/features/business/components/BusinessProjectBrief";
 import { ProjectApplicantsTab } from "@/features/business/components/ProjectApplicantsTab";
 import type { ProjectBrief, ProjectStatus } from "@/lib/types/marketplace.types";
 
@@ -33,7 +34,6 @@ export function BusinessProjectDetailPage() {
   const navigate = useNavigate();
   const { projects, candidates, invitations, closeProject, talents } = useBusiness();
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
-  const [actionsAnchor, setActionsAnchor] = useState<HTMLElement | null>(null);
 
   const parts = location.pathname.split("/").filter(Boolean);
   const projectId = routeProjectId || (parts[1] === "projects" ? parts[2] : undefined);
@@ -64,7 +64,7 @@ export function BusinessProjectDetailPage() {
     ? talents.find((t) => t.id === selectedCandidate.talentId)
     : undefined;
 
-  const currentTab = parts[3] || (project.status === "published" ? "applicants" : "");
+  const currentTab = parts[3] || (project.status === "published" ? "applicants" : "brief");
 
   const tabs: { segment: string; label: string; count?: number }[] = project.status === "published"
     ? [
@@ -72,7 +72,7 @@ export function BusinessProjectDetailPage() {
         { segment: "suggestions", label: "Gợi ý phù hợp" },
         { segment: "invitations", label: "Lời mời đã gửi", count: projectInvitations.length },
       ]
-    : [{ segment: "", label: "Brief" }];
+    : [{ segment: "brief", label: "Brief" }];
 
   if (project.status === "ongoing") {
     tabs.push(
@@ -120,17 +120,11 @@ export function BusinessProjectDetailPage() {
             </div>
           </div>
           {project.status !== "draft" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-            {project.status === "published" && <Button component={Link} to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer" startIcon={<Eye size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Xem tin tuyển</Button>}
+            {project.status === "published" && currentTab !== "brief" && <Button component={Link} to={`/business/projects/${project.id}/brief`} startIcon={<Eye size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Xem brief</Button>}
             <Button component={Link} to={projectInboxPath} startIcon={<MessageCircleMore size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Tin nhắn</Button>
-            <IconButton aria-label="Thao tác dự án" aria-haspopup="menu" aria-expanded={Boolean(actionsAnchor)} onClick={event => setActionsAnchor(event.currentTarget)} sx={{ width: 40, height: 40, bgcolor: "#f2f3f0" }}><MoreVertical size={18} /></IconButton>
           </div>}
         </div>
       </header>
-      <Menu anchorEl={actionsAnchor} open={Boolean(actionsAnchor)} onClose={() => setActionsAnchor(null)}>
-        <MenuItem onClick={() => { setActionsAnchor(null); navigate(`/business/projects/${project.id}/brief`); }}>Xem brief</MenuItem>
-        {project.status === "published" && <MenuItem onClick={() => { setActionsAnchor(null); navigate(`/business/projects/${project.id}/edit`); }}>Chỉnh sửa brief</MenuItem>}
-        {project.status === "published" && <MenuItem sx={{ color: "error.main" }} onClick={() => { setActionsAnchor(null); setCloseDialogOpen(true); }}>Đóng tuyển</MenuItem>}
-      </Menu>
 
       <nav className="mb-5 mt-3 flex items-center justify-between gap-2 overflow-x-auto border-b border-[#e4e6e2] px-1" aria-label="Các mục của dự án">
         <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
@@ -160,9 +154,6 @@ export function BusinessProjectDetailPage() {
         })}
         {project.status === "published" && <Link to={`/business/projects/${project.id}/brief`} aria-current={currentTab === "brief" ? "page" : undefined} className={`inline-flex min-h-11 shrink-0 items-center border-b-2 px-3 text-xs font-semibold xl:hidden ${currentTab === "brief" ? "border-[#f4490b] text-[#bd3d14]" : "border-transparent text-[#747773]"}`}>Brief</Link>}
         </div>
-        {project.status === "published" && <div className="hidden shrink-0 items-center gap-3 text-xs text-[#747773] xl:flex">
-          <Link to={`/business/projects/${project.id}/brief`} className={`hover:text-[#bd3d14] ${currentTab === "brief" ? "font-bold text-[#bd3d14]" : ""}`}>Xem brief</Link>
-        </div>}
       </nav>
 
       {/* Tab Switcher: Suggestions (BUS-007) / Invitations (BUS-010) / Applicants (BUS-011) / Executor / Brief View (BUS-005) */}
@@ -227,169 +218,14 @@ export function BusinessProjectDetailPage() {
           </section>
         </div>
       ) : (
-      <div className="fb-detail-grid">
-        <div>
-          <section className="fb-panel fb-brief">
-            <div className="fb-section-head">
-              <div>
-                <span className="fb-eyebrow">PROJECT BRIEF</span>
-                <h2>Thông tin dự án</h2>
-              </div>
-              {project.status === "draft" || project.status === "published" ? (
-                <Link
-                  className="fb-button fb-button-secondary fb-button-small"
-                  to={`/business/projects/${project.id}/edit`}
-                >
-                  Chỉnh sửa
-                </Link>
-              ) : null}
-            </div>
-
-            <p>{project.description || "Chưa có mô tả. Hãy hoàn thiện brief trước khi công bố."}</p>
-
-            <div className="fb-facts">
-              <div>
-                <small>Ngân sách dự kiến</small>
-                <strong>{project.budget || "Chưa đặt"}</strong>
-              </div>
-              <div>
-                <small>Hạn nhận hồ sơ</small>
-                <strong>{project.applicationDeadline || "Chưa đặt"}</strong>
-              </div>
-              <div>
-                <small>Hạn hoàn thành</small>
-                <strong>{project.deadline || "Chưa đặt"}</strong>
-              </div>
-              <div>
-                <small>Ưu tiên bên thực hiện (BR-001)</small>
-                <strong>
-                  {project.preference === "both"
-                    ? "Cả cá nhân hoặc team"
-                    : project.preference === "individual"
-                    ? "Cá nhân"
-                    : "Team"}
-                </strong>
-              </div>
-            </div>
-          </section>
-
-          <section className="fb-panel fb-brief">
-            <span className="fb-eyebrow">PHẠM VI CÔNG VIỆC</span>
-            <h2>Kỹ năng và bàn giao</h2>
-
-            <h3 style={{ marginTop: "16px", marginBottom: "8px", fontSize: "14px", fontWeight: 700 }}>
-              Kỹ năng cần có
-            </h3>
-            <div className="fb-chips">
-              {project.skills.length ? (
-                project.skills.map((skill) => <span key={skill}>{skill}</span>)
-              ) : (
-                <span>Chưa thêm kỹ năng</span>
-              )}
-            </div>
-
-            <h3 style={{ marginTop: "20px", marginBottom: "8px", fontSize: "14px", fontWeight: 700 }}>
-              Sản phẩm bàn giao
-            </h3>
-            {project.deliverables.length ? (
-              <ul className="fb-check-list">
-                {project.deliverables.map((item) => (
-                  <li key={item}>
-                    <Check size={17} /> {item}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Chưa thêm sản phẩm bàn giao.</p>
-            )}
-          </section>
-        </div>
-
-        <aside className="fb-detail-aside">
-          <div className="fb-panel">
-            <span className="fb-eyebrow">
-              {project.status === "ongoing" ? "NGƯỜI THỰC HIỆN" : "BƯỚC TIẾP THEO"}
-            </span>
-            <h2>
-              {project.status === "draft"
-                ? "Hoàn thiện brief"
-                : project.status === "ongoing"
-                ? selectedTalent?.name ?? "Đã chọn người thực hiện"
-                : project.status === "closed"
-                ? "Đã đóng tuyển"
-                : "Tìm người phù hợp"}
-            </h2>
-            <p>
-              {project.status === "draft"
-                ? "Điền đủ thông tin để công bố dự án và bắt đầu nhận ứng tuyển."
-                : project.status === "ongoing"
-                ? "Dự án đã chốt người thực hiện. Tin nhắn và hợp đồng được quản lý tại dự án này."
-                : project.status === "closed"
-                ? "Dự án đã ngừng tuyển ứng viên."
-                : "Xem hồ sơ ứng tuyển hoặc tìm người phù hợp từ danh sách gợi ý."}
-            </p>
-
-            <div className="fb-aside-actions">
-              {project.status === "draft" ? (
-                <Link
-                  className="fb-button fb-button-small fb-button-primary"
-                  to={`/business/projects/${project.id}/edit`}
-                >
-                  Tiếp tục brief <ArrowRight size={17} />
-                </Link>
-              ) : project.status === "ongoing" ? (
-                <>
-                  <Link
-                    className="fb-button fb-button-small fb-button-primary"
-                    to={projectInboxPath}
-                  >
-                    Hộp tin nhắn <ArrowRight size={17} />
-                  </Link>
-                  <Link
-                    className="fb-button fb-button-small fb-button-secondary"
-                    to={`/workspace/${project.id}`}
-                  >
-                    Xem tiến độ & Hợp đồng
-                  </Link>
-                </>
-              ) : project.status === "closed" ? (
-                <Link
-                  className="fb-button fb-button-small fb-button-secondary"
-                  to={`/business/projects/${project.id}/applicants`}
-                >
-                  Xem hồ sơ đã ứng tuyển
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    className="fb-button fb-button-small fb-button-primary"
-                    to={`/business/projects/${project.id}/applicants`}
-                  >
-                    Xem ứng viên ({projectCandidates.length}) <ArrowRight size={17} />
-                  </Link>
-                  <Link
-                    className="fb-button fb-button-small fb-button-secondary"
-                    to={`/business/projects/${project.id}/suggestions`}
-                  >
-                    Khám phá gợi ý
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Close Project Button (BUS-006) */}
-          {project.status === "published" && (
-            <button
-              type="button"
-              className="fb-text-button"
-              onClick={() => setCloseDialogOpen(true)}
-            >
-              Đóng tuyển dự án (BUS-006)
-            </button>
-          )}
-        </aside>
-      </div>
+        <BusinessProjectBrief
+          key={project.id}
+          project={project}
+          candidateCount={projectCandidates.length}
+          executorName={selectedTalent?.name}
+          inboxPath={projectInboxPath}
+          onCloseProject={() => setCloseDialogOpen(true)}
+        />
       )}
 
       <CloseProjectDialog
