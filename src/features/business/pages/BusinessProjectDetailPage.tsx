@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircleMore, UsersRound, Wallet } from "lucide-react";
-import { Typography } from "@mui/material";
+import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, Eye, MessageCircleMore, MoreVertical, Wallet } from "lucide-react";
+import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { CloseProjectDialog } from "@/features/business/components/CloseProjectDialog";
@@ -33,6 +33,7 @@ export function BusinessProjectDetailPage() {
   const navigate = useNavigate();
   const { projects, candidates, invitations, closeProject, talents } = useBusiness();
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
+  const [actionsAnchor, setActionsAnchor] = useState<HTMLElement | null>(null);
 
   const parts = location.pathname.split("/").filter(Boolean);
   const projectId = routeProjectId || (parts[1] === "projects" ? parts[2] : undefined);
@@ -90,29 +91,48 @@ export function BusinessProjectDetailPage() {
   }
 
   return (
-    <>
+    <Box sx={(theme) => ({
+      zoom: 0.9,
+      fontFamily: theme.typography.fontFamily,
+      "&& .MuiBreadcrumbs-li > *": { fontFamily: theme.typography.fontFamily },
+      "&& h1": { fontFamily: theme.typography.h1.fontFamily, letterSpacing: "-0.02em" },
+      "&& h2": { fontFamily: theme.typography.h2.fontFamily, letterSpacing: "-0.015em" },
+      "&& h3": { fontFamily: theme.typography.h3.fontFamily, letterSpacing: 0 },
+      "&&& .MuiButton-root, &&& .fb-button": {
+        fontFamily: theme.typography.fontFamily,
+        fontSize: 13,
+        fontWeight: 600,
+        letterSpacing: 0,
+        lineHeight: 1.4,
+        textTransform: "none",
+      },
+    })}>
       <ProjectBreadcrumbs items={[{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title }]} />
 
       <header className="rounded-[24px] border border-[#eceae7] bg-white px-5 py-5 sm:px-7 sm:py-6">
-        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
           <div className="min-w-0">
-            <Typography component="h1" variant="h4" sx={{ maxWidth: 540, lineHeight: 1.16, fontSize: { xs: "1.5rem", sm: "1.75rem" }, fontWeight: 800 }}>{project.title}</Typography>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#747773]">
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f7ef] px-2 py-0.5 font-semibold text-[#16805b]"><span className="size-1.5 rounded-full bg-[#16805b]" aria-hidden="true" />{statusLabel(project.status)}</span>
-              <span className="inline-flex items-center gap-1"><Wallet size={14} className="text-[#bd3d14]" /> Ngân sách dự kiến: <strong className="text-[#bd3d14]">{project.budget || "Chưa đặt"}</strong></span>
-              <span className="inline-flex items-center gap-1"><CalendarDays size={14} /> Hạn chót ứng tuyển: <strong className="text-[#20201f]">{project.applicationDeadline || "Chưa đặt"}</strong></span>
-              <span className="inline-flex items-center gap-1"><UsersRound size={14} /> Tổng nhận: <strong className="text-[#20201f]">{projectCandidates.length} hồ sơ</strong></span>
-              <span className="rounded-full bg-[#f2f3f0] px-2 py-0.5 text-[#62625e]">{project.category}</span>
+            <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${project.status === "published" || project.status === "ongoing" ? "bg-[#e8f7ef] text-[#16805b]" : "bg-[#f2f3f0] text-[#62625e]"}`}><span className="size-1.5 rounded-full bg-current" aria-hidden="true" />{statusLabel(project.status)}</span>
+            <Typography component="h1" variant="h4" sx={{ maxWidth: 650, lineHeight: 1.22, fontSize: { xs: "1.5rem", sm: "1.875rem" }, fontWeight: 800 }}>{project.title}</Typography>
+            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#747773]">
+              <span className="inline-flex items-center gap-1.5"><Wallet size={16} className="text-[#bd3d14]" aria-hidden="true" /> Ngân sách: <strong className="font-semibold text-[#20201f]">{project.budget || "Chưa đặt"}</strong></span>
+              <span className="inline-flex items-center gap-1.5"><CalendarDays size={16} aria-hidden="true" /> Hạn ứng tuyển: <strong className="font-semibold text-[#20201f]">{project.applicationDeadline || "Chưa đặt"}</strong></span>
             </div>
           </div>
           {project.status !== "draft" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-            {project.status === "published" && <Link className="fb-button fb-button-small fb-button-secondary" to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer"><Eye size={14} /> Xem trang tin tuyển</Link>}
-            <Link className="fb-button fb-button-small fb-button-primary" to={projectInboxPath}><MessageCircleMore size={14} /> Hộp tin nhắn</Link>
+            {project.status === "published" && <Button component={Link} to={`/projects/${project.id}/details`} target="_blank" rel="noopener noreferrer" startIcon={<Eye size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Xem tin tuyển</Button>}
+            <Button component={Link} to={projectInboxPath} startIcon={<MessageCircleMore size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Tin nhắn</Button>
+            <IconButton aria-label="Thao tác dự án" aria-haspopup="menu" aria-expanded={Boolean(actionsAnchor)} onClick={event => setActionsAnchor(event.currentTarget)} sx={{ width: 40, height: 40, bgcolor: "#f2f3f0" }}><MoreVertical size={18} /></IconButton>
           </div>}
         </div>
       </header>
+      <Menu anchorEl={actionsAnchor} open={Boolean(actionsAnchor)} onClose={() => setActionsAnchor(null)}>
+        <MenuItem onClick={() => { setActionsAnchor(null); navigate(`/business/projects/${project.id}/brief`); }}>Xem brief</MenuItem>
+        {project.status === "published" && <MenuItem onClick={() => { setActionsAnchor(null); navigate(`/business/projects/${project.id}/edit`); }}>Chỉnh sửa brief</MenuItem>}
+        {project.status === "published" && <MenuItem sx={{ color: "error.main" }} onClick={() => { setActionsAnchor(null); setCloseDialogOpen(true); }}>Đóng tuyển</MenuItem>}
+      </Menu>
 
-      <nav className="mb-4 mt-3 flex items-center justify-between gap-2 overflow-x-auto border border-[#eceae7] bg-white px-2 sm:px-4" aria-label="Các mục của dự án">
+      <nav className="mb-5 mt-3 flex items-center justify-between gap-2 overflow-x-auto border-b border-[#e4e6e2] px-1" aria-label="Các mục của dự án">
         <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
         {tabs.map((tab) => {
           let targetPath = tab.segment
@@ -131,7 +151,7 @@ export function BusinessProjectDetailPage() {
               key={tab.segment}
               to={targetPath}
               aria-current={currentTab === tab.segment ? "page" : undefined}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-3 text-xs font-semibold transition-colors sm:px-4 ${currentTab === tab.segment ? "border-[#f4490b] text-[#bd3d14]" : "border-transparent text-[#747773] hover:text-[#20201f]"}`}
+              className={`inline-flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-3 text-sm font-semibold transition-colors sm:px-4 ${currentTab === tab.segment ? "border-[#f4490b] text-[#bd3d14]" : "border-transparent text-[#747773] hover:text-[#20201f]"}`}
             >
               {tab.label}
               {tab.count !== undefined && <span className={`rounded-full px-2 py-0.5 text-xs ${currentTab === tab.segment ? "bg-[#fff0e9] text-[#bd3d14]" : "bg-[#f2f3f0] text-[#747773]"}`}>{tab.count}</span>}
@@ -381,6 +401,6 @@ export function BusinessProjectDetailPage() {
         }}
         projectTitle={project.title}
       />
-    </>
+    </Box>
   );
 }

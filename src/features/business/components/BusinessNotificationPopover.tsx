@@ -25,8 +25,8 @@ export function BusinessNotificationPopover() {
           position: "relative",
           display: "grid",
           placeItems: "center",
-          width: 38,
-          height: 38,
+          width: 44,
+          height: 44,
           p: 0,
           border: 0,
           borderRadius: "50%",
@@ -37,9 +37,9 @@ export function BusinessNotificationPopover() {
           "&:focus-visible": { outline: "2px solid #f4490b", outlineOffset: 2 },
         }}
       >
-        <Bell size={20} aria-hidden="true" />
+        <Bell size={21} strokeWidth={1.8} aria-hidden="true" />
         {unreadCount > 0 && (
-          <Box component="span" sx={{ position: "absolute", top: 4, right: 3, width: 8, height: 8, borderRadius: "50%", bgcolor: "#ff5e22" }} />
+          <Box component="span" sx={{ position: "absolute", top: 9, right: 9, width: 8, height: 8, border: "2px solid white", boxSizing: "content-box", borderRadius: "50%", bgcolor: "primary.main" }} />
         )}
       </Box>
 

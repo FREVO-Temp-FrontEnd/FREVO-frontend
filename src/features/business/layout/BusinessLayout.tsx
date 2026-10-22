@@ -19,7 +19,7 @@ import { useBusiness } from "@/lib/hooks/useBusiness";
 import { BusinessNotificationPopover } from "../components/BusinessNotificationPopover";
 import { externalNavConfig } from "@/lib/config/navigation";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { Avatar, Box, Chip, Menu, MenuItem } from "@mui/material";
+import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
 import "@/features/business/business.css";
 
 const navItems = [
@@ -184,20 +184,11 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
             {mobileNav ? <X size={22} /> : <span>☰</span>}
           </button>
 
-          <span>Không gian doanh nghiệp · {businessName}</span>
+          <Typography component="span" sx={{ minWidth: 0, fontSize: { xs: 11, sm: 13 }, fontWeight: 700, color: "text.secondary", lineHeight: 1.5 }}>
+            Không gian doanh nghiệp · {businessName}
+          </Typography>
 
-          <Box sx={{ "&&": { display: "flex", alignItems: "center", gap: { xs: 2, sm: 3 } } }}>
-            <Chip
-              size="small"
-              label="BẢN XEM TRƯỚC"
-              sx={{
-                fontWeight: 700,
-                fontSize: 11,
-                bgcolor: "#fff0e9",
-                color: "#ab2e00",
-                letterSpacing: "0.05em",
-              }}
-            />
+          <Box sx={{ "&&": { display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1.5 }, ml: "auto" } }}>
             <BusinessNotificationPopover />
             <Box
               component="button"
@@ -210,22 +201,26 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 0.75,
-                minWidth: 72,
-                height: 42,
-                p: "5px 8px 5px 5px",
-                borderRadius: 999,
-                bgcolor: "#f3f5f3",
-                color: "#4e5a62",
-                border: "1px solid #e4e6e2",
+                gap: 1.25,
+                minWidth: 64,
+                minHeight: 48,
+                p: "4px 8px 4px 12px",
+                borderRadius: 3,
+                bgcolor: "transparent",
+                color: "text.primary",
+                border: 0,
                 cursor: "pointer",
                 transition: "background-color 150ms ease",
-                "&:hover": { bgcolor: "#e9eeeb" },
+                "&:hover": { bgcolor: "#f2f3f0" },
                 "&:focus-visible": { outline: "2px solid #f4490b", outlineOffset: 3 },
               }}
             >
-              <Avatar sx={{ width: 32, height: 32, bgcolor: "#dfe5e9", color: "#fff" }}>
-                <PersonRoundedIcon sx={{ fontSize: 27 }} />
+              <Box component="span" sx={{ display: { xs: "none", sm: "block" }, textAlign: "right", maxWidth: 180 }}>
+                <Typography component="span" sx={{ display: "block", fontSize: 13, fontWeight: 700, lineHeight: 1.5 }} noWrap>{businessName}</Typography>
+                <Typography component="span" sx={{ display: "block", fontSize: 12, color: "text.secondary", lineHeight: 1.5 }}>Doanh nghiệp</Typography>
+              </Box>
+              <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.dark", color: "#fff" }}>
+                <PersonRoundedIcon sx={{ fontSize: 23 }} />
               </Avatar>
               <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
             </Box>
@@ -238,6 +233,12 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               transformOrigin={{ vertical: "top", horizontal: "right" }}
               slotProps={{ paper: { sx: { mt: 1, minWidth: 180, border: "1px solid #e4e6e2", borderRadius: 2, boxShadow: "0 12px 30px rgba(32,32,31,.12)" } } }}
             >
+              <MenuItem onClick={() => { setAccountMenuAnchor(null); navigate("/business/profile"); }} sx={{ gap: 1.5, py: 1.25, fontSize: 14 }}>
+                <UserRound size={17} aria-hidden="true" /> Hồ sơ doanh nghiệp
+              </MenuItem>
+              <MenuItem onClick={() => { setAccountMenuAnchor(null); navigate("/business/settings"); }} sx={{ gap: 1.5, py: 1.25, fontSize: 14 }}>
+                <Settings2 size={17} aria-hidden="true" /> Cài đặt
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   setAccountMenuAnchor(null);

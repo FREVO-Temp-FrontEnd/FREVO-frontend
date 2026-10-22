@@ -246,6 +246,7 @@ export interface ProjectBrief {
 }
 
 export interface MarketplaceState {
+  portfolioSeedVersion?: number;
   projects: ProjectBrief[];
   talents: TalentProfile[];
   candidates: Candidate[];

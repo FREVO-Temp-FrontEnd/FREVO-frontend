@@ -25,6 +25,8 @@ import type {
   UserSession,
 } from "@/lib/types/marketplace.types";
 
+import { portfolioEvidence, talentPortfolioSeeds } from "@/lib/storage/seeds/portfolioSeed";
+
 const STORAGE_KEY = "frevo_marketplace_data_v2";
 const PENDING_CANDIDATES_DEMO_KEY = "frevo_nang_brand_pending_candidates_demo_v1";
 const STORAGE_EVENT = "frevo_marketplace_storage_change";
@@ -46,10 +48,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     skills: ["Brand identity", "Logo design", "Packaging"],
     about:
       "Thiết kế nhận diện cho thương hiệu tiêu dùng và các sản phẩm thủ công. Tập trung vào hệ thống có thể sử dụng nhất quán trên bao bì và kênh số.",
-    portfolio: [
-      { id: "lum-coffee", title: "Lúm Coffee", category: "Nhận diện thương hiệu", color: "#d8a983", attribution: "Cá nhân" },
-      { id: "moc-packaging", title: "Mộc", category: "Bao bì sản phẩm", color: "#c6cfbd", attribution: "Cá nhân" },
-    ],
+    portfolio: portfolioEvidence("minh-anh"),
     fit: ["3 kỹ năng trùng brief", "Portfolio cùng lĩnh vực", "Trong khoảng ngân sách"],
     verified: true,
   },
@@ -68,10 +67,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     skills: ["Brand identity", "Art direction", "Social design"],
     about:
       "Team 3 người phụ trách chiến lược hình ảnh, thiết kế nhận diện và triển khai nội dung số. Một tài khoản đại diện trao đổi và xác nhận trên FREVO.",
-    portfolio: [
-      { id: "lala-id", title: "Lala", category: "Hệ nhận diện", color: "#c9ccd5", attribution: "Team", teamRole: "Art Director & Lead Designer" },
-      { id: "som-campaign", title: "Sớm", category: "Chiến dịch ra mắt", color: "#edcba9", attribution: "Team", teamRole: "Visual Identity" },
-    ],
+    portfolio: portfolioEvidence("may-creative"),
     fit: ["Năng lực team phù hợp", "Portfolio nhận diện", "Có thể đáp ứng nhiều đầu việc"],
     teamMembersCount: 3,
     verified: true,
@@ -91,10 +87,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     skills: ["Brand identity", "Typography", "Guideline"],
     about:
       "Chuyên xây dựng bộ nhận diện rõ ràng, dễ dùng cho đội ngũ nhỏ. Có kinh nghiệm thiết kế guideline và tài liệu ứng dụng.",
-    portfolio: [
-      { id: "tia-brandbook", title: "Tía", category: "Brandbook", color: "#d4b2ad", attribution: "Cá nhân" },
-      { id: "net-studio-vi", title: "Nét Studio", category: "Visual identity", color: "#d9d3c0", attribution: "Cá nhân" },
-    ],
+    portfolio: portfolioEvidence("khanh-linh"),
     fit: ["Kinh nghiệm nhận diện", "Đúng khoảng ngân sách", "Sẵn sàng ngay"],
     verified: false,
   },
@@ -113,10 +106,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     skills: ["Brand identity", "Packaging", "Illustration"],
     about:
       "Thiết kế hình ảnh thương hiệu và bao bì cho sản phẩm lifestyle, thực phẩm và cửa hàng độc lập.",
-    portfolio: [
-      { id: "nau-market", title: "Nâu Market", category: "Bao bì", color: "#d9bc9f", attribution: "Cá nhân" },
-      { id: "ri-rao", title: "Rì Rào", category: "Nhận diện", color: "#c9d9c8", attribution: "Cá nhân" },
-    ],
+    portfolio: portfolioEvidence("ha-vy"),
     fit: ["Kỹ năng bao bì phù hợp", "Portfolio cùng ngành", "Trong khoảng ngân sách"],
     verified: true,
   },
@@ -135,10 +125,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     skills: ["Brand identity", "Packaging", "Campaign"],
     about:
       "Team thiết kế tập trung vào bộ nhận diện và triển khai đa kênh cho các thương hiệu mới.",
-    portfolio: [
-      { id: "mua-vi", title: "Mùa", category: "Nhận diện", color: "#dbb7b5", attribution: "Team" },
-      { id: "cham-camp", title: "Chạm", category: "Campaign", color: "#e8d2ad", attribution: "Team" },
-    ],
+    portfolio: portfolioEvidence("studio-dau"),
     fit: ["Đủ năng lực triển khai", "Portfolio liên quan", "Phù hợp dự án theo team"],
     teamMembersCount: 4,
     verified: false,
@@ -233,10 +220,10 @@ export const initialCandidatesSeed: Candidate[] = [
     id: "c1",
     projectId: "nang-brand",
     talentId: "minh-anh",
-    source: "Ứng tuyển",
+    source: "Ứng tuyển · Lời mời",
     status: "new",
     proposal:
-      "Mình muốn xây dựng một hệ nhận diện linh hoạt, từ logo đến bao bì. Hai dự án Lúm Coffee và Mộc trong portfolio có phạm vi khá gần với brief này.",
+      "Mình muốn xây dựng một hệ nhận diện linh hoạt, từ logo đến bao bì. Hai dự án Mộc Coffee và L’Herbe trong portfolio có phạm vi khá gần với brief này.",
     receivedAt: "2026-10-18T09:42:00.000Z",
     unread: true,
     chatUnlocked: false, // Locked until Business candidate review (BUS-013)
@@ -246,7 +233,7 @@ export const initialCandidatesSeed: Candidate[] = [
     id: "c2",
     projectId: "nang-brand",
     talentId: "may-creative",
-    source: "Ứng tuyển",
+    source: "Ứng tuyển · Lời mời",
     status: "new",
     proposal:
       "Team Mây có thể đảm nhận toàn bộ hệ nhận diện và ứng dụng mạng xã hội, với một người đại diện xuyên suốt dự án.",
@@ -299,6 +286,8 @@ export const initialCandidatesSeed: Candidate[] = [
 
 // Initial Invitations Seed Data (7 days expiration per FR-019 & BR-024)
 export const initialInvitationsSeed: Invitation[] = [
+  { id: "inv-minh-anh", projectId: "nang-brand", talentId: "minh-anh", status: "accepted", sentAt: "2026-10-17T08:00:00.000Z", expiresAt: "2026-10-24T08:00:00.000Z", respondedAt: "2026-10-18T09:42:00.000Z", note: "Mời Minh Anh trao đổi về bộ nhận diện Nắng Studio." },
+  { id: "inv-may-creative", projectId: "nang-brand", talentId: "may-creative", status: "accepted", sentAt: "2026-10-16T08:00:00.000Z", expiresAt: "2026-10-23T08:00:00.000Z", respondedAt: "2026-10-17T16:20:00.000Z", note: "Mời đại diện Mây Creative tham gia tuyển người thực hiện dự án." },
   {
     id: "inv-1",
     projectId: "nang-brand",
@@ -446,6 +435,7 @@ export const initialActiveUserSeed: UserSession = {
 
 function getInitialState(): MarketplaceState {
   return {
+    portfolioSeedVersion: 2,
     projects: initialProjectsSeed,
     talents: initialTalentsSeed,
     candidates: initialCandidatesSeed,
@@ -484,7 +474,21 @@ class MockStorageAdapter {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const state = JSON.parse(stored) as MarketplaceState;
+        let state = JSON.parse(stored) as MarketplaceState;
+        if (state.portfolioSeedVersion !== 2) {
+          state = {
+            ...state,
+            portfolioSeedVersion: 2,
+            talents: state.talents.map(talent => {
+              if (!talentPortfolioSeeds[talent.id]) return talent;
+              const canonical = portfolioEvidence(talent.id);
+              const seededIds = new Set([...canonical.map(item => item.id), "lum-coffee", "moc-packaging"]);
+              return { ...talent, portfolio: [...canonical, ...talent.portfolio.filter(item => !seededIds.has(item.id))] };
+            }),
+            candidates: state.candidates.map(candidate => candidate.talentId === "minh-anh" ? { ...candidate, proposal: candidate.proposal.replace("Hai dự án Lúm Coffee và Mộc trong portfolio", "Hai dự án Mộc Coffee và L’Herbe trong portfolio") } : candidate),
+          };
+          this.saveToStorage(state);
+        }
         const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
         if (alreadyPrepared) return state;
 
