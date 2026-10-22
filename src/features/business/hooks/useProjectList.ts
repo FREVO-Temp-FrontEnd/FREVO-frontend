@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Candidate, ProjectBrief, ProjectStatus } from "@/lib/types/marketplace.types";
+import type { Candidate, ProjectBrief, ProjectStatus, TalentProfile } from "@/lib/types/marketplace.types";
 
 export type ProjectFilter = "all" | ProjectStatus;
 export type ProjectSort = "newest" | "deadline" | "budget" | "applicants";
@@ -10,7 +10,7 @@ function dateValue(value?: string) {
   return day && month && year ? new Date(year, month - 1, day).getTime() : Number.POSITIVE_INFINITY;
 }
 
-export function useProjectList(projects: ProjectBrief[], candidates: Candidate[]) {
+export function useProjectList(projects: ProjectBrief[], candidates: Candidate[], talents: TalentProfile[]) {
   const [filter, setFilter] = useState<ProjectFilter>("published");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<ProjectSort>("newest");
@@ -36,6 +36,22 @@ export function useProjectList(projects: ProjectBrief[], candidates: Candidate[]
     return result;
   }, [candidates]);
 
+  const pendingCounts = useMemo(() => {
+    const result = new Map<string, number>();
+    candidates.forEach((candidate) => {
+      if ((candidate.status === "new" || candidate.status === "under_review") && !candidate.chatUnlocked) {
+        result.set(candidate.projectId, (result.get(candidate.projectId) ?? 0) + 1);
+      }
+    });
+    return result;
+  }, [candidates]);
+
+  const executorNames = useMemo(() => {
+    const talentNames = new Map(talents.map(talent => [talent.id, talent.name]));
+    const selectedIds = new Map(candidates.filter(candidate => candidate.status === "selected").map(candidate => [candidate.projectId, candidate.talentId]));
+    return new Map(projects.map(project => [project.id, talentNames.get(project.selectedTalentId || selectedIds.get(project.id) || "")]));
+  }, [projects, candidates, talents]);
+
   const visibleProjects = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("vi");
     return projects
@@ -51,5 +67,5 @@ export function useProjectList(projects: ProjectBrief[], candidates: Candidate[]
       });
   }, [projects, filter, query, sort, candidateCounts]);
 
-  return { filter, setFilter, query, setQuery, sort, setSort, counts, candidateCounts, visibleProjects };
+  return { filter, setFilter, query, setQuery, sort, setSort, counts, candidateCounts, pendingCounts, executorNames, visibleProjects };
 }

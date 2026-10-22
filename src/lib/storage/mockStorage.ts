@@ -137,6 +137,7 @@ export const initialProjectsSeed: ProjectBrief[] = [
   {
     id: "nang-brand",
     title: "Bộ nhận diện cho Nắng Studio",
+    heroImage: "/assets/nang-studio-brief.webp",
     category: "Thiết kế thương hiệu",
     type: "brand",
     company: "Nắng Studio",
@@ -487,6 +488,11 @@ class MockStorageAdapter {
             }),
             candidates: state.candidates.map(candidate => candidate.talentId === "minh-anh" ? { ...candidate, proposal: candidate.proposal.replace("Hai dự án Lúm Coffee và Mộc trong portfolio", "Hai dự án Mộc Coffee và L’Herbe trong portfolio") } : candidate),
           };
+          this.saveToStorage(state);
+        }
+        const projectImages = new Map(initialProjectsSeed.filter(project => project.heroImage).map(project => [project.id, project.heroImage]));
+        if (state.projects.some(project => !project.heroImage && projectImages.has(project.id))) {
+          state = { ...state, projects: state.projects.map(project => !project.heroImage && projectImages.has(project.id) ? { ...project, heroImage: projectImages.get(project.id) } : project) };
           this.saveToStorage(state);
         }
         const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
