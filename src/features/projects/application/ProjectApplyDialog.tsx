@@ -11,6 +11,7 @@ import {
 import type { Project } from "@/lib/types/project.types";
 import { Send, RotateCcw, X, Info, Coffee, Leaf, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/util/formatters";
+import { formatMoneyInput, moneyDigits } from "@/lib/util/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
 
 const dialogSlideDown = keyframes`
@@ -624,10 +625,15 @@ export function ProjectApplyDialog({
                           component="input"
                           id="proposed-budget"
                           name="proposedBudget"
-                          type="number"
-                          min={1000}
-                          step={1000}
-                          defaultValue={budgetDefault}
+                          type="text"
+                          inputMode="numeric"
+                          defaultValue={formatMoneyInput(budgetDefault)}
+                          onChange={event => {
+                            const input = event.currentTarget;
+                            input.value = formatMoneyInput(input.value);
+                            const amount = Number(moneyDigits(input.value));
+                            input.setCustomValidity(amount >= 1000 && amount % 1000 === 0 ? "" : "Nhập số tiền từ 1.000 VNĐ, theo bước 1.000 VNĐ.");
+                          }}
                           required
                           sx={{
                             width: "100%",

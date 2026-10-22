@@ -4,6 +4,7 @@ import { mockStorage } from "@/lib/storage/mockStorage";
 import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/util/formatters";
+import { moneyDigits } from "@/lib/util/money";
 
 const SAVED_PROJECTS_KEY = "frevo-saved-projects";
 
@@ -179,7 +180,7 @@ export function useProjects() {
       return;
     }
     const formData = new FormData(event.currentTarget);
-    const proposedBudget = String(formData.get("proposedBudget") ?? "").trim();
+    const proposedBudget = moneyDigits(String(formData.get("proposedBudget") ?? ""));
     const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
     const applicantType = formData.get("applicantType") === "team" ? "Đại diện Team" : "Cá nhân";
     const selectedPortfolioLabels = String(formData.get("selectedPortfolioLabels") ?? "").trim();

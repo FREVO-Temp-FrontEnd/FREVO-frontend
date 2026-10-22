@@ -10,6 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import { Plus, Trash2, ShieldAlert, Clock, ArrowRight } from "lucide-react";
+import { formatMoneyText, parseMoneyText } from "@/lib/util/money";
 import type {
   AgreementProposal,
   Milestone,
@@ -114,6 +115,10 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
               },
             };
           }
+          if (field === "amount") {
+            const amount = formatMoneyText(String(value));
+            return { ...m, amount, amountValue: parseMoneyText(amount) };
+          }
           return { ...m, [field]: value };
         }
         return m;
@@ -144,6 +149,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
       deliverables: deliverables.trim(),
       deadline: deadline.trim(),
       budget: budget.trim(),
+      budgetValue: parseMoneyText(budget),
       reference,
       milestones,
     });
@@ -257,9 +263,10 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           <TextField
             fullWidth
             label="Tổng ngân sách thống nhất *"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            placeholder="Ví dụ: 24 triệu"
+            slotProps={{ htmlInput: { inputMode: "numeric" } }}
+            value={formatMoneyText(budget)}
+            onChange={(e) => setBudget(formatMoneyText(e.target.value))}
+            placeholder="Ví dụ: 24.000.000"
           />
         </Box>
       </Box>
@@ -340,7 +347,8 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
                   <TextField
                     size="small"
                     label="Chi phí mốc *"
-                    value={milestone.amount}
+                    slotProps={{ htmlInput: { inputMode: "numeric" } }}
+                    value={formatMoneyText(milestone.amount)}
                     onChange={(e) =>
                       handleUpdateMilestone(milestone.id, "amount", e.target.value)
                     }
