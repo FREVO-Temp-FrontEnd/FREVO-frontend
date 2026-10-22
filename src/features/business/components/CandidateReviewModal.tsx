@@ -19,9 +19,11 @@ import {
   ShieldCheck,
   Lock,
   ArrowRight,
-  Briefcase,
   FileText,
 } from "lucide-react";
+import { useTalentPortfolio } from "@/lib/hooks/useTalentPortfolio";
+import { talentWorkPath, talentProfilePath } from "@/lib/utils/portfolioPaths";
+import { PortfolioWorkLink } from "@/app/shared/components/PortfolioWorkLink";
 import type { Candidate, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 
 interface CandidateReviewModalProps {
@@ -41,6 +43,7 @@ export function CandidateReviewModal({
   project,
   onUnlockChat,
 }: CandidateReviewModalProps) {
+  const { works } = useTalentPortfolio(talent?.id ?? "");
   if (!candidate || !talent) return null;
 
   const matchedSkills = talent.skills.filter((skill) => project.skills.some((required) => required.toLocaleLowerCase("vi") === skill.toLocaleLowerCase("vi")));
@@ -203,40 +206,17 @@ export function CandidateReviewModal({
           </Box>
         </Box>
 
-        {/* Portfolio Samples (BR-027) */}
-        {talent.portfolio.length > 0 && (
-          <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-              Portfolio minh chứng năng lực
-            </Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
-              {talent.portfolio.slice(0, 4).map((item, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    border: "1px solid #e5e7eb",
-                    bgcolor: "#fafaf9",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                  }}
-                >
-                  <Briefcase size={16} color="#6b7280" />
-                  <Box sx={{ overflow: "hidden" }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                      {item.category}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
+        {/* Public works are resolved by owner, using the same records as the profile. */}
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Portfolio của {talent.name}</Typography>
+            <Button component={Link} to={talentProfilePath(talent.id)} size="small">Hồ sơ cá nhân</Button>
           </Box>
-        )}
+          {works.length ? <Box className="grid gap-3 sm:grid-cols-2">{works.map(work => <Box key={work.id} sx={{ p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "divider", display: "flex", alignItems: "center", gap: 1.5 }}>
+            <PortfolioWorkLink talentId={talent.id} work={work} size={54} />
+            <Box sx={{ minWidth: 0 }}><Typography component={Link} to={talentWorkPath(talent.id, work.id)} sx={{ fontSize: 14, fontWeight: 600, display: "block" }}>{work.title}</Typography><Typography variant="caption" color="text.secondary">{work.category} · {work.role}</Typography></Box>
+          </Box>)}</Box> : <Typography variant="body2" color="text.secondary">Chưa có tác phẩm công khai.</Typography>}
+        </Box>
 
         <Divider />
 

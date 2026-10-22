@@ -1,137 +1,100 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
-import { Alert, Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, Snackbar, TextField, Tooltip, Typography } from "@mui/material";
-import { ArrowRight, CheckCircle2, LockKeyhole, MessageCircle, PlusCircle, Search, Users, XCircle } from "lucide-react";
+import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, Snackbar, TextField, Typography } from "@mui/material";
+import { ArrowUpRight, CheckCircle2, Clock3, FolderOpen, MailCheck, MessageCircle, MoreHorizontal, PlusCircle, Search, Send, Users } from "lucide-react";
 import type { Candidate, CandidateStatus, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
-import { useBusiness } from "@/lib/hooks/useBusiness";
-import { mockStorage } from "@/lib/storage/mockStorage";
+import { matchesCandidateFilter, useProjectApplicants, type CandidateDecision, type CandidateFilter } from "../hooks/useProjectApplicants";
+import { useTalentPortfolio } from "@/lib/hooks/useTalentPortfolio";
+import { talentProfilePath, talentWorkPath } from "@/lib/utils/portfolioPaths";
 import { CandidateReviewModal } from "./CandidateReviewModal";
 
-interface ProjectApplicantsTabProps { project: ProjectBrief }
-type CandidateFilter = "all" | "pending" | "discussing" | "offer" | "selected" | "not_selected";
-type Decision = { candidate: Candidate; talent: TalentProfile; action: "approve" | "reject" };
-
-const statusLabels: Record<CandidateStatus, string> = {
-  new: "Chờ xem xét", under_review: "Chờ xem xét", discussing: "Đã duyệt trao đổi",
-  offer: "Chờ xác nhận thỏa thuận", selected: "Đã được chọn", not_selected: "Không được chọn",
-};
-
-function matchesFilter(candidate: Candidate, filter: CandidateFilter) {
-  if (filter === "all") return true;
-  if (filter === "pending") return candidate.status === "new" || candidate.status === "under_review";
-  return candidate.status === filter;
+const statusLabels: Record<CandidateStatus, string> = { new: "Chờ duyệt", under_review: "Chờ duyệt", discussing: "Đã duyệt", offer: "Chờ xác nhận thỏa thuận", selected: "Đã chọn", not_selected: "Không được chọn" };
+const pillSx = { minHeight: 40, borderRadius: 999, px: 2, fontSize: 13, whiteSpace: "nowrap" } as const;
+interface CardProps {
+  candidate: Candidate; talent: TalentProfile; project: ProjectBrief; priority: boolean;
+  onReview: () => void; onDecision: (action: CandidateDecision["action"]) => void;
 }
-
-function CandidateCard({ candidate, talent, project, onReview, onDecision }: {
-  candidate: Candidate; talent: TalentProfile; project: ProjectBrief;
-  onReview: () => void; onDecision: (action: Decision["action"]) => void;
-}) {
-  const pending = matchesFilter(candidate, "pending");
+function CandidateCard({ candidate, talent, project, priority, onReview, onDecision }: CardProps) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const { works, previewWorks } = useTalentPortfolio(talent.id);
+  const pending = matchesCandidateFilter(candidate, "pending");
   const canDecide = project.status === "published" && pending && !candidate.chatUnlocked;
   const canChat = candidate.chatUnlocked && candidate.status !== "not_selected";
-  return <article className="border border-[#eceae7] bg-white px-4 py-3.5 shadow-[0_2px_12px_rgba(32,32,31,0.03)] sm:px-5">
-    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
-      <div className="flex min-w-0 items-start gap-3">
-        <Avatar sx={{ bgcolor: talent.color, color: "#20201f", width: 42, height: 42, fontWeight: 700, fontSize: 13 }} aria-hidden="true">{talent.initials}</Avatar>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <h3 className="text-sm font-bold text-[#20201f]">{talent.name}</h3>
-            {talent.verified && <span className="text-xs font-bold text-[#bd3d14]" title="Hồ sơ đã xác minh">✦</span>}
-            <span className="rounded-full bg-[#f2f3f0] px-2 py-0.5 text-[10px] text-[#62625e]">{talent.kind}</span>
-          </div>
-          <p className="mt-0.5 text-xs text-[#747773]">{talent.role} · {talent.location}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#747773]">
-            <span>Nguồn: {candidate.source}</span><span aria-hidden="true">·</span><span>Nhận {new Date(candidate.receivedAt).toLocaleDateString("vi-VN")}</span>
-            {candidate.unread && <span className="rounded-full bg-[#fff0e9] px-1.5 py-0.5 font-semibold text-[#bd3d14]">Mới</span>}
-          </div>
+  return <Box
+    component="article"
+    className="grid min-w-0 gap-5 rounded-2xl border border-[#e4e6e2] bg-white p-4 sm:px-5 xl:grid-cols-[minmax(210px,1fr)_minmax(180px,0.8fr)_auto] xl:items-center xl:gap-6"
+    sx={{ transition: "border-color 150ms ease", "&:hover": { borderColor: "#d4d8d0" } }}
+  >
+    <div className="flex min-w-0 items-start gap-3.5">
+      <Avatar src={talent.avatar} alt={talent.name} sx={{ bgcolor: talent.color, color: "text.primary", width: 48, height: 48, fontSize: 16, fontWeight: 700 }}>{talent.initials}</Avatar>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <Typography component="h3" sx={{ fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>{talent.name}</Typography>
+          <Chip label={talent.kind} size="small" sx={{ height: 22, bgcolor: "#f2f3f0", color: "#62665f", fontSize: 11, "& .MuiChip-label": { px: 1 } }} />
+          {candidate.unread && <span className="size-1.5 rounded-full bg-[#f4490b]" title="Hồ sơ mới" />}
         </div>
-      </div>
-      <span className={`self-start rounded-full px-2.5 py-1 text-[11px] font-bold ${pending ? "bg-[#fff0e9] text-[#bd3d14]" : canChat ? "bg-[#e8f7ef] text-[#16805b]" : "bg-[#f2f3f0] text-[#62625e]"}`}>{statusLabels[candidate.status]}</span>
-    </div>
-    <div className="mt-3 grid gap-3 rounded-lg bg-[#f7f7f6] px-3 py-2.5 md:grid-cols-[minmax(0,1fr)_auto]">
-      <div className="min-w-0"><p className="text-[10px] font-semibold tracking-wide text-[#747773]">THÔNG ĐIỆP ỨNG TUYỂN</p><p className="mt-0.5 line-clamp-2 text-xs leading-5 text-[#20201f]">{candidate.proposal}</p></div>
-      <div className="md:min-w-40 md:text-right"><p className="text-[10px] text-[#747773]">Mức phí dự kiến</p><p className="mt-0.5 text-xs font-bold text-[#bd3d14]">{talent.rate}</p><p className="mt-0.5 text-[10px] text-[#747773]">{talent.availability}</p></div>
-    </div>
-    <div className="mt-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-      {canChat ? <span className="flex items-center gap-1.5 text-xs font-medium text-[#16805b]"><MessageCircle size={14} /> Kênh chat riêng đang hoạt động</span>
-        : pending ? <Tooltip title="Duyệt hồ sơ để mở kênh nhắn tin" arrow><span className="flex w-fit items-center gap-1.5 rounded-full bg-[#f2f3f0] px-2.5 py-1.5 text-xs text-[#747773]"><LockKeyhole size={13} /> Nhắn tin trao đổi</span></Tooltip>
-          : <span className="text-xs text-[#747773]">Hồ sơ lưu trong lịch sử tuyển dụng</span>}
-      <div className="flex flex-wrap items-center gap-1.5">
-        {canDecide && <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => onDecision("reject")}>Từ chối</button>}
-        <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={onReview}>Xem chi tiết</button>
-        {canDecide && <button type="button" className="fb-button fb-button-small fb-button-primary" onClick={() => onDecision("approve")}><CheckCircle2 size={14} /> Duyệt để trao đổi</button>}
-        {canChat && <Link className="fb-button fb-button-small fb-button-primary" to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${candidate.talentId}`}>Mở tin nhắn <ArrowRight size={14} /></Link>}
+        <p className="mt-1 text-sm leading-5 text-[#747773]">{talent.role}</p>
+        {priority && <p className="mt-2 flex items-start gap-1.5 text-xs leading-5 text-[#62665f]"><Clock3 size={13} className="mt-0.5 shrink-0" aria-hidden="true" />{talent.availability}</p>}
       </div>
     </div>
-  </article>;
+
+    <Box className="flex w-fit max-w-full items-center gap-2.5 rounded-full bg-[#f4f3f1] py-2 pl-2 pr-3.5">
+      {previewWorks.length ? <div className="flex shrink-0 items-center -space-x-2">
+        {previewWorks.map(work => <Box key={work.id} component={Link} to={talentWorkPath(talent.id, work.id)} aria-label={`Xem portfolio: ${work.title}`} title={work.title} sx={{ position: "relative", borderRadius: "50%", "&:hover, &:focus-visible": { zIndex: 1, outline: "2px solid", outlineColor: "primary.main", outlineOffset: 1 } }}>
+          <Avatar src={work.media.find(media => media.kind === "image")?.src} alt={work.title} sx={{ width: 38, height: 38, border: "2px solid white", bgcolor: "#e6e5e0", color: "text.primary", fontSize: 11 }}>{work.brand.slice(0, 2)}</Avatar>
+        </Box>)}
+      </div> : <Box className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-[#747773]"><FolderOpen size={17} aria-hidden="true" /></Box>}
+      <Link to={talentProfilePath(talent.id)} className="group flex min-h-9 min-w-0 items-center gap-2 text-xs text-[#62665f] hover:text-[#bd3d14]" aria-label={`Xem portfolio của ${talent.name}, ${works.length} tác phẩm`}>
+        <span className="whitespace-nowrap font-medium">{works.length ? `${works.length} tác phẩm` : "Xem hồ sơ"}</span>
+        <ArrowUpRight size={14} className="shrink-0 text-[#747773] group-hover:text-[#bd3d14]" aria-hidden="true" />
+      </Link>
+    </Box>
+
+    <div className="min-w-0 border-t border-[#eeefeb] pt-4 xl:min-w-[290px] xl:border-0 xl:pt-0">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div><p className="text-[11px] leading-4 text-[#747773]">Mức phí dự kiến</p><p className="mt-0.5 text-[15px] font-bold leading-[22px] text-[#20201f]">{talent.rate}</p></div>
+        <Chip label={statusLabels[candidate.status]} size="small" sx={{ height: "auto", minHeight: 24, maxWidth: 160, "& .MuiChip-label": { whiteSpace: "normal", py: 0.4 }, bgcolor: pending ? "#fff4eb" : canChat ? "#e8f7ef" : "#f2f3f0", color: pending ? "#9a4a1b" : canChat ? "#16805b" : "#62625e", fontSize: 11, fontWeight: 600 }} />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+        <Button onClick={onReview} sx={{ ...pillSx, bgcolor: "#f2f3f0", color: "text.primary", "&:hover": { bgcolor: "#e9ece5" } }}>Xem hồ sơ</Button>
+        {canDecide && <Button onClick={() => onDecision("approve")} variant="contained" sx={pillSx}>Duyệt trao đổi</Button>}
+        {canChat && <Button component={Link} to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${candidate.talentId}`} variant="contained" startIcon={<MessageCircle size={15} />} sx={pillSx}>Nhắn tin</Button>}
+        {canDecide && <IconButton aria-label={`Thao tác với ${talent.name}`} aria-haspopup="menu" aria-expanded={Boolean(anchor)} onClick={event => setAnchor(event.currentTarget)} sx={{ width: 36, height: 40, color: "text.secondary" }}><MoreHorizontal size={18} /></IconButton>}
+      </div>
+    </div>
+    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}><MenuItem onClick={() => { setAnchor(null); onDecision("reject"); }} sx={{ color: "error.main", fontSize: 14 }}>Từ chối hồ sơ</MenuItem></Menu>
+  </Box>;
 }
 
-export function ProjectApplicantsTab({ project }: ProjectApplicantsTabProps) {
-  const { candidates, talents, unlockChat } = useBusiness();
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<CandidateFilter>("all");
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
-  const [decision, setDecision] = useState<Decision | null>(null);
-  const [feedback, setFeedback] = useState("");
-  const projectCandidates = useMemo(() => candidates.filter((candidate) => candidate.projectId === project.id), [candidates, project.id]);
-  const filteredCandidates = useMemo(() => {
-    const search = query.trim().toLocaleLowerCase("vi");
-    return projectCandidates.filter((candidate) => {
-      if (!matchesFilter(candidate, statusFilter)) return false;
-      if (!search) return true;
-      const talent = talents.find((item) => item.id === candidate.talentId);
-      return [talent?.name, talent?.role, candidate.proposal].some((value) => value?.toLocaleLowerCase("vi").includes(search));
-    });
-  }, [projectCandidates, query, statusFilter, talents]);
-  const filters: { value: CandidateFilter; label: string }[] = [
-    { value: "all", label: "Tất cả" }, { value: "pending", label: "Chờ xem xét" },
-    { value: "discussing", label: "Đã duyệt trao đổi" }, { value: "offer", label: "Đã gửi thỏa thuận" },
-    { value: "selected", label: "Đã chọn" }, { value: "not_selected", label: "Không chọn" },
-  ];
-
-  const handleSimulateNewApplicant = () => {
-    const nextTalent = talents.find((talent) => !projectCandidates.some((candidate) => candidate.talentId === talent.id));
-    if (!nextTalent) { setFeedback("Không còn hồ sơ mẫu để mô phỏng."); return; }
-    mockStorage.addCandidate({ id: `c-sim-${Date.now()}`, projectId: project.id, talentId: nextTalent.id, source: "Ứng tuyển", status: "new", proposal: `Tôi quan tâm đến dự án “${project.title}” và muốn trao đổi về phạm vi công việc trong brief.`, receivedAt: new Date().toISOString(), unread: true, chatUnlocked: false });
-    setFeedback("Đã thêm một hồ sơ ứng tuyển mẫu.");
+export function ProjectApplicantsTab({ project }: { project: ProjectBrief }) {
+  const vm = useProjectApplicants(project);
+  const { selectedCandidate, decision } = vm;
+  const filtered = vm.query.trim() !== "" || vm.statusFilter !== "all";
+  const filters: { value: CandidateFilter; label: string }[] = [{ value: "all", label: "Tất cả" }, { value: "pending", label: "Chờ duyệt" }, { value: "discussing", label: "Đã duyệt" }];
+  const resetFilters = () => { vm.setQuery(""); vm.setStatusFilter("all"); };
+  const renderCandidate = (candidate: Candidate, priority: boolean) => {
+    const talent = vm.talentById.get(candidate.talentId);
+    return talent ? <CandidateCard key={candidate.id} candidate={candidate} talent={talent} project={project} priority={priority} onReview={() => vm.setSelectedCandidate(candidate)} onDecision={action => vm.setDecision({ candidate, talent, action })} /> : null;
   };
-
-  const confirmDecision = () => {
-    if (!decision) return;
-    const latestCandidate = mockStorage.getState().candidates.find((item) => item.id === decision.candidate.id);
-    if (project.status !== "published" || !latestCandidate || !matchesFilter(latestCandidate, "pending") || latestCandidate.chatUnlocked) {
-      setFeedback("Trạng thái hồ sơ đã thay đổi. Hãy xem lại danh sách ứng viên."); setDecision(null); return;
-    }
-    if (decision.action === "approve") { unlockChat(project.id, decision.candidate.talentId); setFeedback(`Đã duyệt ${decision.talent.name}. Kênh trao đổi đã mở.`); }
-    else { mockStorage.updateCandidateStatus(decision.candidate.id, "not_selected"); setFeedback(`Đã chuyển hồ sơ ${decision.talent.name} sang “Không được chọn”.`); }
-    setDecision(null); setSelectedCandidate(null);
-  };
-
-  return <Box component="section" id="candidate-list" className="space-y-3" aria-labelledby="applicants-heading" sx={{ fontFamily: '"Be Vietnam Pro", sans-serif', "&& button:not(.fb-button)": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "11px", fontWeight: 600, letterSpacing: 0, lineHeight: 1.4 }, "&& h3": { fontFamily: '"Be Vietnam Pro", sans-serif', letterSpacing: 0 }, "&& input": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "11px" } }}>
-    <h2 id="applicants-heading" className="sr-only">Ứng viên của dự án</h2>
-    <div className="flex flex-col gap-2 border border-[#eceae7] bg-white px-3 py-2 lg:flex-row lg:items-center lg:justify-between">
-      <div className="flex min-w-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Lọc theo trạng thái ứng viên">{filters.map((filter) => {
-        const count = projectCandidates.filter((candidate) => matchesFilter(candidate, filter.value)).length;
-        return <button key={filter.value} type="button" onClick={() => setStatusFilter(filter.value)} aria-pressed={statusFilter === filter.value} className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4490b] ${statusFilter === filter.value ? "bg-[#20201f] text-white" : "bg-[#f7f7f6] text-[#20201f] hover:bg-[#eeeae7]"}`}>{filter.label} ({count})</button>;
-      })}</div>
-      <TextField size="small" placeholder="Tìm tên, chuyên môn..." value={query} onChange={(event) => setQuery(event.target.value)} sx={{ minWidth: { lg: 190 }, "& .MuiOutlinedInput-root": { height: 32, borderRadius: 999, bgcolor: "#f7f7f6", fontSize: 11 }, "& fieldset": { borderColor: "transparent" } }} slotProps={{ htmlInput: { "aria-label": "Tìm ứng viên" }, input: { startAdornment: <InputAdornment position="start"><Search size={14} /></InputAdornment> } }} />
+  return <Box component="section" id="candidate-list" aria-label="Ứng viên của dự án" className="space-y-5" sx={{ "& .MuiButton-root": { textTransform: "none" }, "&& a.MuiButton-contained": { color: "primary.contrastText" } }}>
+    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+      <TextField size="small" placeholder="Tìm ứng viên…" value={vm.query} onChange={event => vm.setQuery(event.target.value)} sx={{ width: { xs: "100%", sm: 220 }, "& .MuiOutlinedInput-root": { borderRadius: 999, bgcolor: "background.paper", fontSize: 14 } }} slotProps={{ htmlInput: { "aria-label": "Tìm tên hoặc chuyên môn ứng viên" }, input: { startAdornment: <InputAdornment position="start"><Search size={17} /></InputAdornment> } }} />
+      <div className="flex flex-wrap items-center gap-1 rounded-2xl bg-[#eeefec] p-1" role="group" aria-label="Lọc trạng thái">
+        {filters.map(filter => <Button key={filter.value} aria-pressed={vm.statusFilter === filter.value} onClick={() => vm.setStatusFilter(filter.value)} sx={{ ...pillSx, minHeight: 36, px: 1.5, color: vm.statusFilter === filter.value ? "primary.dark" : "text.secondary", bgcolor: vm.statusFilter === filter.value ? "background.paper" : "transparent" }}>{filter.label} ({vm.projectCandidates.filter(candidate => matchesCandidateFilter(candidate, filter.value)).length})</Button>)}
+        <TextField select size="small" value={["offer", "selected", "not_selected"].includes(vm.statusFilter) ? vm.statusFilter : "other"} onChange={event => vm.setStatusFilter(event.target.value as CandidateFilter)} slotProps={{ select: { inputProps: { "aria-label": "Lọc trạng thái khác" } } }} sx={{ minWidth: 90, "& .MuiOutlinedInput-root": { borderRadius: 999, fontSize: 13 }, "& fieldset": { border: 0 }, "& .MuiSelect-select": { py: 1 } }}><MenuItem value="other" disabled>Khác</MenuItem><MenuItem value="offer">Chờ thỏa thuận</MenuItem><MenuItem value="selected">Đã chọn</MenuItem><MenuItem value="not_selected">Không được chọn</MenuItem></TextField>
+      </div>
     </div>
-    {filteredCandidates.length ? <div className="space-y-4">{filteredCandidates.map((candidate) => {
-      const talent = talents.find((item) => item.id === candidate.talentId);
-      if (!talent) return null;
-      return <CandidateCard key={candidate.id} candidate={candidate} talent={talent} project={project} onReview={() => setSelectedCandidate(candidate)} onDecision={(action) => setDecision({ candidate, talent, action })} />;
-    })}</div> : <div className="flex flex-col items-center rounded-2xl border border-dashed border-[#d4d8d2] bg-white px-5 py-12 text-center">
-      <Users size={30} className="text-[#747773]" /><Typography variant="h6" sx={{ mt: 2, fontWeight: 700 }}>Không tìm thấy ứng viên</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 440 }}>{projectCandidates.length ? "Thử đổi bộ lọc hoặc từ khóa tìm kiếm." : "Dự án chưa có hồ sơ ứng tuyển. Bạn có thể xem gợi ý và gửi lời mời."}</Typography>
-      {projectCandidates.length ? <button type="button" className="fb-button fb-button-small fb-button-secondary mt-4" onClick={() => { setQuery(""); setStatusFilter("all"); }}>Xóa bộ lọc</button> : <Link className="fb-button fb-button-small fb-button-primary mt-4" to={`/business/projects/${project.id}/suggestions`}>Xem gợi ý phù hợp <ArrowRight size={14} /></Link>}
-    </div>}
-    {project.status === "published" && <div className="text-right"><Button size="small" variant="text" startIcon={<PlusCircle size={14} />} onClick={handleSimulateNewApplicant} sx={{ fontSize: 11, color: "text.secondary" }}>Mô phỏng hồ sơ mới</Button></div>}
-    {selectedCandidate && <CandidateReviewModal open onClose={() => setSelectedCandidate(null)} candidate={selectedCandidate} talent={talents.find((item) => item.id === selectedCandidate.talentId)} project={project} onUnlockChat={(talentId) => { const talent = talents.find((item) => item.id === talentId); if (talent) setDecision({ candidate: selectedCandidate, talent, action: "approve" }); }} />}
-    <Dialog open={Boolean(decision)} onClose={() => setDecision(null)} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>{decision?.action === "approve" ? <CheckCircle2 size={22} color="#f4490b" /> : <XCircle size={22} color="#747773" />}{decision?.action === "approve" ? "Duyệt để trao đổi?" : "Từ chối hồ sơ?"}</DialogTitle>
-      <DialogContent><Typography variant="body2">{decision?.action === "approve" ? `Sau khi duyệt ${decision.talent.name}, kênh chat của dự án này sẽ được mở.` : `Hồ sơ của ${decision?.talent.name} sẽ chuyển sang “Không được chọn” và vẫn được lưu trong lịch sử.`}</Typography></DialogContent>
-      <DialogActions><Button onClick={() => setDecision(null)}>Quay lại</Button><Button variant="contained" onClick={confirmDecision}>{decision?.action === "approve" ? "Duyệt hồ sơ" : "Xác nhận từ chối"}</Button></DialogActions>
-    </Dialog>
-    <Snackbar open={Boolean(feedback)} autoHideDuration={4500} onClose={() => setFeedback("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}><Alert severity="info" onClose={() => setFeedback("")}>{feedback}</Alert></Snackbar>
+    {[{ priority: true, id: "invited-candidates", title: "Đã nhận lời mời", count: vm.priorityCount, items: vm.priority, icon: MailCheck }, { priority: false, id: "direct-applicants", title: "Tự ứng tuyển", count: vm.projectCandidates.length - vm.priorityCount, items: vm.applications, icon: Send }].map(zone => <section key={zone.id} id={zone.id} aria-labelledby={`${zone.id}-heading`} className={`scroll-mt-6 rounded-3xl border p-4 sm:p-6 ${zone.priority ? "border-[#e0e5dc] bg-[#f1f3ef]" : "border-[#e4e6e2] bg-white"}`}>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div><div className="flex items-center gap-2"><zone.icon size={22} className={zone.priority ? "text-[#bd3d14]" : "text-[#20201f]"} aria-hidden="true" /><Typography id={`${zone.id}-heading`} component="h2" sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 700 }}>{zone.title}</Typography><Chip label={zone.count} size="small" sx={{ height: 23, bgcolor: zone.priority ? "#fff0e9" : "#f2f3f0", fontWeight: 700 }} /></div>{zone.priority && <p className="mt-1 text-sm text-[#747773]">Từ gợi ý hệ thống · Đã xác nhận tham gia</p>}</div>
+        {!zone.priority && <span className="text-xs text-[#747773]">Chờ duyệt trước · Mới nhất</span>}
+      </div>
+      {zone.items.length ? <div className={"space-y-3"}>{zone.items.map(candidate => renderCandidate(candidate, zone.priority))}</div> : <div className="rounded-2xl border border-dashed border-[#e4e0da] px-5 py-8 text-center"><Users size={26} className="mx-auto text-[#747773]" aria-hidden="true" /><p className="mt-3 text-sm font-semibold">{filtered ? "Không có hồ sơ khớp bộ lọc" : zone.priority ? "Chưa có người nhận lời mời" : "Chưa có ứng viên tự ứng tuyển"}</p><p className="mt-1 text-sm text-[#747773]">{filtered ? "Thử đổi trạng thái hoặc từ khóa tìm kiếm." : zone.priority ? "Ứng viên xuất hiện tại đây sau khi chấp nhận lời mời." : "Hồ sơ mới từ bài đăng sẽ xuất hiện tại đây."}</p></div>}
+    </section>)}
+    {filtered && <Button onClick={resetFilters} sx={pillSx}>Xóa bộ lọc</Button>}
+    {project.status === "published" && <details className="text-sm text-[#747773]"><summary className="w-fit cursor-pointer rounded-lg p-2 focus-visible:outline-2 focus-visible:outline-[#f4490b]">Công cụ demo</summary><Button startIcon={<PlusCircle size={15} />} onClick={vm.simulateApplicant} sx={pillSx}>Mô phỏng hồ sơ mới</Button></details>}
+    {selectedCandidate && <CandidateReviewModal open onClose={() => vm.setSelectedCandidate(null)} candidate={selectedCandidate} talent={vm.talentById.get(selectedCandidate.talentId)} project={project} onUnlockChat={talentId => { const talent = vm.talentById.get(talentId); if (talent) vm.setDecision({ candidate: selectedCandidate, talent, action: "approve" }); }} />}
+    <Dialog open={Boolean(decision)} onClose={() => vm.setDecision(null)} maxWidth="xs" fullWidth aria-labelledby="candidate-decision-title"><DialogTitle id="candidate-decision-title" sx={{ display: "flex", alignItems: "center", gap: 1 }}><CheckCircle2 size={22} />{decision?.action === "approve" ? `Duyệt ${decision.talent.name}?` : "Từ chối hồ sơ?"}</DialogTitle><DialogContent><Typography variant="body2">{decision?.action === "approve" ? "Mở chat để trao đổi về dự án. Bạn chưa chốt người thực hiện ở bước này." : `Hồ sơ ${decision?.talent.name} sẽ chuyển sang “Không được chọn” và được giữ trong lịch sử.`}</Typography></DialogContent><DialogActions><Button onClick={() => vm.setDecision(null)}>Quay lại</Button><Button variant="contained" onClick={vm.confirmDecision}>{decision?.action === "approve" ? "Duyệt trao đổi" : "Xác nhận từ chối"}</Button></DialogActions></Dialog>
+    <Snackbar open={Boolean(vm.feedback)} autoHideDuration={4500} onClose={() => vm.setFeedback("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}><Alert severity="info" onClose={() => vm.setFeedback("")}>{vm.feedback}</Alert></Snackbar>
   </Box>;
 }

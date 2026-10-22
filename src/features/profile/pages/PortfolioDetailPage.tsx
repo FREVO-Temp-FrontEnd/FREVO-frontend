@@ -18,6 +18,8 @@ import {
   Users,
 } from "lucide-react";
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
+import { useTalentPortfolio } from "@/lib/hooks/useTalentPortfolio";
+import { talentProfilePath, talentWorkPath } from "@/lib/utils/portfolioPaths";
 import type { Work } from "@/lib/types/portfolio.types";
 
 const partnerReviews = [
@@ -77,8 +79,13 @@ function WorkImage({ work }: { work: Work }) {
 }
 
 export default function PortfolioDetailPage() {
-  const { workId } = useParams();
-  const { works } = usePortfolio();
+  const { workId, talentId } = useParams();
+  const { works: personalWorks } = usePortfolio();
+  const { talent, works: publicWorks } = useTalentPortfolio(talentId ?? "minh-anh");
+  const works = talentId ? (talent ? publicWorks : []) : personalWorks;
+  const authorName = talent?.name ?? "Minh Anh";
+  const profilePath = talentId ? talentProfilePath(talentId) : "/profile?tab=portfolio";
+  const workPath = (id: string) => talentId ? talentWorkPath(talentId, id) : `/profile/portfolio/${id}`;
   const work = works.find((item) => item.id === workId);
   const workTitle = work?.title;
 
@@ -102,7 +109,7 @@ export default function PortfolioDetailPage() {
     <>
       {!work ? (
         <Box
-          component="main"
+          component={talentId ? "section" : "main"}
           id="work-main"
           sx={{
             maxWidth: "800px",
@@ -126,7 +133,7 @@ export default function PortfolioDetailPage() {
           </p>
           <Link
             className="secondary-button"
-            to="/profile?tab=portfolio"
+            to={profilePath}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -138,7 +145,7 @@ export default function PortfolioDetailPage() {
         </Box>
       ) : (
         <Box
-          component="main"
+          component={talentId ? "section" : "main"}
           id="work-main"
           sx={{
             maxWidth: "1280px",
@@ -163,8 +170,8 @@ export default function PortfolioDetailPage() {
               },
             }}
           >
-            <Link to="/profile?tab=portfolio">
-              <ArrowLeft size={16} /> Portfolio của Minh Anh
+            <Link to={profilePath}>
+              <ArrowLeft size={16} /> Portfolio của {authorName}
             </Link>
             <Typography sx={{ fontSize: "inherit", color: "#747773" }}>
               Chi tiết dự án
@@ -801,15 +808,15 @@ export default function PortfolioDetailPage() {
                   },
                 }}
               >
-                <span className="work-author-avatar">MA</span>
+                <span className="work-author-avatar">{talent?.initials ?? "MA"}</span>
                 <div>
                   <span>Người thực hiện</span>
                   <h2>
-                    Minh Anh<span>.</span>
+                    {authorName}<span>.</span>
                   </h2>
-                  <p>Brand & Product Designer</p>
+                  <p>{talent?.role ?? "Brand & Product Designer"}</p>
                 </div>
-                <Link to="/profile?tab=personal">
+                <Link to={talentId ? profilePath : "/profile?tab=personal"}>
                   Xem hồ sơ <ArrowUpRight size={16} />
                 </Link>
               </Box>
@@ -985,9 +992,9 @@ export default function PortfolioDetailPage() {
                 }}
               >
                 <h2>
-                  Khám phá thêm từ Minh Anh<span>.</span>
+                  Khám phá thêm từ {authorName}<span>.</span>
                 </h2>
-                <Link to="/profile?tab=portfolio">
+                <Link to={profilePath}>
                   Tất cả tác phẩm <ArrowUpRight size={16} />
                 </Link>
               </Box>
@@ -1036,7 +1043,7 @@ export default function PortfolioDetailPage() {
               >
                 {related.map((item) => (
                   <Link
-                    to={`/profile/portfolio/${item.id}`}
+                    to={workPath(item.id)}
                     className="work-related-card"
                     key={item.id}
                   >

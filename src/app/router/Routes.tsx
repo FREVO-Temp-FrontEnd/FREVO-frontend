@@ -7,6 +7,9 @@ import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ProfilePage from "@/features/profile/pages/ProfilePage";
 import PortfolioDetailPage from "@/features/profile/pages/PortfolioDetailPage";
 import NotFound from "@/features/errors/NotFound";
+import TalentPublicProfilePage from "@/features/profile/pages/TalentPublicProfilePage";
+import { TalentProfileActions } from "@/features/business/components/TalentProfileActions";
+import { BusinessLayout } from "@/features/business/layout/BusinessLayout";
 import BusinessPrototype from "@/features/business/BusinessPrototype";
 import ProjectDetailPage from "@/features/projects/details/ProjectDetailPage";
 import RoleGuard from "@/app/shared/components/RoleGuard";
@@ -116,6 +119,14 @@ export const router = createBrowserRouter([
       {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
+      },
+      {
+        path: "business/talent/:talentId",
+        element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><TalentPublicProfilePage actions={<TalentProfileActions />} /></BusinessLayout></RoleGuard>,
+      },
+      {
+        path: "business/talent/:talentId/portfolio/:workId",
+        element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><PortfolioDetailPage /></BusinessLayout></RoleGuard>,
       },
       {
         path: "business/*",
