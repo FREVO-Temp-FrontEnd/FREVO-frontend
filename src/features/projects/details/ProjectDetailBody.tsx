@@ -34,7 +34,16 @@ export function ProjectDetailBody({
         bgcolor: "#fff",
         borderRadius: "16px",
         p: { xs: "22px 18px", sm: "32px" },
-        boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+        border: "2px solid",
+        borderColor: "text.secondary",
+        "& > section": {
+          mt: "20px",
+          p: { xs: "20px 16px", sm: "24px" },
+          bgcolor: "background.default",
+          border: "2px solid",
+          borderColor: "text.secondary",
+          borderRadius: "13px",
+        },
       }}
     >
       {/* Tabs */}
