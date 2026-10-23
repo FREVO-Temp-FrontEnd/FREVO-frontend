@@ -13,6 +13,7 @@
 import type {
   AgreementProposal,
   Candidate,
+  CandidateSubmission,
   ChatMessage,
   Invitation,
   MarketplaceState,
@@ -26,6 +27,10 @@ import type {
 } from "@/lib/types/marketplace.types";
 
 import { portfolioEvidence, talentPortfolioSeeds } from "@/lib/storage/seeds/portfolioSeed";
+import { candidateSubmissionSeeds } from "@/lib/storage/seeds/candidateSubmissionSeed";
+import { normalizeSubmittedResume } from "@/lib/utils/resumeAdapters";
+import type { ApplicantIdentity } from "@/lib/types/application.types";
+import type { Work } from "@/lib/types/portfolio.types";
 
 const STORAGE_KEY = "frevo_marketplace_data_v2";
 const PENDING_CANDIDATES_DEMO_KEY = "frevo_nang_brand_pending_candidates_demo_v1";
@@ -219,6 +224,7 @@ export const initialProjectsSeed: ProjectBrief[] = [
 export const initialCandidatesSeed: Candidate[] = [
   {
     id: "c1",
+    submission: candidateSubmissionSeeds.c1,
     projectId: "nang-brand",
     talentId: "minh-anh",
     source: "Ứng tuyển · Lời mời",
@@ -232,6 +238,7 @@ export const initialCandidatesSeed: Candidate[] = [
   },
   {
     id: "c2",
+    submission: candidateSubmissionSeeds.c2,
     projectId: "nang-brand",
     talentId: "may-creative",
     source: "Ứng tuyển · Lời mời",
@@ -245,6 +252,7 @@ export const initialCandidatesSeed: Candidate[] = [
   },
   {
     id: "c3",
+    submission: candidateSubmissionSeeds.c3,
     projectId: "nang-brand",
     talentId: "khanh-linh",
     source: "Ứng tuyển",
@@ -258,6 +266,7 @@ export const initialCandidatesSeed: Candidate[] = [
   },
   {
     id: "c4",
+    submission: candidateSubmissionSeeds.c4,
     projectId: "co-may-packaging",
     talentId: "ha-vy",
     source: "Ứng tuyển",
@@ -272,6 +281,7 @@ export const initialCandidatesSeed: Candidate[] = [
   },
   {
     id: "c5",
+    submission: candidateSubmissionSeeds.c5,
     projectId: "co-may-packaging",
     talentId: "studio-dau",
     source: "Ứng tuyển",
@@ -496,6 +506,18 @@ class MockStorageAdapter {
           this.saveToStorage(state);
         }
         const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
+        if (state.candidates.some(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId)) {
+          state = { ...state, candidates: state.candidates.map(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId
+            ? { ...candidate, submission: { ...candidate.submission, resume: normalizeSubmittedResume(candidate.submission.resume) } } : candidate) };
+          this.saveToStorage(state);
+        }
+        if (state.candidates.some(candidate => !candidate.submission && candidateSubmissionSeeds[candidate.id])) {
+          state = { ...state, candidates: state.candidates.map(candidate => {
+            const seed = initialCandidatesSeed.find(item => item.id === candidate.id && item.talentId === candidate.talentId && item.projectId === candidate.projectId);
+            return !candidate.submission && seed ? { ...candidate, submission: seed.submission } : candidate;
+          }) };
+          this.saveToStorage(state);
+        }
         if (alreadyPrepared) return state;
 
         const nextState: MarketplaceState = {
@@ -572,6 +594,25 @@ class MockStorageAdapter {
   // --- Session & User Operations ---
   public getActiveUser(): UserSession {
     return this.memoryState.activeUser;
+  }
+
+  public getApplicantTalentId(identity?: ApplicantIdentity): string {
+    const user = this.getActiveUser();
+    if ((identity ?? user.actingIdentity?.type) === "team") return "may-creative";
+    return this.memoryState.talents.some(talent => talent.id === user.id && talent.kind === "Cá nhân") ? user.id : "minh-anh";
+  }
+
+  public getApplicantWorks(identity: ApplicantIdentity, personalWorks: Work[]): Work[] {
+    const works = identity === "team" ? talentPortfolioSeeds[this.getApplicantTalentId(identity)] ?? [] : personalWorks;
+    return works.filter(work => work.visibility === "public");
+  }
+
+  public canViewCandidateResume(candidateId: string, projectId: string): boolean {
+    const user = this.getActiveUser();
+    const project = this.getProjectById(projectId);
+    const candidate = this.memoryState.candidates.find(item => item.id === candidateId && item.projectId === projectId);
+    if (user.role !== "client" || !user.companyName || user.companyName !== project?.company || !candidate) return false;
+    return candidate.source.includes("Ứng tuyển") || this.memoryState.invitations.some(invitation => invitation.projectId === projectId && invitation.talentId === candidate.talentId && invitation.status === "accepted");
   }
 
   public setActiveUser(user: UserSession): void {
@@ -654,7 +695,12 @@ class MockStorageAdapter {
   /**
    * Submits application with source merging per BR-011 and locked chat per BR-012
    */
-  public submitApplication(projectId: string, talentId: string, proposal: string): Candidate {
+  public submitApplication(projectId: string, talentId: string, proposal: string, submission?: CandidateSubmission, applicantAccountId?: string): Candidate {
+    const latestProject = this.getProjectById(projectId);
+    if (latestProject && latestProject.status !== "published") throw new Error("Dự án đã ngừng nhận hồ sơ ứng tuyển.");
+    if (applicantAccountId && this.memoryState.candidates.some(candidate => candidate.projectId === projectId && candidate.applicantAccountId === applicantAccountId && candidate.talentId !== talentId)) {
+      throw new Error("Bạn không thể đổi tư cách cá nhân/Team của đơn đã gửi cho dự án này.");
+    }
     const existing = this.memoryState.candidates.find(
       (c) => c.projectId === projectId && c.talentId === talentId
     );
@@ -668,6 +714,8 @@ class MockStorageAdapter {
         ...existing,
         source: existing.source === "Lời mời" ? "Ứng tuyển · Lời mời" : existing.source,
         proposal: proposal || existing.proposal,
+        submission: submission ?? existing.submission,
+        applicantAccountId: applicantAccountId ?? existing.applicantAccountId,
       };
       nextCandidates = this.memoryState.candidates.map((c) =>
         c.id === existing.id ? candidateRecord : c
@@ -684,6 +732,8 @@ class MockStorageAdapter {
         unread: true,
         chatUnlocked: false, // BR-012: locked until Business review
         fitScore: 88,
+        submission,
+        applicantAccountId,
       };
       nextCandidates = [candidateRecord, ...this.memoryState.candidates];
     }

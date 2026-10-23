@@ -5,6 +5,9 @@ import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/utils/formatters";
 import { moneyDigits } from "@/lib/utils/money";
+import { usePortfolio } from "@/lib/hooks/usePortfolio";
+import { applicationsApi } from "@/lib/api/applicationsApi";
+import type { SubmitApplicationRequest } from "@/lib/types/application.types";
 
 const SAVED_PROJECTS_KEY = "frevo-saved-projects";
 
@@ -18,22 +21,18 @@ function loadSavedProjectIds(): Set<string> {
   return new Set(["spa"]);
 }
 
-function currentTalentId() {
-  const user = mockStorage.getActiveUser();
-  if (user.role === "freelancer" && user.actingIdentity?.type === "team") return "may-creative";
-  return mockStorage.getTalents().some((talent) => talent.id === user.id) ? user.id : "minh-anh";
-}
-
 function appliedProjectIds() {
-  const talentId = currentTalentId();
+  const talentId = mockStorage.getApplicantTalentId();
+  const accountId = mockStorage.getActiveUser().id;
   return new Set(
     mockStorage.getCandidates()
-      .filter((candidate) => candidate.talentId === talentId && candidate.source.includes("Ứng tuyển"))
+      .filter((candidate) => (candidate.applicantAccountId === accountId || candidate.talentId === talentId) && candidate.source.includes("Ứng tuyển"))
       .map((candidate) => candidate.projectId)
   );
 }
 
 export function useProjects() {
+  const { works: personalWorks } = usePortfolio();
   const [projects, setProjects] = useState<Project[]>(() =>
     mergeProjectsWithStorage([], mockStorage.getProjects())
   );
@@ -182,25 +181,23 @@ export function useProjects() {
     const formData = new FormData(event.currentTarget);
     const proposedBudget = moneyDigits(String(formData.get("proposedBudget") ?? ""));
     const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
-    const applicantType = formData.get("applicantType") === "team" ? "Đại diện Team" : "Cá nhân";
-    const selectedPortfolioLabels = String(formData.get("selectedPortfolioLabels") ?? "").trim();
-    // Keep the existing API contract: proposal terms travel with the cover letter.
-    const applicationProposal = [
-      proposal,
-      proposedBudget ? `Chào giá đề xuất: ${Number(proposedBudget).toLocaleString("vi-VN")} VNĐ` : "",
-      deliveryEstimate ? `Thời gian hoàn thành: ${deliveryEstimate}` : "",
-      `Tư cách ứng tuyển: ${applicantType}`,
-      selectedPortfolioLabels ? `Tác phẩm tham khảo (minh họa): ${selectedPortfolioLabels}` : "",
-    ].filter(Boolean).join("\n\n");
+    const identity = formData.get("applicantType") === "team" ? "team" : "individual";
+    const resumeId = String(formData.get("resumeId") ?? "").trim();
+    const request: SubmitApplicationRequest = {
+      projectId: applyingId,
+      applicantIdentity: identity,
+      proposal: proposal.trim(),
+      portfolioWorkIds: formData.getAll("portfolioWorkIds").map(String),
+      portfolioUrl: portfolio.trim(),
+      resume: resumeId ? { mode: "selected", resumeId } : { mode: "primary" },
+      proposedBudget: proposedBudget ? Number(proposedBudget) : null,
+      deliveryEstimate,
+    };
     setSubmitting(true);
     setSubmitError("");
     try {
-      await projectsApi.createApplication({
-        projectId: applyingId,
-        proposal: applicationProposal,
-        portfolioUrl: portfolio,
-      });
-      mockStorage.submitApplication(applyingId, currentTalentId(), applicationProposal);
+      await applicationsApi.submit(request, personalWorks);
+      setApplied(previous => new Set(previous).add(request.projectId));
       closeApplication();
       setToast(
         reapplying
@@ -212,8 +209,8 @@ export function useProjects() {
       requestAnimationFrame(() =>
         document.getElementById("detail-title")?.focus({ preventScroll: true })
       );
-    } catch {
-      setSubmitError("Không gửi được ứng tuyển. Vui lòng thử lại.");
+    } catch (error: unknown) {
+      setSubmitError(error instanceof Error ? error.message : "Không gửi được ứng tuyển. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);
     }

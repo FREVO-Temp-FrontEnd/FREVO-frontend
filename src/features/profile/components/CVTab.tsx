@@ -1,7 +1,8 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Paper, Skeleton, Tooltip, Typography } from "@mui/material";
 import { Download, Eye, FileText, FolderClosed, Plus, ShieldCheck, Star, Trash2, UploadCloud } from "lucide-react";
-import { useResumes, type ResumeRecord } from "../hooks/useResumes";
+import { useResumes } from "../hooks/useResumes";
+import type { StoredResumeRecord } from "@/lib/types/resume.types";
 
 interface CVTabProps {
   ownerId: string | undefined;
@@ -11,7 +12,7 @@ interface CVTabProps {
 const fileSize = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 const uploadedDate = (value: string) => new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
 
-function openResume(resume: ResumeRecord) {
+function openResume(resume: StoredResumeRecord) {
   const url = URL.createObjectURL(resume.file);
   if (/\.pdf$/i.test(resume.name)) {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -27,7 +28,7 @@ function openResume(resume: ResumeRecord) {
 export function CVTab({ ownerId, seedDemoResumes }: CVTabProps) {
   const { resumes, loading, busy, error, notice, reload, upload, remove, setPrimary } = useResumes(ownerId, seedDemoResumes);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [removeTarget, setRemoveTarget] = useState<ResumeRecord | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<StoredResumeRecord | null>(null);
 
   const chooseFile = () => inputRef.current?.click();
 

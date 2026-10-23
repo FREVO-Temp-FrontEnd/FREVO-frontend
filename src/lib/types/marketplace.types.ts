@@ -4,6 +4,10 @@
  * and Full Product UI Scope Screen Specifications.
  */
 
+import type { Work } from "./portfolio.types";
+import type { SubmittedResume } from "./resume.types";
+import type { ApplicantIdentity } from "./application.types";
+
 export type UserRole = "guest" | "client" | "freelancer" | "admin";
 
 export interface ActingIdentity {
@@ -46,6 +50,17 @@ export type CandidateSource =
   | "Lời mời"
   | "Ứng tuyển · Lời mời";
 
+export interface CandidateSubmission {
+  /** Read model: snapshots preserve exactly what was submitted. */
+  portfolioWorks: Work[];
+  portfolioUrl?: string;
+  resume?: SubmittedResume;
+  applicantIdentity?: ApplicantIdentity;
+  proposedBudget?: number | null;
+  deliveryEstimate?: string;
+  submittedAt: string;
+}
+
 export interface Candidate {
   id: string;
   projectId: string;
@@ -58,6 +73,9 @@ export interface Candidate {
   chatUnlocked: boolean; // Gated candidate approval per FR-031, BR-012, BR-013
   chatUnlockedAt?: string;
   fitScore?: number;     // Heuristic match score 0-100% (DEC-01)
+  submission?: CandidateSubmission;
+  applicantAccountId?: string;
+  permissions?: { canViewResume: boolean };
 }
 
 export type InviteStatus = "pending" | "accepted" | "declined" | "expired";
