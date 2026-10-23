@@ -50,64 +50,55 @@ export default function ProjectDetailPage() {
         component="main"
         id="main"
         sx={{
-          maxWidth: 1240,
+          width: "100%",
+          maxWidth: 1440,
           mx: "auto",
-          p: { xs: "20px 16px 40px", sm: "24px 24px 64px" },
+          minWidth: 0,
+          p: { xs: "24px 16px 40px", md: "24px 32px 64px" },
           color: "#1b1c1c",
           fontSize: 14,
           lineHeight: 1.6,
+          "& .MuiButton-root, & .MuiIconButton-root": {
+            minHeight: 44,
+            border: "2px solid",
+            borderColor: "text.secondary",
+            fontWeight: 700,
+            cursor: "pointer",
+          },
+          "& .MuiButton-root:hover, & .MuiIconButton-root:hover": {
+            borderColor: "#bd3d14",
+            boxShadow: "0 3px 0 rgba(189, 61, 20, 0.18)",
+          },
+          "& .MuiButton-root:focus-visible, & .MuiIconButton-root:focus-visible": {
+            outline: "3px solid #bd3d14",
+            outlineOffset: 3,
+          },
+          "& .MuiButton-root:active, & .MuiIconButton-root:active": {
+            transform: "translateY(1px)",
+            boxShadow: "none",
+          },
         }}
       >
-        {/* Navigation / Breadcrumb */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: "12px", sm: "16px" },
-            mb: "24px",
-            fontSize: { xs: 11, sm: 12 },
-          }}
-        >
-          <Box
-            component="nav"
-            aria-label="Đường dẫn"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#75655f",
-              flexWrap: "wrap",
-            }}
-          >
-            <Link to="/" style={{ color: "inherit", textDecoration: "none" }}>
-              Khám phá dự án
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span>{project?.category ?? "Dự án"}</span>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page" style={{ color: "#1b1c1c", fontWeight: 600 }}>
-              Chi tiết dự án
-            </span>
-          </Box>
-
-          <Box
+        <Box sx={{ display: "flex", justifyContent: "flex-start", mb: "24px" }}>
+          <Button
             component={Link}
             to={project ? `/projects/${encodeURIComponent(project.id)}` : "/"}
+            startIcon={<ArrowLeft size={18} aria-hidden="true" />}
             sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#1b1c1c",
-              textDecoration: "none",
-              fontWeight: 600,
-              "&:hover": { color: "#ab2e00" },
+              minHeight: 44,
+              px: 2.5,
+              border: "2px solid",
+              borderColor: "text.secondary",
+              bgcolor: "background.paper",
+              color: "text.primary",
+              fontWeight: 700,
+              textTransform: "none",
+              "&:hover": { bgcolor: "#fff0e9", borderColor: "#bd3d14", color: "#9f310f" },
             }}
           >
-            <ArrowLeft size={18} aria-hidden="true" /> Quay lại danh sách
-          </Box>
+            Quay lại danh sách
+          </Button>
         </Box>
-
         {/* State rendering */}
         {loading ? (
           <Box
