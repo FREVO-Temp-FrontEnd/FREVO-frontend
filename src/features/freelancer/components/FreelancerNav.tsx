@@ -15,7 +15,7 @@ interface FreelancerNavProps {
   showBrand?: boolean;
 }
 
-export function FreelancerNav({ view, onViewChange, onUnavailable, onNavigate, jobNavId = "freelancer-job-nav-options", showBrand = false }: FreelancerNavProps) {
+export function FreelancerNav({ view, onViewChange, onNavigate, jobNavId = "freelancer-job-nav-options", showBrand = false }: FreelancerNavProps) {
   const location = useLocation();
   const { role, switchRole, isAuthenticated } = useAuthSession();
   const currentPath = location.pathname.replace(/\/+$/, "");
@@ -92,7 +92,7 @@ export function FreelancerNav({ view, onViewChange, onUnavailable, onNavigate, j
       </div>}
       {showFreelancerItems && <Link className={`nav-item ${invitationsActive ? "active" : ""}`} to="/freelancer/invitations" onClick={enterFreelancerArea} aria-current={invitationsActive ? "page" : undefined} title="Lời mời tham gia dự án"><Mail size={17} /><span>Lời mời</span>{pendingInvitationsCount > 0 && <span className="nav-invitation-count" aria-label={`${pendingInvitationsCount} lời mời đang chờ`}>{pendingInvitationsCount}</span>}</Link>}
       {showFreelancerItems && <Link className={`nav-item ${teamActive ? "active" : ""}`} to="/team/profile" onClick={enterFreelancerArea} aria-current={teamActive ? "page" : undefined} title="Hồ sơ Nhóm sáng tạo"><Users size={17} /><span>Nhóm</span></Link>}
-      {isAuthenticated && <button type="button" className="nav-item" onClick={() => onUnavailable("Tin nhắn")} title="Tin nhắn"><MessageCircle size={17} /><span>Tin nhắn</span></button>}
+      {isAuthenticated && <Link to="/freelancer/messages" className={`nav-item ${location.pathname === "/freelancer/messages" ? "active" : ""}`} onClick={enterFreelancerArea} title="Tin nhắn"><MessageCircle size={17} /><span>Tin nhắn</span></Link>}
     </nav>
 
   </aside>;

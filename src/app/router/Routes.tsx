@@ -1,3 +1,4 @@
+import { ProjectInboxPage } from "@/app/shared/components/inbox/ProjectInboxPage";
 import { createBrowserRouter, Navigate } from "react-router";
 import App from "../layout/App";
 import FreelancerHomePage from "@/features/freelancer/FreelancerHomePage";
@@ -65,6 +66,10 @@ export const router = createBrowserRouter([
           {
             path: "projects/:projectId/agreement",
             element: <ProjectAgreementPage />,
+          },
+          {
+            path: "freelancer/messages",
+            element: <RoleGuard allowedRoles={["freelancer"]}><div style={{ height: "calc(100dvh - 76px)", minHeight: 0 }}><ProjectInboxPage /></div></RoleGuard>,
           },
           {
             path: "freelancer/invitations",
