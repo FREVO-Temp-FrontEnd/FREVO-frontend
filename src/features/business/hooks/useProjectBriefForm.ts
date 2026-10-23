@@ -150,5 +150,13 @@ export function useProjectBriefForm(existingProject?: ProjectBrief) {
     } satisfies ProjectBrief;
   }
 
-  return { fields, setField, errors, skillInput, setSkillInput, addSkill, isPreview, setIsPreview, openPreview, buildProject };
+  const validation = validate(fields);
+  const sections = [
+    { id: "brief-basics", title: "Thông tin cơ bản", complete: !validation.title && !validation.category && !validation.description },
+    { id: "brief-scope", title: "Yêu cầu và bàn giao", complete: !validation.skills && !validation.deliverables },
+    { id: "brief-budget", title: "Ngân sách và thời hạn", complete: !validation.budgetMin && !validation.deadline && !validation.applicationDeadline },
+    { id: "brief-performer", title: "Bên thực hiện", complete: !!fields.preference },
+  ];
+
+  return { fields, setField, errors, skillInput, setSkillInput, addSkill, isPreview, setIsPreview, openPreview, buildProject, sections };
 }

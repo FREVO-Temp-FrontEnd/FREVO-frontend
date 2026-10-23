@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react";
 import type { Project } from "@/lib/types/project.types";
-import { formatBudget } from "@/lib/util/formatters";
+import { formatBudget } from "@/lib/utils/formatters";
 import { ProjectDetailBody } from "./ProjectDetailBody";
 import { ProjectDetailSidebar } from "./ProjectDetailSidebar";
 

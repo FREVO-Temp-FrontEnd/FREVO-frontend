@@ -51,9 +51,3 @@ export type Project = {
 };
 
 export type SortMode = "newest" | "budget" | "deadline";
-
-export type ApplicationPayload = {
-  projectId: string;
-  proposal: string;
-  portfolioUrl: string;
-};

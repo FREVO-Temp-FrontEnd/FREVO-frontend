@@ -1,8 +1,9 @@
-import { Box, Card, Typography, Chip } from "@mui/material";
+import { Avatar, Box, Button, Card, Typography, Chip, Tooltip } from "@mui/material";
 import { Link } from "react-router";
-import { Sparkles, Check, ArrowRight, Briefcase } from "lucide-react";
+import { Sparkles, Check, ArrowRight, Clock3, Wallet } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { calculateMatchingScore } from "@/lib/utils/matchingScore";
+import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
 
 interface TalentEvidenceCardProps {
   talent: TalentProfile;
@@ -31,18 +32,20 @@ export function TalentEvidenceCard({
         flexDirection: "column",
         justifyContent: "space-between",
         bgcolor: "#ffffff",
-        transition: "transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+        borderColor: "divider",
+        boxShadow: "none",
+        transition: "border-color 150ms ease",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+          borderColor: "#cfd5ca",
         },
+        "@media (prefers-reduced-motion: reduce)": { transition: "none" },
       }}
     >
       <Box>
         {/* Card Header: Avatar, Name, Type, Match Score */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-            <Box
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", minWidth: 0, flex: "1 1 190px" }}>
+            <Avatar src={talent.avatar} alt={talent.name}
               sx={{
                 width: 48,
                 height: 48,
@@ -58,13 +61,13 @@ export function TalentEvidenceCard({
               }}
             >
               {talent.initials}
-            </Box>
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+            </Avatar>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography component="h3" sx={{ fontSize: 18, fontWeight: 700, lineHeight: 1.4 }}>
                 {talent.name}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary", fontSize: "0.85rem" }}>
-                {talent.role} · {talent.location}
+                {talent.role}
               </Typography>
             </Box>
           </Box>
@@ -88,6 +91,11 @@ export function TalentEvidenceCard({
               sx={{ fontSize: "0.75rem", height: 20 }}
             />
           </Box>
+        </Box>
+
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5, p: 1.5, mb: 2.5, bgcolor: "background.default", borderRadius: 2 }}>
+          <div className="flex items-start gap-2"><Wallet size={15} className="mt-0.5 shrink-0 text-[#747773]" aria-hidden="true" /><div><p className="m-0 text-[11px] text-[#747773]">Mức phí dự kiến</p><p className="mb-0 mt-1 text-[13px] font-semibold">{talent.rate || "Chưa cập nhật"}</p></div></div>
+          <div className="flex items-start gap-2"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#747773]" aria-hidden="true" /><div><p className="m-0 text-[11px] text-[#747773]">Lịch làm việc</p><p className="mb-0 mt-1 text-[13px] font-medium">{talent.availability || "Chưa cập nhật"}</p></div></div>
         </Box>
 
         {/* Explainable Rationale Badges (BR-026) */}
@@ -133,44 +141,12 @@ export function TalentEvidenceCard({
         </Box>
 
         {/* Portfolio Highlights (BR-027) */}
-        {talent.portfolio.length > 0 && (
           <Box sx={{ mb: 2, pt: 1, borderTop: "1px dashed #f0f0f0" }}>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 0.8 }}>
-              Dự án tiêu biểu
+              Portfolio
             </Typography>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              {talent.portfolio.slice(0, 2).map((item, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    flex: 1,
-                    p: 1,
-                    borderRadius: 1.5,
-                    bgcolor: "#fafaf9",
-                    border: "1px solid #f2f0ea",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <Briefcase size={14} color="#6b7280" />
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 500,
-                      color: "#444",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {item.title}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
+            <TalentPortfolioPreview talentId={talent.id} talentName={talent.name} />
           </Box>
-        )}
       </Box>
 
       {/* Card Actions */}
@@ -182,27 +158,27 @@ export function TalentEvidenceCard({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
           gap: 1,
         }}
       >
         <Box sx={{ display: "flex", gap: 1 }}>
-          <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => onOpenAIAnalysis(talent)}>
-            <Sparkles size={14} /> Phân tích AI
-          </button>
-          <Link className="fb-button fb-button-small fb-button-secondary" to={`/business/talent/${talent.id}?project=${brief.id}`}>
+          <Button size="small" startIcon={<Sparkles size={14} />} onClick={() => onOpenAIAnalysis(talent)} sx={{ minHeight: 38, color: "text.secondary" }}>Độ phù hợp</Button>
+          <Button size="small" component={Link} to={`/business/talent/${talent.id}?project=${brief.id}`} sx={{ minHeight: 38, color: "text.primary", bgcolor: "background.default", px: 1.5 }}>
             Hồ sơ
-          </Link>
+          </Button>
         </Box>
 
-        <button
-          type="button"
-          className="fb-button fb-button-small fb-button-primary"
+        <Tooltip title={isInvited ? "Đã gửi lời mời cho ứng viên này" : brief.status !== "published" ? "Dự án đã ngừng tuyển dụng" : ""}><span><Button
+          variant="contained"
+          size="small"
           disabled={isInvited || brief.status !== "published"}
           onClick={() => onOpenInvite(talent)}
+          endIcon={!isInvited ? <ArrowRight size={14} /> : undefined}
+          sx={{ minHeight: 38, px: 2 }}
         >
           {isInvited ? "Đã gửi lời mời" : "Mời dự án"}
-          {!isInvited && <ArrowRight size={14} />}
-        </button>
+        </Button></span></Tooltip>
       </Box>
     </Card>
   );

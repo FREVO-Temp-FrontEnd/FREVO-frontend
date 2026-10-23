@@ -197,6 +197,7 @@ export default function FreelancerHomePage() {
       </div>
 
       <ProjectApplyDialog
+        key={applyingId ?? "closed"}
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={applyingProject}

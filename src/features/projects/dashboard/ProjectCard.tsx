@@ -2,7 +2,7 @@ import type { Project } from "@/lib/types/project.types";
 import { Box, Button } from "@mui/material";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router";
-import { formatBudget } from "@/lib/util/formatters";
+import { formatBudget } from "@/lib/utils/formatters";
 import { BookmarkButton } from "./BookmarkButton";
 
 interface ProjectCardProps {

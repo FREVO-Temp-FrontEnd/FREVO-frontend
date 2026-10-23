@@ -192,6 +192,7 @@ export default function ProjectDetailPage() {
       </Box>
 
       <ProjectApplyDialog
+        key={applyingId ?? "closed"}
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={project}

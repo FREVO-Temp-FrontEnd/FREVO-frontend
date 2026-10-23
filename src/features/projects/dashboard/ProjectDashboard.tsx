@@ -193,6 +193,7 @@ export default function ProjectDashboard() {
       </div>
 
       <ProjectApplyDialog
+        key={applyingId ?? "closed"}
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={applyingProject}

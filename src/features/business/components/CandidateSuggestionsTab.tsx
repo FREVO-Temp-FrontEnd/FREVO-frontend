@@ -101,34 +101,38 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
 
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
         display: "flex",
         flexDirection: "column",
         gap: 2,
-        fontFamily: '"Be Vietnam Pro", sans-serif',
+        fontFamily: theme.typography.fontFamily,
         "&& button:not(.fb-button), && .MuiButton-root": {
-          fontFamily: '"Be Vietnam Pro", sans-serif',
+          fontFamily: theme.typography.fontFamily,
           fontSize: "12px",
           fontWeight: 600,
           letterSpacing: 0,
           lineHeight: 1.4,
           textTransform: "none",
         },
-        "&& input": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "13px" },
-        "&& .MuiTypography-root": { fontFamily: '"Be Vietnam Pro", sans-serif', letterSpacing: 0 },
-        "&& .MuiChip-root": { fontFamily: '"Be Vietnam Pro", sans-serif', fontSize: "12px" },
-      }}
+        "&& input": { fontFamily: theme.typography.fontFamily, fontSize: "13px" },
+        "&& .MuiTypography-root": { fontFamily: theme.typography.fontFamily, letterSpacing: 0 },
+        "&& h2, && h3": { fontFamily: theme.typography.h2.fontFamily },
+        "&& .MuiChip-root": { fontFamily: theme.typography.fontFamily, fontSize: "12px" },
+      })}
     >
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-3"><div><div className="flex items-center gap-2"><Typography component="h2" sx={{ fontSize: 22, fontWeight: 700 }}>Ứng viên phù hợp</Typography><Chip size="small" label={filteredAndScoredTalents.length} sx={{ height: 24, bgcolor: "#eeefeb", fontWeight: 700 }} /></div><Typography sx={{ mt: 0.5, fontSize: 13, color: "text.secondary" }}>Khám phá năng lực, xem portfolio và chủ động gửi lời mời.</Typography></div></div>
       {/* Filter & Search Toolbar (BUS-008) */}
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          px: 1.5,
-          py: 1,
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
           bgcolor: "#fff",
-          border: "1px solid #eceae7",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 3,
         }}
       >
         <Box
@@ -236,7 +240,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))", xl: "repeat(3, minmax(0, 1fr))" },
+            gridTemplateColumns: { xs: "1fr", lg: "repeat(2, minmax(0, 1fr))" },
             gap: 2.5,
           }}
         >

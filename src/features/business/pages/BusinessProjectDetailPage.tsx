@@ -109,7 +109,7 @@ export function BusinessProjectDetailPage() {
     })}>
       <ProjectBreadcrumbs items={[{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title }]} />
 
-      <header className="rounded-[24px] border border-[#eceae7] bg-white px-5 py-5 sm:px-7 sm:py-6">
+      <header className="rounded-[24px] border border-[#f3dccf] bg-[#fff4ee] px-5 py-5 sm:px-7 sm:py-6">
         <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
           <div className="min-w-0">
             <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${project.status === "published" || project.status === "ongoing" ? "bg-[#e8f7ef] text-[#16805b]" : "bg-[#f2f3f0] text-[#62625e]"}`}><span className="size-1.5 rounded-full bg-current" aria-hidden="true" />{statusLabel(project.status)}</span>
@@ -120,8 +120,8 @@ export function BusinessProjectDetailPage() {
             </div>
           </div>
           {project.status !== "draft" && <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-            {project.status === "published" && currentTab !== "brief" && <Button component={Link} to={`/business/projects/${project.id}/brief`} startIcon={<Eye size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Xem brief</Button>}
-            <Button component={Link} to={projectInboxPath} startIcon={<MessageCircleMore size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "#f2f3f0", color: "text.primary", px: 2, fontSize: 13 }}>Tin nhắn</Button>
+            {project.status === "published" && currentTab !== "brief" && <Button component={Link} to={`/business/projects/${project.id}/brief`} startIcon={<Eye size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "background.paper", border: "1px solid #f3dccf", color: "text.primary", px: 2, fontSize: 13, "&:hover": { bgcolor: "#fffaf7", borderColor: "primary.main", color: "primary.dark" } }}>Xem brief</Button>}
+            <Button component={Link} to={projectInboxPath} startIcon={<MessageCircleMore size={16} />} sx={{ minHeight: 40, borderRadius: 999, bgcolor: "background.paper", border: "1px solid #f3dccf", color: "text.primary", px: 2, fontSize: 13, "&:hover": { bgcolor: "#fffaf7", borderColor: "primary.main", color: "primary.dark" } }}>Tin nhắn</Button>
           </div>}
         </div>
       </header>
