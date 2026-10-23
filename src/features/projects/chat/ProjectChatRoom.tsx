@@ -104,7 +104,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
     return (
       <LockedChatState
         isBusiness={isBusiness}
-        talentName={talent.name}
+        talentName={isBusiness ? talent.name : project.company}
         projectTitle={project.title}
         onApproveChat={onApproveChat}
       />
@@ -120,7 +120,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
         minHeight: inboxMode ? 0 : "480px",
         bgcolor: "#ffffff",
         borderRadius: inboxMode ? 0 : "18px",
-        border: inboxMode ? "none" : "1px solid #e4e6e2",
+        border: inboxMode ? "none" : "1px solid #a8b0a2",
         overflow: "hidden",
         "& .MuiTypography-root": { fontFamily: chatFont },
       }}
@@ -131,7 +131,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
           p: { xs: 1.5, sm: inboxMode ? 1.5 : 2 },
           px: { xs: 2, sm: 2.5 },
           minHeight: inboxMode ? 70 : undefined,
-          borderBottom: "1px solid #e4e6e2",
+          borderBottom: "1px solid #a8b0a2",
           bgcolor: "#ffffff",
           display: "flex",
           alignItems: "center",
@@ -168,12 +168,12 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               fontSize: inboxMode ? 13 : undefined,
             }}
           >
-            {talent.initials}
+            {isBusiness ? talent.initials : project.company.slice(0, 2).toUpperCase()}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700, fontSize: inboxMode ? 14 : 14, color: "#20201f" }}>
-                {talent.name}
+                {isBusiness ? talent.name : project.title}
               </Typography>
               <Chip
                 label={inboxMode ? (isReadOnly ? "Chỉ xem" : "Đã duyệt trao đổi") : talent.kind}
@@ -190,9 +190,9 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
               <Typography variant="caption" noWrap sx={{ color: "#747773", fontSize: inboxMode ? 12 : 10 }}>
-                {inboxMode ? `Dự án: ${project.title}` : `${project.title} · ${project.category}`}
+                {!isBusiness ? project.company : inboxMode ? `Dự án: ${project.title}` : `${project.title} · ${project.category}`}
               </Typography>
-              {inboxMode && <Link to={`/business/projects/${project.id}`} className="shrink-0 text-[11px] font-semibold text-[#bd3d14] hover:underline">Xem dự án</Link>}
+              {inboxMode && <Link to={isBusiness ? `/business/projects/${project.id}` : `/projects/${project.id}/details`} className="shrink-0 text-[11px] font-semibold text-[#bd3d14] hover:underline">Xem dự án</Link>}
             </Box>
           </Box>
         </Box>
@@ -260,12 +260,12 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
           sx={{
             textAlign: "center",
             py: inboxMode ? 0 : 1,
-            borderBottom: inboxMode ? "none" : "1px solid #e4e6e2",
+            borderBottom: inboxMode ? "none" : "1px solid #a8b0a2",
             mb: inboxMode ? 2.5 : 1,
           }}
         >
           {inboxMode ? (
-            <Box sx={{ display: "inline-flex", maxWidth: "100%", alignItems: "center", gap: 0.75, px: 1.5, py: 0.75, border: "1px solid #e4e6e2", borderRadius: 99, bgcolor: "#fff", color: "#747773" }}>
+            <Box sx={{ display: "inline-flex", maxWidth: "100%", alignItems: "center", gap: 0.75, px: 1.5, py: 0.75, border: "1px solid #a8b0a2", borderRadius: 99, bgcolor: "#fff", color: "#747773" }}>
               <LockKeyhole size={13} style={{ flexShrink: 0 }} aria-hidden="true" />
               <Typography variant="caption" sx={{ fontSize: 11, lineHeight: 1.35 }}>Chỉ bạn và người được duyệt trong dự án này mới xem được cuộc trao đổi.</Typography>
             </Box>
@@ -300,13 +300,13 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
                     </Box>
                   )}
                   <Box sx={{ display: "flex", alignSelf: isMine ? "flex-end" : "flex-start", alignItems: "flex-start", gap: 1.25, maxWidth: { xs: "94%", sm: "78%" }, minWidth: 0, mb: 2.25 }}>
-                    {!isMine && <Avatar sx={{ width: 30, height: 30, mt: 0.25, flexShrink: 0, bgcolor: talent.color || "#f1e0d1", color: "#20201f", fontFamily: chatFont, fontSize: 11, fontWeight: 700 }}>{talent.initials}</Avatar>}
+                    {!isMine && <Avatar sx={{ width: 30, height: 30, mt: 0.25, flexShrink: 0, bgcolor: talent.color || "#f1e0d1", color: "#20201f", fontFamily: chatFont, fontSize: 11, fontWeight: 700 }}>{isBusiness ? talent.initials : project.company.slice(0, 2).toUpperCase()}</Avatar>}
                     <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column", alignItems: isMine ? "flex-end" : "flex-start" }}>
                       <Box sx={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "baseline", gap: 1, mb: 0.5, px: 0.5 }}>
                         <Typography variant="caption" sx={{ color: isMine ? "#bd3d14" : "#20201f", fontSize: 11, fontWeight: 700 }}>{msg.senderName}</Typography>
                         <Typography component="time" dateTime={msg.sentAt} variant="caption" sx={{ color: "#92958e", fontSize: 10 }}>{timeLabel}</Typography>
                       </Box>
-                      <Paper elevation={0} sx={{ px: 1.75, py: 1.35, maxWidth: "100%", borderRadius: isMine ? "15px 15px 4px 15px" : "15px 15px 15px 4px", bgcolor: isMine ? "#f4490b" : "#fff", color: isMine ? "#fff" : "#20201f", border: isMine ? "1px solid #f4490b" : "1px solid #e4e6e2", boxShadow: "0 1px 2px rgba(32,32,31,.04)" }}>
+                      <Paper elevation={0} sx={{ px: 1.75, py: 1.35, maxWidth: "100%", borderRadius: isMine ? "15px 15px 4px 15px" : "15px 15px 15px 4px", bgcolor: isMine ? "#f4490b" : "#fff", color: isMine ? "#fff" : "#20201f", border: isMine ? "1px solid #f4490b" : "1px solid #a8b0a2", boxShadow: "0 1px 2px rgba(32,32,31,.04)" }}>
                         {msg.body && <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 13, lineHeight: 1.6 }}>{msg.body}</Typography>}
                         {msg.attachmentUrl && (
                           <Box component="a" href={msg.attachmentUrl} download={msg.attachmentName || "tep-dinh-kem"}
@@ -353,7 +353,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
                       : "16px 16px 16px 4px",
                     bgcolor: isMine ? "#f4490b" : "#ffffff",
                     color: isMine ? "#ffffff" : "#20201f",
-                    border: isMine ? "none" : "1px solid #e4e6e2",
+                    border: isMine ? "none" : "1px solid #a8b0a2",
                     boxShadow: "none",
                   }}
                 >
@@ -375,7 +375,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
                         pt: 1,
                         borderTop: isMine
                           ? "1px solid rgba(255,255,255,0.2)"
-                          : "1px solid #e4e6e2",
+                          : "1px solid #a8b0a2",
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
@@ -408,7 +408,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
           onSubmit={handleSend}
           sx={{
             p: inboxMode ? { xs: 1.5, sm: 2 } : 2,
-            borderTop: "1px solid #e4e6e2",
+            borderTop: "1px solid #a8b0a2",
             bgcolor: "#ffffff",
             display: "flex",
             flexDirection: "column",
