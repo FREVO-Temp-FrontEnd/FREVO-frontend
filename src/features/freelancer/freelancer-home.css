@@ -1,9 +1,10 @@
 /* Freelancer navigation and relocated filters. Project cards and details retain their existing styles. */
 .header-actions{display:flex;align-items:center;gap:16px}
 .freelancer-mobile-menu{display:none}
-.page-grid.freelancer-home{grid-template-columns:minmax(0,1fr) 420px;gap:0;max-width:none;margin:0;padding:0}
-.page-grid.freelancer-home>.main-column{padding:24px 24px 60px}
-.page-grid.freelancer-home>.detail-column{top:76px;max-height:calc(100dvh - 76px);overflow-y:auto;scrollbar-width:thin;padding:24px 24px 60px 0}
+.page-grid.freelancer-home{grid-template-columns:minmax(0,1fr) 420px;gap:24px;max-width:1440px;margin:0 auto;padding:24px 32px}
+.page-grid.freelancer-home>.main-column{padding:0}
+.page-grid.freelancer-home>.detail-column{top:76px;max-height:calc(100dvh - 100px);overflow-y:auto;scrollbar-width:thin;padding:0}
+@media(max-width:899px){.page-grid.freelancer-home{padding:24px 16px}}
 .freelancer-secondary-shell{display:grid;grid-template-columns:minmax(0,1fr);min-height:calc(100dvh - 76px)}
 .freelancer-secondary-content{min-width:0}
 .freelancer-nav{position:sticky;top:76px;align-self:start;min-width:0;height:calc(100dvh - 76px);overflow-y:auto;padding:27px 12px 24px;background:#fff;border-right:1px solid var(--line);font-family:"Be Vietnam Pro","Space Grotesk",sans-serif;scrollbar-width:thin}

@@ -1,0 +1,68 @@
+.invitation-project-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 14px;
+  min-height: 0;
+}
+.invitation-project-card > .card-main {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+}
+.project-card.invitation-project-card > .card-main .card-top {
+  min-height: 24px;
+  padding: 0;
+}
+.invitation-project-card .card-main:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 3px;
+}
+.invitation-project-card .invitation-card-actions {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 31px;
+}
+.invitation-project-card .invitation-card-actions .MuiButton-root {
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.invitation-project-card .invitation-card-actions .MuiButton-root:active { transform: scale(.98); }
+.invitation-project-card .card-bottom {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 16px;
+}
+.invitation-project-card .card-facts { flex-wrap: wrap; }
+.invitation-project-card .invitation-message {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin-top: 16px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  background: var(--peach);
+}
+.invitation-project-card .invitation-message strong { display: block; color: var(--orange-dark); font-weight: 700; }
+.invitation-project-card .invitation-message p { margin-top: 4px; color: var(--ink); line-height: 1.5; }
+@media (max-width: 1200px) {
+  .invitation-project-card { display: flex; flex-direction: column; }
+  .project-card.invitation-project-card > .card-main .card-top { padding: 0; }
+  .invitation-project-card .invitation-card-actions {
+    order: 2;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .invitation-project-card .card-bottom { order: 1; }
+  .invitation-project-card .invitation-message { order: 3; }
+}
+@media (max-width: 720px) {
+  .invitation-project-card .card-bottom { display: block; }
+  .invitation-project-card .skill-list { justify-content: flex-start; margin-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invitation-project-card .invitation-card-actions .MuiButton-root:active { transform: none; }
+}
