@@ -39,7 +39,7 @@ export function ProjectDetailSidebar({
           bgcolor: "#fff",
           borderRadius: "16px",
           p: { xs: "22px 18px", sm: "24px" },
-          boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+          border: "2px solid", borderColor: "text.secondary",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "14px", mb: "18px" }}>
@@ -178,7 +178,7 @@ export function ProjectDetailSidebar({
           bgcolor: "#fff",
           borderRadius: "16px",
           p: { xs: "22px 18px", sm: "24px" },
-          boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+          border: "2px solid", borderColor: "text.secondary",
         }}
       >
         <Typography component="h2" sx={{ fontSize: 16, fontWeight: 750, color: "#1b1c1c", mb: "16px" }}>
@@ -244,7 +244,7 @@ export function ProjectDetailSidebar({
           bgcolor: "#fff",
           borderRadius: "16px",
           p: { xs: "22px 18px", sm: "24px" },
-          boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+          border: "2px solid", borderColor: "text.secondary",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "14px", mb: "16px" }}>

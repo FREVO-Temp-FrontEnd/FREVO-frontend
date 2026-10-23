@@ -33,7 +33,7 @@ export function useFreelancer() {
   }, [state.invitations, currentTalentId]);
 
   const pendingInvitationsCount = useMemo(() => {
-    return myInvitations.filter((inv) => inv.status === "pending").length;
+    return myInvitations.filter((inv) => inv.status === "pending" && new Date(inv.expiresAt).getTime() > Date.now()).length;
   }, [myInvitations]);
 
   // Projects relevant to invitations
@@ -53,7 +53,7 @@ export function useFreelancer() {
   const acceptInvitation = useCallback((invitationId: string) => {
     mockStorage.respondToInvitation(invitationId, true);
     setToast(
-      "Lời mời đã được chấp nhận. Hồ sơ của bạn đã được chuyển cho Doanh nghiệp xem xét để mở kênh trao đổi (BR-005)."
+      "Đã chấp nhận lời mời. Hồ sơ của bạn đang chờ doanh nghiệp xem xét. Kênh trao đổi sẽ mở sau khi được duyệt."
     );
   }, []);
 

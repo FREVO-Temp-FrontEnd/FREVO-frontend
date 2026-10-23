@@ -73,7 +73,7 @@ export function ProjectDetailContent({
             bgcolor: "#fff",
             borderRadius: "16px",
             p: { xs: "22px 18px", sm: "32px" },
-            boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+            border: "2px solid", borderColor: "text.secondary",
             background: "radial-gradient(ellipse at 100% 0, rgba(255, 240, 233, 0.67), transparent 55%), #fff",
           }}
         >
@@ -525,7 +525,7 @@ export function ProjectDetailContent({
                     bgcolor: "#fff",
                     borderRadius: "16px",
                     p: { xs: "22px 18px", sm: "24px" },
-                    boxShadow: "0 2px 4px rgba(48, 32, 26, 0.02)",
+                    border: "2px solid", borderColor: "text.secondary",
                     display: "flex",
                     flexDirection: "column",
                     gap: "10px",

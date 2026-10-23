@@ -1,0 +1,33 @@
+/* global localStorage, document, innerWidth, console */
+import { chromium } from 'file:///C:/Users/iamju/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs';
+import { writeFile } from 'node:fs/promises';
+const browser = await chromium.launch({ executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe', headless:true, args:['--disable-gpu','--no-first-run'] });
+const context = await browser.newContext({ viewport:{width:1440,height:1120},deviceScaleFactor:1 });
+const page = await context.newPage();
+const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5173/projects',{waitUntil:'networkidle'});
+await page.evaluate(()=>{const key='frevo_marketplace_data_v2';const state=JSON.parse(localStorage.getItem(key));state.activeUser={id:'minh-anh',name:'Minh Anh',email:'minhanh@example.test',role:'freelancer',actingIdentity:{type:'individual'},verified:true};localStorage.setItem(key,JSON.stringify(state));});
+await page.goto('http://127.0.0.1:5173/freelancer/applications',{waitUntil:'networkidle'});
+await page.evaluate(()=>document.fonts.ready);
+await page.screenshot({path:'design/applications-current-desktop.png',fullPage:true});
+await page.goto('http://127.0.0.1:5173/design/applications-prototype.html',{waitUntil:'networkidle'});
+await page.evaluate(()=>document.fonts.ready);
+await page.screenshot({path:'design/applications-prototype-desktop.png',fullPage:true});
+const desktopOverflow = await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+await page.getByRole('tab',{name:'Chờ xét duyệt'}).click();
+const filterWorks=await page.locator('.application-card').count()===1;
+await page.getByRole('button',{name:'Rút hồ sơ',exact:true}).click();
+const dialogWorks=await page.getByRole('dialog').isVisible();
+await page.getByRole('button',{name:'Giữ hồ sơ'}).click();
+await page.getByRole('tab',{name:'Tất cả'}).click();
+await page.getByRole('textbox',{name:'Tìm trong hồ sơ ứng tuyển'}).fill('khong-co-ket-qua');
+const emptyWorks=await page.getByRole('heading',{name:'Không tìm thấy hồ sơ'}).isVisible();
+await page.getByRole('button',{name:'Xóa bộ lọc'}).click();
+await page.setViewportSize({width:390,height:844});
+await page.screenshot({path:'design/applications-prototype-mobile.png',fullPage:true});
+const mobileOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+const report={desktopOverflow,mobileOverflow,filterWorks,dialogWorks,emptyWorks,errors};
+await writeFile('design/applications-prototype-checks.json',JSON.stringify(report,null,2));
+console.log(JSON.stringify(report));
+await browser.close();
+
