@@ -3,8 +3,8 @@ import { isDemoMode, projectsApi } from "@/lib/api/projectsApi";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
-import { normalized, deadlineTime } from "@/lib/util/formatters";
-import { moneyDigits } from "@/lib/util/money";
+import { normalized, deadlineTime } from "@/lib/utils/formatters";
+import { moneyDigits } from "@/lib/utils/money";
 
 const SAVED_PROJECTS_KEY = "frevo-saved-projects";
 

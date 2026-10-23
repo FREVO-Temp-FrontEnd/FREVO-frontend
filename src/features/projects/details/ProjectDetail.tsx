@@ -1,6 +1,6 @@
 import { RotateCcw } from "lucide-react";
 import type { Project } from "@/lib/types/project.types";
-import { formatBudget } from "@/lib/util/formatters";
+import { formatBudget } from "@/lib/utils/formatters";
 import { BookmarkButton } from "../dashboard/BookmarkButton";
 
 interface ProjectDetailProps {

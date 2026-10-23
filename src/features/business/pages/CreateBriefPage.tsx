@@ -5,7 +5,7 @@ import { useBusiness } from "@/lib/hooks/useBusiness";
 import type { ProjectBrief } from "@/lib/types/marketplace.types";
 import { useProjectBriefForm } from "@/features/business/hooks/useProjectBriefForm";
 import { BriefFormSummary } from "@/features/business/components/BriefFormSummary";
-import { formatMoneyInput, moneyDigits } from "@/lib/util/money";
+import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 
 const categories = ["Thiết kế thương hiệu", "UI/UX & Website", "Nội dung sáng tạo", "Motion & Digital", "Nhiếp ảnh & Video"];
 const durations = ["2 tuần", "4 tuần", "6 tuần", "8 tuần"];

@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
 import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
-import { formatBudget } from "@/lib/util/formatters";
-import { formatMoneyInput, moneyDigits } from "@/lib/util/money";
+import { formatBudget } from "@/lib/utils/formatters";
+import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useApplicationMaterials } from "../hooks/useApplicationMaterials";
 

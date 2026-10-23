@@ -10,7 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import { Plus, Trash2, ShieldAlert, Clock, ArrowRight } from "lucide-react";
-import { formatMoneyText, parseMoneyText } from "@/lib/util/money";
+import { formatMoneyText, parseMoneyText } from "@/lib/utils/money";
 import type {
   AgreementProposal,
   Milestone,

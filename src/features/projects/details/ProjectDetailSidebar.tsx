@@ -1,7 +1,7 @@
 import { Box, Typography, Button } from "@mui/material";
 import { ArrowRight, BadgeCheck, ShieldCheck, Star } from "lucide-react";
 import type { Project, ProjectDetails } from "@/lib/types/project.types";
-import { formatBudget } from "@/lib/util/formatters";
+import { formatBudget } from "@/lib/utils/formatters";
 
 export function ProjectDetailSidebar({
   project,
