@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, Snackbar, TextField, Typography } from "@mui/material";
-import { ArrowUpRight, CheckCircle2, Clock3, FolderOpen, MailCheck, MessageCircle, MoreHorizontal, PlusCircle, Search, Send, Users } from "lucide-react";
+import { CheckCircle2, Clock3, MailCheck, MessageCircle, MoreHorizontal, PlusCircle, Search, Send, Users } from "lucide-react";
 import type { Candidate, CandidateStatus, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { matchesCandidateFilter, useProjectApplicants, type CandidateDecision, type CandidateFilter } from "../hooks/useProjectApplicants";
-import { useTalentPortfolio } from "@/lib/hooks/useTalentPortfolio";
-import { talentProfilePath, talentWorkPath } from "@/lib/utils/portfolioPaths";
+import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
 import { CandidateReviewModal } from "./CandidateReviewModal";
 
 const statusLabels: Record<CandidateStatus, string> = { new: "Chờ duyệt", under_review: "Chờ duyệt", discussing: "Đã duyệt", offer: "Chờ xác nhận thỏa thuận", selected: "Đã chọn", not_selected: "Không được chọn" };
@@ -16,7 +15,6 @@ interface CardProps {
 }
 function CandidateCard({ candidate, talent, project, priority, onReview, onDecision }: CardProps) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-  const { works, previewWorks } = useTalentPortfolio(talent.id);
   const pending = matchesCandidateFilter(candidate, "pending");
   const canDecide = project.status === "published" && pending && !candidate.chatUnlocked;
   const canChat = candidate.chatUnlocked && candidate.status !== "not_selected";
@@ -38,17 +36,7 @@ function CandidateCard({ candidate, talent, project, priority, onReview, onDecis
       </div>
     </div>
 
-    <Box className="flex w-fit max-w-full items-center gap-2.5 rounded-full bg-[#f4f3f1] py-2 pl-2 pr-3.5">
-      {previewWorks.length ? <div className="flex shrink-0 items-center -space-x-2">
-        {previewWorks.map(work => <Box key={work.id} component={Link} to={talentWorkPath(talent.id, work.id)} aria-label={`Xem portfolio: ${work.title}`} title={work.title} sx={{ position: "relative", borderRadius: "50%", "&:hover, &:focus-visible": { zIndex: 1, outline: "2px solid", outlineColor: "primary.main", outlineOffset: 1 } }}>
-          <Avatar src={work.media.find(media => media.kind === "image")?.src} alt={work.title} sx={{ width: 38, height: 38, border: "2px solid white", bgcolor: "#e6e5e0", color: "text.primary", fontSize: 11 }}>{work.brand.slice(0, 2)}</Avatar>
-        </Box>)}
-      </div> : <Box className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-[#747773]"><FolderOpen size={17} aria-hidden="true" /></Box>}
-      <Link to={talentProfilePath(talent.id)} className="group flex min-h-9 min-w-0 items-center gap-2 text-xs text-[#62665f] hover:text-[#bd3d14]" aria-label={`Xem portfolio của ${talent.name}, ${works.length} tác phẩm`}>
-        <span className="whitespace-nowrap font-medium">{works.length ? `${works.length} tác phẩm` : "Xem hồ sơ"}</span>
-        <ArrowUpRight size={14} className="shrink-0 text-[#747773] group-hover:text-[#bd3d14]" aria-hidden="true" />
-      </Link>
-    </Box>
+    <TalentPortfolioPreview talentId={talent.id} talentName={talent.name} submittedWorks={candidate.submission?.portfolioWorks ?? (candidate.source === "Lời mời" ? undefined : [])} />
 
     <div className="min-w-0 border-t border-[#eeefeb] pt-4 xl:min-w-[290px] xl:border-0 xl:pt-0">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">

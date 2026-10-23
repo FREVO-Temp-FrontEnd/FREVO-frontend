@@ -7,12 +7,14 @@ import {
   Button,
   IconButton,
   keyframes,
+  Alert, Avatar, Checkbox, MenuItem, Skeleton, TextField,
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
-import { Send, RotateCcw, X, Info, Coffee, Leaf, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
+import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/util/formatters";
 import { formatMoneyInput, moneyDigits } from "@/lib/util/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
+import { useApplicationMaterials } from "../hooks/useApplicationMaterials";
 
 const dialogSlideDown = keyframes`
   from {
@@ -24,11 +26,6 @@ const dialogSlideDown = keyframes`
     transform: translateY(0) scale(1);
   }
 `;
-
-const MOCK_PORTFOLIOS = [
-  { id: "p1", icon: Coffee, label: "Đậu Specialty Coffee", sub: "Bộ nhận diện & Bao bì túi" },
-  { id: "p2", icon: Leaf, label: "Trà Mộc Thảo Mộc", sub: "Brand identity & Mockup" },
-];
 
 interface ProjectApplyDialogProps {
   isOpen: boolean;
@@ -58,18 +55,7 @@ export function ProjectApplyDialog({
   onSubmit,
 }: ProjectApplyDialogProps) {
   const [applicantType, setApplicantType] = useState<"individual" | "team">("individual");
-  const [selectedPortfolios, setSelectedPortfolios] = useState<Set<string>>(
-    new Set(["p1", "p2"])
-  );
-
-  function togglePortfolio(id: string) {
-    setSelectedPortfolios((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
+  const materials = useApplicationMaterials(applicantType, isOpen);
 
   const budgetDefault = project
     ? Math.round((project.min + project.max) / 2) * 1_000_000
@@ -245,13 +231,8 @@ export function ProjectApplyDialog({
             {/* ── 1. Tư cách ứng tuyển ── */}
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <input type="hidden" name="applicantType" value={applicantType} />
-              <input
-                type="hidden"
-                name="selectedPortfolioLabels"
-                value={MOCK_PORTFOLIOS.filter(({ id }) => selectedPortfolios.has(id))
-                  .map(({ label }) => label)
-                  .join(", ")}
-              />
+              {materials.selectedWorkIds.map(id => <input key={id} type="hidden" name="portfolioWorkIds" value={id} />)}
+              <input type="hidden" name="resumeId" value={materials.resumeId} />
 
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: "8px" }}>
                 <Typography component="label" sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c" }}>
@@ -454,95 +435,26 @@ export function ProjectApplyDialog({
                 {proposal.length} / 2000 ký tự
               </Typography>
 
-              {/* ── 3. Đính kèm portfolio ── */}
-              <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c", mt: "20px", mb: "10px" }}>
-                Tác phẩm liên quan (minh họa)
-              </Typography>
-
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
-                  gap: "10px",
-                  mb: "10px",
-                }}
-              >
-                {MOCK_PORTFOLIOS.map(({ id, icon: Icon, label, sub }) => {
-                  const active = selectedPortfolios.has(id);
-                  return (
-                    <Box
-                      key={id}
-                      component="button"
-                      type="button"
-                      onClick={() => togglePortfolio(id)}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        p: "11px 12px",
-                        borderRadius: "16px",
-                        border: "2px solid",
-                        borderColor: active ? "#ab2e00" : "#e4e2e2",
-                        bgcolor: active ? "rgba(255, 219, 209, 0.18)" : "#f9f8f7",
-                        cursor: "pointer",
-                        textAlign: "left",
-                        transition: "all 0.15s ease",
-                        position: "relative",
-                        fontFamily: "inherit",
-                        "&:hover": { bgcolor: "#f5f3f3" },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: "12px",
-                          bgcolor: active ? "#ffdbd1" : "#e9e8e7",
-                          color: active ? "#ab2e00" : "#5b4039",
-                          display: "grid",
-                          placeItems: "center",
-                          flexShrink: 0,
-                          transition: "all 0.15s ease",
-                        }}
-                      >
-                        <Icon size={20} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "1px" }}>
-                        <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#1b1c1c", wordBreak: "break-word" }}>
-                          {label}
-                        </Typography>
-                        <Typography sx={{ fontSize: 11, color: "#75655f", wordBreak: "break-word" }}>
-                          {sub}
-                        </Typography>
-                      </Box>
-                      {active && (
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            width: 18,
-                            height: 18,
-                            borderRadius: "4px",
-                            bgcolor: "#ab2e00",
-                            color: "#fff",
-                            fontSize: 10,
-                            fontWeight: 900,
-                            display: "grid",
-                            placeItems: "center",
-                          }}
-                        >
-                          ✓
-                        </Box>
-                      )}
-                    </Box>
-                  );
-                })}
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mt: 3, mb: 1 }}>Tác phẩm gửi kèm ({materials.selectedWorkIds.length})</Typography>
+              <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1.5 }}>Chọn một hoặc nhiều dự án bạn muốn doanh nghiệp xem trong đơn này.</Typography>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>
+                {materials.works.map(work => <Box key={work.id} component="label" sx={{ display: "flex", gap: 1, alignItems: "center", minWidth: 0, p: 1.25, border: "1px solid", borderColor: materials.selectedWorkIds.includes(work.id) ? "primary.main" : "divider", bgcolor: materials.selectedWorkIds.includes(work.id) ? "#fff0e9" : "background.paper", borderRadius: 2, cursor: "pointer" }}>
+                  <Checkbox size="small" checked={materials.selectedWorkIds.includes(work.id)} onChange={() => materials.toggleWork(work.id)} sx={{ p: 0.5 }} slotProps={{ input: { "aria-label": `Gửi kèm ${work.title}` } }} />
+                  <Avatar variant="rounded" src={work.media.find(media => media.kind === "image")?.src} alt="" sx={{ width: 36, height: 36, bgcolor: "background.default", fontSize: 12, color: "text.secondary" }}>{work.brand.slice(0, 2)}</Avatar>
+                  <div className="min-w-0"><Typography sx={{ fontSize: 12, fontWeight: 600, lineHeight: 1.5 }}>{work.title}</Typography><Typography sx={{ fontSize: 11, color: "text.secondary" }}>{work.category}</Typography></div>
+                </Box>)}
               </Box>
-
-              <Typography sx={{ m: "0 0 12px", color: "#75655f", fontSize: 11, lineHeight: 1.5 }}>
-                Tác phẩm đã chọn được ghi trong thư đề xuất; liên kết portfolio bên dưới là thông tin được gửi đi.
-              </Typography>
+              {!materials.loading && !materials.error && !materials.works.length && <Alert severity="info" sx={{ mt: 1 }}>Chưa có tác phẩm công khai. Bạn có thể gửi liên kết portfolio bên dưới.</Alert>}
+              <Box sx={{ mt: 3, p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+                <Typography sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />CV gửi kèm</Typography>
+                {materials.loading ? <Skeleton variant="rectangular" height={44} sx={{ borderRadius: 1.5 }} /> : materials.error ? <Alert severity="error" action={<Button onClick={materials.reload}>Thử lại</Button>}>{materials.error}</Alert> : <>
+                  <TextField select fullWidth size="small" label="Chọn một CV" value={materials.resumeId} onChange={event => materials.setResumeId(event.target.value)} sx={{ "& .MuiSelect-select": { fontSize: 12 } }}>
+                    <MenuItem value="" sx={{ fontSize: 12 }}>{materials.primaryResume ? `CV mặc định: ${materials.primaryResume.name}` : "Chưa có CV mặc định"}</MenuItem>
+                    {materials.resumes.map(resume => <MenuItem key={resume.id} value={resume.id} sx={{ fontSize: 12 }}>{resume.name}</MenuItem>)}
+                  </TextField>
+                  <Typography sx={{ mt: 1, fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>{materials.primaryResume ? "Không chọn CV khác sẽ gửi CV mặc định. Mỗi đơn chỉ gửi một CV." : "Bạn chưa có CV. Đơn vẫn có thể gửi với portfolio và lời giới thiệu."}</Typography>
+                </>}
+              </Box>
 
               {/* Portfolio link */}
               <Typography
@@ -550,7 +462,7 @@ export function ProjectApplyDialog({
                 htmlFor="portfolio"
                 sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c", mt: "12px", mb: "8px", display: "block" }}
               >
-                Liên kết portfolio <span style={{ color: "#ab2e00" }}>*</span>
+                Liên kết portfolio bổ sung
               </Typography>
 
               <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -574,7 +486,7 @@ export function ProjectApplyDialog({
                   value={portfolio}
                   onChange={(e) => setPortfolio(e.target.value)}
                   placeholder="https://behance.net/ten-ban"
-                  required
+                  required={materials.selectedWorkIds.length === 0}
                   sx={{
                     width: "100%",
                     height: "40px",
@@ -780,7 +692,7 @@ export function ProjectApplyDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || materials.loading || !!materials.error}
               sx={{
                 height: 42,
                 px: "22px",

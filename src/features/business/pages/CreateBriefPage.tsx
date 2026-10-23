@@ -71,7 +71,6 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
         </Typography>
       </div>
 
-      <ol aria-label="Tiến trình tạo dự án" className="mb-6 flex list-none flex-wrap items-center gap-3 p-0 text-sm"><li aria-current={!isPreview ? "step" : undefined} className={`flex items-center gap-2 ${!isPreview ? "font-semibold text-[#bd3d14]" : "text-[#747773]"}`}><span className={`grid size-7 place-items-center rounded-full ${!isPreview ? "bg-[#fff0e9]" : "bg-[#e8f7ef] text-[#16805b]"}`}>{isPreview ? <Check size={14} /> : "1"}</span>Nội dung brief</li><li aria-hidden="true" className="h-px w-8 bg-[#e4e6e2]" /><li aria-current={isPreview ? "step" : undefined} className={`flex items-center gap-2 ${isPreview ? "font-semibold text-[#bd3d14]" : "text-[#747773]"}`}><span className={`grid size-7 place-items-center rounded-full ${isPreview ? "bg-[#fff0e9]" : "bg-[#eeefeb]"}`}>2</span>Xem trước và công bố</li></ol>
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_290px]">
         <div className="min-w-0 space-y-5">
           {isPreview ? (
