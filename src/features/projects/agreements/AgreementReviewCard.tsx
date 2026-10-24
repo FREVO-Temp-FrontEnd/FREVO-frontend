@@ -34,6 +34,12 @@ interface AgreementReviewCardProps {
   onRequestRevision: () => void;
 }
 
+type ReviewMilestone = AgreementProposal["milestones"][number] & {
+  title?: string;
+  description?: string;
+  maxRevisions?: number;
+};
+
 export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
   agreement,
   project,
@@ -214,13 +220,13 @@ export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {agreement.milestones.map((m, idx) => (
+              {agreement.milestones.map((m: ReviewMilestone, idx) => (
                 <TableRow key={m.id}>
                   <TableCell sx={{ fontWeight: 600, fontSize: "13px" }}>
-                    {idx + 1}. {m.name || (m as any).title || `Giai đoạn ${idx + 1}`}
+                    {idx + 1}. {m.name || m.title || `Giai đoạn ${idx + 1}`}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px", color: "#475569" }}>
-                    {m.deliverable || (m as any).description || "Sản phẩm theo mô tả thỏa thuận"}
+                    {m.deliverable || m.description || "Sản phẩm theo mô tả thỏa thuận"}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                     {m.deadline}
@@ -229,7 +235,7 @@ export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
                     {m.amount}
                   </TableCell>
                   <TableCell sx={{ fontSize: "13px" }}>
-                    {m.revisionAllowance?.allowed ?? (m as any).maxRevisions ?? 2} lượt
+                    {m.revisionAllowance?.allowed ?? m.maxRevisions ?? 2} lượt
                   </TableCell>
                 </TableRow>
               ))}

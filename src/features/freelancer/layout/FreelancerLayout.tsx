@@ -42,6 +42,18 @@ export default function FreelancerLayout() {
     return <Navigate to={`/business/messages?${inboxParams.toString()}`} replace />;
   }
 
+  const legacyAgreementMatch = currentPath.match(/^\/projects\/([^/]+)\/agreement$/);
+  if ((role === "client" || role === "admin") && legacyAgreementMatch) {
+    const projectId = legacyAgreementMatch[1];
+    return <Navigate to={`/business/projects/${projectId}/agreement${location.search}`} replace />;
+  }
+
+  const legacyWorkspaceMatch = currentPath.match(/^\/workspace\/([^/]+)$/);
+  if ((role === "client" || role === "admin") && legacyWorkspaceMatch) {
+    const projectId = legacyWorkspaceMatch[1];
+    return <Navigate to={`/business/projects/${projectId}/progress${location.search}`} replace />;
+  }
+
   return (
     <ThemeProvider theme={freelancerTheme}>
       <Box sx={{ display: "contents", "--line": freelancerTheme.palette.divider }}>

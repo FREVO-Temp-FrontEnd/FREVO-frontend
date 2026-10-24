@@ -25,8 +25,8 @@ import "@/features/business/business.css";
 const navItems = [
   { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
-  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
   { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
+  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
 ];
 
 function isCurrentNavItem(href: string, pathname: string) {
@@ -233,12 +233,6 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               transformOrigin={{ vertical: "top", horizontal: "right" }}
               slotProps={{ paper: { sx: { mt: 1, minWidth: 180, border: "1px solid #e4e6e2", borderRadius: 2, boxShadow: "0 12px 30px rgba(32,32,31,.12)" } } }}
             >
-              <MenuItem onClick={() => { setAccountMenuAnchor(null); navigate("/business/profile"); }} sx={{ gap: 1.5, py: 1.25, fontSize: 14 }}>
-                <UserRound size={17} aria-hidden="true" /> Hồ sơ doanh nghiệp
-              </MenuItem>
-              <MenuItem onClick={() => { setAccountMenuAnchor(null); navigate("/business/settings"); }} sx={{ gap: 1.5, py: 1.25, fontSize: 14 }}>
-                <Settings2 size={17} aria-hidden="true" /> Cài đặt
-              </MenuItem>
               <MenuItem
                 onClick={() => {
                   setAccountMenuAnchor(null);

@@ -30,7 +30,7 @@ export function ProjectBreadcrumbs({ items }: ProjectBreadcrumbsProps) {
             to={item.to}
             underline="hover"
             sx={{
-              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontFamily: "inherit",
               fontSize: 13,
               lineHeight: 1.5,
               "&&": { color: "text.secondary" },
@@ -46,7 +46,7 @@ export function ProjectBreadcrumbs({ items }: ProjectBreadcrumbsProps) {
             aria-current={index === items.length - 1 ? "page" : undefined}
             sx={{
               color: index === items.length - 1 ? "text.primary" : "text.secondary",
-              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontFamily: "inherit",
               fontSize: 13,
               fontWeight: index === items.length - 1 ? 600 : 400,
               lineHeight: 1.5,
