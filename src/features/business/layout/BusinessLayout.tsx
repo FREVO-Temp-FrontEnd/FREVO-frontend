@@ -25,8 +25,8 @@ import "@/features/business/business.css";
 const navItems = [
   { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
-  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
   { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
+  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
 ];
 
 function isCurrentNavItem(href: string, pathname: string) {

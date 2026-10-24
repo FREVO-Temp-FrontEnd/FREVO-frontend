@@ -27,6 +27,12 @@ import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { mockStorage } from "@/lib/storage/mockStorage";
 
 export const DemoController: React.FC = () => {
+  const navigate = useNavigate();
+  const { role, actingIdentity, switchRole, switchActingIdentity } = useAuthSession();
+
+  const [expanded, setExpanded] = useState(false);
+  const [resetToast, setResetToast] = useState(false);
+
   const isEnabled =
     typeof window !== "undefined" &&
     (localStorage.getItem("frevo_show_demo_controller") === "true" ||
@@ -35,12 +41,6 @@ export const DemoController: React.FC = () => {
   if (!isEnabled) {
     return null;
   }
-
-  const navigate = useNavigate();
-  const { role, actingIdentity, switchRole, switchActingIdentity } = useAuthSession();
-
-  const [expanded, setExpanded] = useState(false);
-  const [resetToast, setResetToast] = useState(false);
 
   const handleSwitchIdentity = (
     targetRole: "client" | "freelancer" | "admin" | "guest",

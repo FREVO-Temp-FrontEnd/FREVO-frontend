@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router";
+import { useParams, useSearchParams, useNavigate, useLocation } from "react-router";
 import {
   Box,
   Container,
@@ -18,7 +18,15 @@ import { SelectionClosedBanner } from "./SelectionClosedBanner";
 import { AgreementExpiredState } from "./AgreementExpiredState";
 
 export const ProjectAgreementPage: React.FC = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+  const location = useLocation();
+  const parts = location.pathname.split("/").filter(Boolean);
+  const pathProjectId = parts[1] === "projects"
+    ? parts[2]
+    : parts[0] === "projects" || parts[0] === "workspace"
+    ? parts[1]
+    : undefined;
+  const projectId = routeProjectId ?? pathProjectId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -58,7 +66,7 @@ export const ProjectAgreementPage: React.FC = () => {
         <Typography variant="h6" color="text.secondary">
           Không tìm thấy dự án tương ứng.
         </Typography>
-        <Button onClick={() => navigate("/business/projects")} sx={{ mt: 2, color: "#f4490b" }}>
+        <Button onClick={() => navigate(isBusiness ? "/business/projects" : "/freelancer/applications")} sx={{ mt: 2, color: "#f4490b" }}>
           Quay lại danh sách dự án
         </Button>
       </Container>

@@ -92,7 +92,7 @@ export function BusinessDashboardPage() {
                 <Avatar variant="rounded" src={project.heroImage} alt="" sx={{ width: 52, height: 52, borderRadius: 2.5, bgcolor: "#f2f3f0", color: "text.secondary", flexShrink: 0 }}><BriefcaseBusiness size={22} aria-hidden="true" /></Avatar>
                 <div className="min-w-0 flex-1">
                   <Typography sx={{ fontSize: 11, color: "text.secondary", mb: 0.5 }}>{project.category}</Typography>
-                  <Typography component="h3" sx={{ fontSize: 15, fontWeight: 700, lineHeight: 1.5, "& a:hover": { color: "primary.dark" }, overflowWrap: "anywhere" }}><Link to={`/business/projects/${project.id}/brief`}>{project.title}</Link></Typography>
+                  <Typography component="h3" sx={{ fontSize: 15, fontWeight: 700, lineHeight: 1.5, "& a:hover": { color: "primary.dark" }, overflowWrap: "anywhere" }}><Link to={`/business/projects/${project.id}`}>{project.title}</Link></Typography>
                   <Typography sx={{ mt: 0.75, fontSize: 12, color: "text.secondary" }}>{project.budget} <Box component="span" sx={{ mx: 0.5 }} aria-hidden="true">·</Box> Hạn tuyển {project.applicationDeadline || "Chưa đặt"}</Typography>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export function BusinessDashboardPage() {
             <Chip label="Tiến độ mô phỏng" size="small" sx={{ mx: 2.5, mb: 1, height: 22, fontSize: 10, bgcolor: "#f2f3f0", color: "text.secondary" }} />
             {dashboard.upcomingMilestones.length ? dashboard.upcomingMilestones.map(({ project, milestone }) => {
               const [day, month] = milestone.deadline.split("/");
-              return <Box component={Link} key={`${project.id}:${milestone.id}`} to={`/workspace/${project.id}`} sx={{ ...rowLinkSx, display: "flex", alignItems: "flex-start", gap: 1.5, px: 2.5, py: 2, borderBottom: "1px solid", borderColor: "divider", "&:last-child": { borderBottom: 0 } }}>
+              return <Box component={Link} key={`${project.id}:${milestone.id}`} to={`/business/projects/${project.id}/progress`} sx={{ ...rowLinkSx, display: "flex", alignItems: "flex-start", gap: 1.5, px: 2.5, py: 2, borderBottom: "1px solid", borderColor: "divider", "&:last-child": { borderBottom: 0 } }}>
                 <Box sx={{ width: 46, flexShrink: 0, bgcolor: "#f7f8f6", border: "1px solid", borderColor: "divider", borderRadius: "12px", py: 0.75, textAlign: "center" }}><Typography sx={{ fontSize: 9, color: "text.secondary" }}>{month ? `Tháng ${month}` : "Chưa đặt"}</Typography><Typography sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.4 }}>{day || "—"}</Typography></Box>
                 <div className="min-w-0"><Typography sx={{ fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>{milestone.name}</Typography><Typography sx={{ mt: 0.5, fontSize: 11, color: "text.secondary", overflowWrap: "anywhere" }}>{project.title}</Typography><Typography sx={{ mt: 0.75, fontSize: 10, fontWeight: 600, color: milestone.status === "submitted" ? "primary.dark" : "#176c9a" }}>{milestone.status === "submitted" ? "Chờ duyệt bàn giao" : milestone.status === "in_progress" ? "Đang thực hiện" : "Chưa bắt đầu"}</Typography></div>
               </Box>;
@@ -137,7 +137,7 @@ export function BusinessDashboardPage() {
 
           {dashboard.pendingAgreements.length > 0 && <Paper variant="outlined" component="section" aria-labelledby="dashboard-agreements-title" sx={panelSx}>
             <Typography id="dashboard-agreements-title" component="h2" sx={{ ...sectionTitleSx, px: 2.5, pt: 2.5, pb: 1 }}>Chờ xác nhận thỏa thuận</Typography>
-            {dashboard.pendingAgreements.map(({ agreement, project }) => <Box component={Link} key={agreement.id || `${agreement.projectId}:${agreement.talentId}:${agreement.version}`} to={`/projects/${agreement.projectId}/agreement?talent=${agreement.talentId}`} sx={{ ...rowLinkSx, display: "flex", alignItems: "center", gap: 1.5, p: 2.5 }}><Clock3 size={18} className="shrink-0 text-[#747773]" aria-hidden="true" /><Typography sx={{ flex: 1, minWidth: 0, fontSize: 13 }}>{project.title}</Typography><ArrowRight size={15} className="shrink-0" aria-hidden="true" /></Box>)}
+            {dashboard.pendingAgreements.map(({ agreement, project }) => <Box component={Link} key={agreement.id || `${agreement.projectId}:${agreement.talentId}:${agreement.version}`} to={`/business/projects/${agreement.projectId}/agreement?talent=${agreement.talentId}`} sx={{ ...rowLinkSx, display: "flex", alignItems: "center", gap: 1.5, p: 2.5 }}><Clock3 size={18} className="shrink-0 text-[#747773]" aria-hidden="true" /><Typography sx={{ flex: 1, minWidth: 0, fontSize: 13 }}>{project.title}</Typography><ArrowRight size={15} className="shrink-0" aria-hidden="true" /></Box>)}
           </Paper>}
         </aside>
       </div>

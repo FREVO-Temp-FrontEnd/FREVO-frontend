@@ -33,14 +33,14 @@ function ProjectRow({ project, candidateCount, pendingCount, executorName }: Pro
   const status = statuses[project.status];
   const Icon = status.icon;
   const detailPath = `/business/projects/${project.id}`;
-  const target = isDraft ? `${detailPath}/edit` : inProgress ? `/workspace/${project.id}` : detailPath;
+  const target = isDraft ? `${detailPath}/edit` : inProgress ? `${detailPath}/progress` : detailPath;
   const deadline = recruiting ? project.applicationDeadline || project.deadline : project.deadline;
   return <Box component="article" className="grid min-w-0 gap-5 border-b border-[#e4e6e2] px-4 py-5 last:border-b-0 sm:px-6 xl:grid-cols-[minmax(220px,1fr)_130px_175px_170px] xl:items-center xl:gap-5" sx={{ transition: "background-color 150ms ease", "&:hover": { bgcolor: "#fafbf9" }, "@media (prefers-reduced-motion: reduce)": { transition: "none" } }}>
     <div className="flex min-w-0 items-start gap-3.5">
       <Avatar variant="rounded" src={project.heroImage} alt={project.title} sx={{ mt: 0.5, width: 44, height: 44, borderRadius: 2, bgcolor: status.background, color: status.color }}><Icon size={21} strokeWidth={1.7} aria-hidden="true" /></Avatar>
       <div className="min-w-0">
         <div className="mb-2 flex flex-wrap items-center gap-2"><Chip label={status.label} size="small" sx={{ height: 23, bgcolor: status.background, color: status.color, fontSize: 11, fontWeight: 600 }} /><span className="text-xs text-[#747773]">{project.category}</span></div>
-        <Typography component="h2" sx={{ fontSize: { xs: 17, sm: 18 }, fontWeight: 700, lineHeight: 1.4, overflowWrap: "anywhere", "& a:hover": { color: "primary.dark" } }}><Link to={`${detailPath}/brief`}>{project.title}</Link></Typography>
+        <Typography component="h2" sx={{ fontSize: { xs: 17, sm: 18 }, fontWeight: 700, lineHeight: 1.4, overflowWrap: "anywhere", "& a:hover": { color: "primary.dark" } }}><Link to={isDraft ? `${detailPath}/edit` : detailPath}>{project.title}</Link></Typography>
         <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs leading-5 text-[#747773]"><CalendarDays size={13} aria-hidden="true" /><span>{recruiting ? "Nhận hồ sơ đến" : isDraft ? "Dự kiến hoàn thành" : "Hạn hoàn thành"}</span><span className="font-medium text-[#62665f]">{deadline || "Chưa đặt"}</span></p>
       </div>
     </div>

@@ -208,7 +208,10 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       "&:hover": { bgcolor: "#bd3d14" },
                       textTransform: "none",
                       fontWeight: 600,
-                      borderRadius: "8px",
+                      borderRadius: "999px",
+                      px: 2,
+                      color: "#ffffff !important",
+                      "& *": { color: "#ffffff !important" },
                     }}
                   >
                     Nộp bàn giao
@@ -226,7 +229,10 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
                       "&:hover": { bgcolor: "#047857" },
                       textTransform: "none",
                       fontWeight: 600,
-                      borderRadius: "8px",
+                      borderRadius: "999px",
+                      px: 2,
+                      color: "#ffffff !important",
+                      "& *": { color: "#ffffff !important" },
                     }}
                   >
                     Nghiệm thu mốc

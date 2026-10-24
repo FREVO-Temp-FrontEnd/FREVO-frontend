@@ -18,6 +18,8 @@ import { CreateBriefPage } from "./pages/CreateBriefPage";
 import { BusinessProjectDetailPage } from "./pages/BusinessProjectDetailPage";
 import { BusinessInboxPage } from "./pages/BusinessInboxPage";
 import { useBusinessNotifications } from "./hooks/useBusinessNotifications";
+import { ProjectAgreementPage } from "@/features/projects/agreements/ProjectAgreementPage";
+import { WorkspaceOverviewPage } from "@/features/workspace/pages/WorkspaceOverviewPage";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import "./business.css";
 
@@ -53,8 +55,6 @@ function TalentAvatar({ talent, size = "md" }: { talent: Talent; size?: "sm" | "
   return <span className={`fb-avatar fb-avatar-${size}`} style={{ background: talent.color }} aria-hidden="true">{talent.initials}</span>;
 }
 
-
-
 export default function BusinessPrototype() {
   const location = useLocation();
   const [state, setState] = useState<BusinessState>(loadState);
@@ -86,7 +86,7 @@ export default function BusinessPrototype() {
     content = <MyProjectsPage />;
   } else if (parts[1] === "projects" && (projectId === "new" || section === "edit")) {
     content = <CreateBriefPage />;
-  } else if (parts[1] === "projects" && projectId && (!section || section === "suggestions" || section === "invitations" || section === "applicants" || section === "executor")) {
+  } else if (parts[1] === "projects" && projectId && (!section || section === "suggestions" || section === "invitations" || section === "applicants" || section === "executor" || section === "brief")) {
     content = <BusinessProjectDetailPage />;
   } else if (parts[1] === "projects" && projectId && section === "messages") {
     const talentId = new URLSearchParams(location.search).get("talent");
@@ -97,9 +97,9 @@ export default function BusinessPrototype() {
     }
     content = <Navigate to={`/business/messages?${inboxParams.toString()}`} replace />;
   } else if (parts[1] === "projects" && projectId && (section === "agreement" || section === "propose")) {
-    content = <Navigate to={`/projects/${projectId}/agreement`} replace />;
+    content = <ProjectAgreementPage />;
   } else if (parts[1] === "projects" && projectId && section === "progress") {
-    content = <Navigate to={`/workspace/${projectId}`} replace />;
+    content = <WorkspaceOverviewPage />;
   } else if (parts[1] === "projects" && projectId) {
     content = <BusinessProjectDetailPage />;
   }
@@ -114,10 +114,6 @@ export default function BusinessPrototype() {
   return <BusinessLayout>{content}{toast && <div className="fb-toast" role="status"><Check size={18} />{toast}<button type="button" aria-label="Đóng thông báo" onClick={() => setToast("")}>✕</button></div>}</BusinessLayout>;
 }
 
-
-
-
-
 function TalentProfile({ state, talentId, projectId, onInvite }: { state: BusinessState; talentId: string; projectId: string; onInvite: (projectId: string, talentId: string) => void }) {
   const talent = talentFor(talentId);
   const project = projectFor(state, projectId);
@@ -127,8 +123,6 @@ function TalentProfile({ state, talentId, projectId, onInvite }: { state: Busine
   if (project?.status === "ongoing" && candidate?.status !== "selected") return <Navigate to={projectPath(project.id, "executor")} replace />;
   return <><ProjectBreadcrumbs items={project ? [{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title, to: projectPath(project.id, project.status === "ongoing" ? "executor" : candidate ? "applicants" : "suggestions") }, { label: talent.name }] : [{ label: "Dự án của tôi", to: "/business/projects" }, { label: talent.name }]} /><div className="fb-profile-hero"><div className="fb-profile-identity"><TalentAvatar talent={talent} size="lg" /><div><Badge>{talent.kind}</Badge><h1>{talent.name}</h1><p>{talent.role} · {talent.location}</p></div></div><div>{candidate && project?.status === "ongoing" && candidate.status !== "selected" ? <Badge>Không được chọn</Badge> : candidate ? <Link className="fb-button fb-button-primary" to={`/business/messages?view=project&scope=${projectId}&project=${projectId}&talent=${talent.id}`}><MessageCircle size={18} /> Mở chat</Link> : <button className="fb-button fb-button-primary" type="button" disabled={!!invitation || project?.status !== "published"} onClick={() => onInvite(projectId, talent.id)}>{invitation ? "Đã gửi lời mời" : "Mời tham gia dự án"} <ArrowRight size={17} /></button>}</div></div><div className="fb-profile-grid"><div><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">GIỚI THIỆU</span><h2>Về {talent.kind === "Team" ? "team" : "freelancer"}</h2><p>{talent.about}</p><div className="fb-profile-facts"><span><Clock3 size={17} /> {talent.availability}</span><span><BriefcaseBusiness size={17} /> {talent.rate}</span></div></section><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">PORTFOLIO</span><h2>Dự án tiêu biểu</h2><div className="fb-portfolio-grid">{talent.portfolio.map(work => <article key={work.title}><div className="fb-portfolio-cover" style={{ background: work.color }}><span>{work.title.slice(0, 1)}</span></div><h3>{work.title}</h3><p>{work.category}</p></article>)}</div></section></div><aside><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">ĐỐI CHIẾU BRIEF</span><h2>Vì sao được gợi ý</h2><div className="fb-fit fb-profile-fit">{talent.fit.map(item => <div key={item}><Check size={16} /> {item}</div>)}</div><h3>Kỹ năng</h3><div className="fb-chips">{talent.skills.map(skill => <span key={skill}>{skill}</span>)}</div></section>{candidate && <section className="fb-panel fb-profile-section"><span className="fb-eyebrow">ĐỀ XUẤT ỨNG TUYỂN</span><h2>Lời giới thiệu</h2><p>{candidate.proposal}</p><Badge tone={candidate.status === "selected" ? "green" : "neutral"}>{candidate.status === "selected" ? "Đã được chọn" : candidate.status === "not_selected" ? "Không được chọn" : "Có thể trao đổi ngay"}</Badge></section>}</aside></div></>;
 }
-
-
 
 function NotificationsPage() {
   const { notifications, markRead, markAllRead } = useBusinessNotifications();
