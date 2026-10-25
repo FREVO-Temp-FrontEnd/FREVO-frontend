@@ -140,7 +140,6 @@ export const WorkspaceOverviewPage: React.FC = () => {
   return (
     <Box
       sx={(theme) => ({
-        zoom: 0.9,
         fontFamily: theme.typography.fontFamily,
         "&& .MuiBreadcrumbs-li > *": {
           fontFamily: theme.typography.fontFamily,
