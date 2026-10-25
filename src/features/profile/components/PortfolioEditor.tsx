@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import {
+  Alert,
   Box,
   Dialog,
   DialogTitle,
@@ -161,6 +162,7 @@ export function PortfolioEditor({
   return (
     <Dialog
       open
+      aria-labelledby="portfolio-editor-title"
       onClose={onClose}
       slotProps={{
         paper: {
@@ -170,7 +172,7 @@ export function PortfolioEditor({
             top: 0,
             bottom: 0,
             m: 0,
-            width: "min(620px, 100vw)",
+            width: "min(680px, 100vw)",
             maxWidth: "none",
             height: "100dvh",
             maxHeight: "none",
@@ -200,19 +202,8 @@ export function PortfolioEditor({
         }}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Typography
-            component="span"
-            sx={{
-              display: "block",
-              fontSize: "11px",
-              fontWeight: 700,
-              color: "var(--orange-dark, #bd3d14)",
-              mb: "8px",
-            }}
-          >
-            FREVO Portfolio Studio
-          </Typography>
           <DialogTitle
+            id="portfolio-editor-title"
             sx={{
               p: 0,
               fontFamily: "Archivo, Arial, sans-serif",
@@ -220,22 +211,20 @@ export function PortfolioEditor({
               lineHeight: 1.2,
               letterSpacing: "-.04em",
               fontWeight: 800,
-              "& > span": { color: "var(--orange, #f4490b)" },
             }}
           >
             {work ? "Chỉnh sửa dự án" : "Thêm dự án mới"}
-            <span>.</span>
           </DialogTitle>
           <Typography
             sx={{
-              fontSize: "12px",
+              fontSize: "14px",
               lineHeight: 1.5,
               mt: "9px",
               color: "#686d65",
               overflowWrap: "anywhere",
             }}
           >
-            {work?.title ?? "Kể câu chuyện đằng sau tác phẩm của bạn."}
+            {work ? `Cập nhật nội dung của ${work.title}.` : "Thêm thông tin và hình ảnh để giới thiệu dự án."}
           </Typography>
         </Box>
         <IconButton
@@ -271,7 +260,7 @@ export function PortfolioEditor({
             p: { xs: "22px 18px", sm: "26px 28px" },
             display: "flex",
             flexDirection: "column",
-            gap: "25px",
+            gap: "24px",
             scrollbarWidth: "thin",
             "& .studio-field": {
               display: "flex",
@@ -280,7 +269,7 @@ export function PortfolioEditor({
               minWidth: 0,
               "& > label": {
                 fontFamily: '"Space Grotesk", Arial, sans-serif',
-                fontSize: "13px",
+                fontSize: "14px",
                 fontWeight: 600,
                 lineHeight: 1.5,
                 display: "flex",
@@ -289,7 +278,7 @@ export function PortfolioEditor({
                 "& b": { color: "var(--orange-dark, #bd3d14)" },
                 "& > span": {
                   ml: "auto",
-                  fontSize: "11px",
+                  fontSize: "12px",
                   fontWeight: 400,
                   color: "#747773",
                 },
@@ -298,12 +287,12 @@ export function PortfolioEditor({
                 width: "100%",
                 minWidth: 0,
                 height: "44px",
-                bgcolor: "#f4f5f2",
-                border: "1px solid transparent",
+                bgcolor: "background.paper",
+                border: "1px solid #777a75",
                 borderRadius: "10px",
                 p: "10px 13px",
                 color: "var(--ink, #20201f)",
-                fontSize: "13px",
+                fontSize: "14px",
                 boxShadow: "none",
                 transition: "background .15s, border-color .15s",
                 "&:focus-visible": {
@@ -322,6 +311,7 @@ export function PortfolioEditor({
             },
           }}
         >
+          {error && <Alert severity="error" role="alert" onClose={() => setError("")}>{error}</Alert>}
           <div className="studio-field">
             <label htmlFor="studio-title">
               Tiêu đề dự án <b>*</b>
@@ -358,7 +348,7 @@ export function PortfolioEditor({
               },
               "& input:not([type=radio])": {
                 bgcolor: "#fff !important",
-                borderColor: "var(--line, #e4e6e2) !important",
+                borderColor: "#777a75 !important",
               },
             }}
           >
@@ -374,7 +364,7 @@ export function PortfolioEditor({
                   display: "flex",
                   alignItems: "center",
                   gap: "7px",
-                  fontSize: "12px",
+                  fontSize: "14px",
                   cursor: "pointer",
                 },
                 "& input": {
@@ -489,8 +479,8 @@ export function PortfolioEditor({
                   "& b": { color: "var(--orange-dark, #bd3d14)" },
                 },
                 "& span": {
-                  color: "#747773",
-                  fontSize: "11px",
+                  color: "text.secondary",
+                  fontSize: "12px",
                   whiteSpace: "nowrap",
                 },
               }}
@@ -520,7 +510,7 @@ export function PortfolioEditor({
                     sx={{
                       position: "relative",
                       minWidth: 0,
-                      height: "115px",
+                      height: "130px",
                       overflow: "hidden",
                       bgcolor: "var(--bg, #f7f8f6)",
                       borderRadius: "9px",
@@ -550,8 +540,8 @@ export function PortfolioEditor({
                         position: "absolute",
                         top: "6px",
                         right: "6px",
-                        width: "25px",
-                        height: "25px",
+                        width: "36px",
+                        height: "36px",
                         display: "grid",
                         placeItems: "center",
                         background: "#fff",
@@ -562,7 +552,7 @@ export function PortfolioEditor({
                         cursor: "pointer",
                       }}
                     >
-                      <X size={14} />
+                      <X size={17} />
                     </button>
                     {item.kind === "image" && (
                       <button
@@ -578,12 +568,13 @@ export function PortfolioEditor({
                           left: "6px",
                           bottom: "6px",
                           maxWidth: "calc(100% - 12px)",
-                          padding: "4px 7px",
-                          background: isCover ? "var(--orange, #f4490b)" : "white",
-                          color: "var(--ink, #20201f)",
+                          minHeight: "36px",
+                          padding: "7px 10px",
+                          background: isCover ? "var(--orange-dark, #bd3d14)" : "white",
+                          color: isCover ? "white" : "var(--ink, #20201f)",
                           border: 0,
                           borderRadius: "99px",
-                          fontSize: "9px",
+                          fontSize: "12px",
                           fontWeight: 600,
                           cursor: "pointer",
                         }}
@@ -598,7 +589,7 @@ export function PortfolioEditor({
 
             <input
               ref={upload}
-              style={{ display: "none" }}
+              style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
               type="file"
               id="studio-upload"
               accept="image/png,image/jpeg,video/mp4"
@@ -623,8 +614,8 @@ export function PortfolioEditor({
                 bgcolor: "var(--bg, #f7f8f6)",
                 border: "1px dashed #c7ccc3",
                 borderRadius: "10px",
-                color: "#626b5d",
-                fontSize: "12px",
+                color: "text.primary",
+                fontSize: "14px",
                 textTransform: "none",
                 "&:hover": {
                   bgcolor: "var(--peach, #fff0e9)",
@@ -632,7 +623,7 @@ export function PortfolioEditor({
                   borderColor: "var(--orange, #f4490b)",
                 },
                 "& small": {
-                  fontSize: "10px",
+                  fontSize: "12px",
                   fontWeight: 400,
                   width: { xs: "100%", sm: "auto" },
                 },
@@ -802,8 +793,8 @@ export function PortfolioEditor({
 
           <Typography
             sx={{
-              fontSize: "11px",
-              color: "#747773",
+              fontSize: "13px",
+              color: "text.primary",
               lineHeight: 1.6,
               p: "12px 14px",
               bgcolor: "var(--peach, #fff0e9)",
@@ -813,14 +804,6 @@ export function PortfolioEditor({
             Bản xem thử: tệp và thay đổi chỉ giữ trong phiên hiện tại, mất khi tải lại. Chế độ hiển thị chưa áp dụng quyền truy cập thật.
           </Typography>
 
-          {error && (
-            <Typography
-              role="alert"
-              sx={{ color: "error.main", fontSize: "13px" }}
-            >
-              {error}
-            </Typography>
-          )}
         </Box>
 
         <Box
@@ -837,6 +820,7 @@ export function PortfolioEditor({
             flexWrap: { xs: "wrap", sm: "nowrap" },
           }}
         >
+          {confirmDelete ? <Box role="group" aria-label="Xác nhận xóa dự án" sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, width: "100%" }}><Typography sx={{ flex: "1 1 100%", fontSize: 14, fontWeight: 700 }}>Xóa “{work?.title}” khỏi bản xem thử?</Typography><MuiButton type="button" variant="outlined" onClick={() => setConfirmDelete(false)}>Giữ lại</MuiButton><MuiButton type="button" variant="contained" color="error" onClick={() => { if (work) onDelete(work.id); }}>Xóa dự án</MuiButton></Box> : <>
           {work && (
             <MuiButton
               type="button"
@@ -847,7 +831,7 @@ export function PortfolioEditor({
                 alignItems: "center",
                 bgcolor: "transparent",
                 color: "#b42318",
-                fontSize: "12px",
+                fontSize: "14px",
                 p: "8px 12px",
                 borderRadius: "99px",
                 textTransform: "none",
@@ -875,9 +859,9 @@ export function PortfolioEditor({
                 minHeight: "42px",
                 px: { xs: "12px", sm: "18px" },
                 borderRadius: "999px",
-                borderColor: "var(--line, #e4e6e2)",
+                borderColor: "text.secondary",
                 color: "#333631",
-                fontSize: { xs: "12px", sm: "12px" },
+                fontSize: "14px",
                 fontWeight: 800,
                 textTransform: "none",
                 "&:hover": {
@@ -897,59 +881,14 @@ export function PortfolioEditor({
               sx={{
                 minHeight: "45px",
                 px: { xs: "14px", sm: "20px" },
-                fontSize: { xs: "12px", sm: "13px" },
+                fontSize: "14px",
               }}
             >
               {work ? "Lưu thay đổi" : "Thêm dự án"}
             </MuiButton>
-          </Box>
+          </Box></>}
         </Box>
       </Box>
-
-      {confirmDelete && (
-        <Box
-          role="group"
-          aria-label="Xác nhận xóa dự án"
-          sx={{
-            p: "18px 28px",
-            bgcolor: "var(--peach, #fff0e9)",
-            borderTop: "1px solid var(--line, #e4e6e2)",
-            fontSize: "13px",
-            flexShrink: 0,
-            "& p": { mb: "12px", overflowWrap: "anywhere" },
-          }}
-        >
-          <p>Xóa “{work?.title}” khỏi bản xem thử?</p>
-          <MuiButton
-            variant="outlined"
-            onClick={() => setConfirmDelete(false)}
-            sx={{
-              mr: "10px",
-              minHeight: "36px",
-              borderRadius: "999px",
-              borderColor: "var(--line, #e4e6e2)",
-              color: "#333631",
-              textTransform: "none",
-            }}
-          >
-            Giữ lại
-          </MuiButton>
-          <MuiButton
-            onClick={() => {
-              if (work) onDelete(work.id);
-            }}
-            sx={{
-              bgcolor: "#b42318",
-              color: "#fff",
-              borderRadius: "999px",
-              textTransform: "none",
-              "&:hover": { bgcolor: "#8d1c14" },
-            }}
-          >
-            Xóa dự án
-          </MuiButton>
-        </Box>
-      )}
     </Dialog>
   );
 }

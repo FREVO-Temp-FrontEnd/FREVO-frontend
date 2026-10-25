@@ -2,7 +2,6 @@ import { Link } from "react-router";
 import { Box, Typography } from "@mui/material";
 import {
   ArrowLeft,
-  LogOut,
   MapPin,
   Sparkles,
 } from "lucide-react";
@@ -23,16 +22,12 @@ interface ProfileSidebarProps {
   personal: PersonalInfo;
   initials: string;
   activeTab: string;
-  isAuthenticated: boolean;
-  onLogout: () => void;
 }
 
 export function ProfileSidebar({
   personal,
   initials,
   activeTab,
-  isAuthenticated,
-  onLogout,
 }: ProfileSidebarProps) {
   return (
     <Box
@@ -142,17 +137,6 @@ export function ProfileSidebar({
           );
         })}
 
-        {/* Logout Button */}
-        {isAuthenticated && (
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex items-center gap-2.5 px-3 py-2.5 mt-2 rounded-xl text-xs font-semibold text-[#6d726b] hover:bg-[#fff0e9] hover:text-[#bd3d14] transition-colors text-left w-full cursor-pointer"
-          >
-            <LogOut size={17} className="text-[#7a8079]" />
-            <span>Đăng xuất</span>
-          </button>
-        )}
       </Box>
 
       {/* Inspirational Quote Card */}

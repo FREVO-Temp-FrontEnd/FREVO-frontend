@@ -3,7 +3,6 @@ import {
   FolderOpen,
   Sparkles,
   UserRound,
-  Wallet,
 } from "lucide-react";
 
 export interface ProfileTabConfig {
@@ -17,5 +16,4 @@ export const PROFILE_TABS: ProfileTabConfig[] = [
   { id: "portfolio", label: "Portfolio", icon: FolderOpen },
   { id: "cv", label: "CV của tôi", icon: FileText },
   { id: "experience", label: "Kinh nghiệm & Kỹ năng", icon: Sparkles },
-  { id: "services", label: "Dịch vụ & Báo giá", icon: Wallet },
 ];

@@ -24,6 +24,10 @@ export interface UserSession {
   role: UserRole;
   avatar?: string;
   companyName?: string;
+  phone?: string;
+  contactEmail?: string;
+  address?: string;
+  accountPreferences?: { emailOnInvite: boolean; emailOnMessage: boolean; emailOnAgreement: boolean; showProfilePublicly: boolean; allowMatchingAI: boolean };
   actingIdentity?: ActingIdentity;
   rating?: number;
   completedProjects?: number;
