@@ -1,3 +1,4 @@
+import PortfolioManagerPage from "@/features/profile/pages/PortfolioManagerPage";
 import { ProjectInboxPage } from "@/app/shared/components/inbox/ProjectInboxPage";
 import { createBrowserRouter, Navigate } from "react-router";
 import App from "../layout/App";
@@ -100,6 +101,10 @@ export const router = createBrowserRouter([
             element: <ProfilePage />,
           },
           {
+            path: "profile/portfolio",
+            element: <RoleGuard allowedRoles={["freelancer"]}><PortfolioManagerPage /></RoleGuard>,
+          },
+          {
             path: "profile/portfolio/:workId",
             element: <PortfolioDetailPage />,
           },
@@ -109,7 +114,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "settings",
-            element: <AccountSettingsPage />,
+            element: <RoleGuard allowedRoles={["freelancer", "client", "admin"]}><AccountSettingsPage /></RoleGuard>,
           },
         ],
       },

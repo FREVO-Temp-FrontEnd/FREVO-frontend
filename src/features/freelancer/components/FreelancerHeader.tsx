@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { NotificationsBell } from "./NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { Box, Button, Divider, ListItemIcon, Menu as AccountMenu, MenuItem, Typography } from "@mui/material";
-import { ChevronDown, LogOut, Menu, UserRound } from "lucide-react";
+import { ChevronDown, FolderOpen, Settings, LogOut, Menu, UserRound } from "lucide-react";
 
 interface FreelancerHeaderProps {
   navigation?: ReactNode;
@@ -161,10 +161,12 @@ export function FreelancerHeader({ navigation, mobileNavOpen, onToggleMobileNav 
                 </Typography>
               </Box>
               <Divider component="li" sx={{ mx: 2, mb: 1 }} />
-              <MenuItem component={Link} to="/profile?tab=personal" onClick={() => setAccountAnchor(null)}>
+              <MenuItem component={Link} to="/profile" onClick={() => setAccountAnchor(null)}>
                 <ListItemIcon><UserRound size={18} aria-hidden="true" /></ListItemIcon>
                 Hồ sơ cá nhân
               </MenuItem>
+              {role === "freelancer" && <MenuItem component={Link} to="/profile/portfolio" onClick={() => setAccountAnchor(null)}><ListItemIcon><FolderOpen size={18} aria-hidden="true" /></ListItemIcon>Quản lý portfolio cá nhân</MenuItem>}
+              <MenuItem component={Link} to="/settings" onClick={() => setAccountAnchor(null)}><ListItemIcon><Settings size={18} aria-hidden="true" /></ListItemIcon>Cài đặt tài khoản</MenuItem>
               <Divider component="li" sx={{ mx: 2, my: 1 }} />
               <MenuItem onClick={() => { setAccountAnchor(null); logout(); navigate("/login", { replace: true, state: {} }); }}>
                 <ListItemIcon><LogOut size={18} aria-hidden="true" /></ListItemIcon>

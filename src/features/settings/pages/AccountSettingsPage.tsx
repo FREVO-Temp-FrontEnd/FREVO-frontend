@@ -1,3 +1,6 @@
+import { ProfessionalProfileSettings } from "../components/ProfessionalProfileSettings";
+import { validateContact } from "../validation";
+import { PasswordSettings } from "../components/PasswordSettings";
 import React, { useState } from "react";
 import {
   Container,
@@ -17,7 +20,7 @@ import { ArrowLeft, Save, Shield, Bell, User, Check } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 
-export const AccountSettingsPage: React.FC = () => {
+const AccountSettingsForm: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser, role } = useAuthSession();
 
@@ -25,30 +28,39 @@ export const AccountSettingsPage: React.FC = () => {
   const [email, setEmail] = useState(user?.email || "");
   const [companyName, setCompanyName] = useState(user?.companyName || "");
 
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [contactEmail, setContactEmail] = useState(user?.contactEmail || "");
+  const [address, setAddress] = useState(user?.address || "");
+  const [contactError, setContactError] = useState("");
+
   // Notification preferences (NOTIF-003 / FR-064)
-  const [emailOnInvite, setEmailOnInvite] = useState(true);
-  const [emailOnMessage, setEmailOnMessage] = useState(true);
-  const [emailOnAgreement, setEmailOnAgreement] = useState(true);
+  const [emailOnInvite, setEmailOnInvite] = useState(user?.accountPreferences?.emailOnInvite ?? true);
+  const [emailOnMessage, setEmailOnMessage] = useState(user?.accountPreferences?.emailOnMessage ?? true);
+  const [emailOnAgreement, setEmailOnAgreement] = useState(user?.accountPreferences?.emailOnAgreement ?? true);
 
   // Privacy controls (SET-002 / FR-003, NFR-05)
-  const [showProfilePublicly, setShowProfilePublicly] = useState(true);
-  const [allowMatchingAI, setAllowMatchingAI] = useState(true);
+  const [showProfilePublicly, setShowProfilePublicly] = useState(user?.accountPreferences?.showProfilePublicly ?? true);
+  const [allowMatchingAI, setAllowMatchingAI] = useState(user?.accountPreferences?.allowMatchingAI ?? true);
 
   const [savedMessage, setSavedMessage] = useState("");
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    const error = validateContact(name, email, phone, contactEmail);
+    if (error) { setContactError(error); return; }
+    setContactError("");
     updateUser({
+      phone: phone.trim(), contactEmail: contactEmail.trim(), address: address.trim(),
+      accountPreferences: { emailOnInvite, emailOnMessage, emailOnAgreement, showProfilePublicly, allowMatchingAI },
       name: name.trim(),
       email: email.trim(),
       companyName: companyName.trim() || undefined,
     });
-    setSavedMessage("Cài đặt tài khoản và quyền riêng tư đã được cập nhật thành công.");
-    setTimeout(() => setSavedMessage(""), 4000);
+    setSavedMessage("Đã lưu thông tin tài khoản trong bản demo. Thay đổi email chưa được xác minh; tùy chọn thông báo và quyền riêng tư chỉ được mô phỏng.");
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container component="main" id="main" maxWidth="lg" sx={{ py: 4, "& .MuiPaper-root": { border: "2px solid", borderColor: "text.secondary", borderRadius: "13px" }, "& .MuiButton-root": { minHeight: 44, textTransform: "none", fontWeight: 700 }, "& .MuiButton-contained": { bgcolor: "primary.dark", color: "#fff" } }}>
       <Box sx={{ mb: 3 }}>
         <Breadcrumbs aria-label="breadcrumb">
           <MuiLink
@@ -74,6 +86,7 @@ export const AccountSettingsPage: React.FC = () => {
 
       <Box sx={{ mb: 3 }}>
         <Typography
+          component="h1"
           variant="h4"
           sx={{
             fontWeight: 800,
@@ -81,13 +94,14 @@ export const AccountSettingsPage: React.FC = () => {
             color: "#1e293b",
           }}
         >
-          Cài đặt tài khoản (SET-001)
+          Cài đặt tài khoản
         </Typography>
         <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5 }}>
-          Quản lý thông tin định danh, tùy chọn thông báo và quyền riêng tư dữ liệu (FR-003, NFR-05)
+          Quản lý thông tin liên lạc, mật khẩu và tùy chọn tài khoản.
         </Typography>
       </Box>
 
+      {contactError && <Alert severity="error" sx={{ mb: 2 }}>{contactError}</Alert>}
       {savedMessage && (
         <Alert
           icon={<Check size={18} />}
@@ -116,26 +130,29 @@ export const AccountSettingsPage: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <User size={18} color="#f4490b" />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-              Thông tin hồ sơ & Định danh
+              Thông tin cá nhân & Liên lạc
             </Typography>
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
-              label="Họ và tên hiển thị *"
+              required label="Họ và tên hiển thị"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
 
             <TextField
               fullWidth
-              label="Email đăng nhập *"
+              required type="email" label="Email đăng nhập"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               helperText="Email dùng để nhận thông báo quan trọng và phục hồi mật khẩu."
             />
 
+            <TextField fullWidth label="Số điện thoại" type="tel" autoComplete="tel" value={phone} onChange={e => setPhone(e.target.value)} helperText="Thông tin liên lạc riêng, không hiển thị trên hồ sơ công khai." />
+            <TextField fullWidth label="Email liên hệ" type="email" autoComplete="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} helperText="Có thể khác email đăng nhập." />
+            <TextField fullWidth label="Địa chỉ liên hệ" autoComplete="street-address" value={address} onChange={e => setAddress(e.target.value)} multiline minRows={2} />
             {role === "client" && (
               <TextField
                 fullWidth
@@ -160,11 +177,11 @@ export const AccountSettingsPage: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Shield size={18} color="#f4490b" />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-              Quyền riêng tư & Hiển thị hồ sơ (SET-002 / FR-003, NFR-05)
+              Quyền riêng tư & Hiển thị hồ sơ
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: "#64748b", display: "block", mb: 2 }}>
-            Bảo vệ dữ liệu cá nhân theo tiêu chuẩn NFR-05 và kiểm soát khả năng tìm kiếm
+            Tùy chọn mô phỏng, chưa thay đổi khả năng hiển thị hồ sơ thực tế.
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -225,7 +242,7 @@ export const AccountSettingsPage: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Bell size={18} color="#f4490b" />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-              Tùy chọn nhận thông báo qua Email (NOTIF-003 / FR-064)
+              Tùy chọn thông báo qua email
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: "#64748b", display: "block", mb: 2 }}>
@@ -280,7 +297,8 @@ export const AccountSettingsPage: React.FC = () => {
           </Box>
         </Paper>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 2 }}>
+          <Button variant="outlined" onClick={() => { setName(user?.name || ""); setEmail(user?.email || ""); setPhone(user?.phone || ""); setContactEmail(user?.contactEmail || ""); setAddress(user?.address || ""); setCompanyName(user?.companyName || ""); setContactError(""); setSavedMessage("");setEmailOnInvite(user?.accountPreferences?.emailOnInvite ?? true); setEmailOnMessage(user?.accountPreferences?.emailOnMessage ?? true); setEmailOnAgreement(user?.accountPreferences?.emailOnAgreement ?? true); setShowProfilePublicly(user?.accountPreferences?.showProfilePublicly ?? true); setAllowMatchingAI(user?.accountPreferences?.allowMatchingAI ?? true); }}>Hủy thay đổi</Button>
           <Button
             type="submit"
             variant="contained"
@@ -299,8 +317,14 @@ export const AccountSettingsPage: React.FC = () => {
           </Button>
         </Box>
       </Box>
+      {role === "freelancer" && <ProfessionalProfileSettings />}
+      <PasswordSettings />
     </Container>
   );
 };
 
+export function AccountSettingsPage() {
+  const { user, role } = useAuthSession();
+  return <AccountSettingsForm key={`${user?.id ?? "guest"}:${role}`} />;
+}
 export default AccountSettingsPage;
