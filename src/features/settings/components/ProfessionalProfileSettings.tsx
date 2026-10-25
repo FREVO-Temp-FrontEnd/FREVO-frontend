@@ -19,8 +19,8 @@ function ProfileForm({ talent }: { talent: TalentProfile }) {
     setProfile(current => ({ ...current, name: draft.name.trim(), role: draft.role.trim(), location: draft.location.trim(), availability: draft.availability.trim(), about: draft.about.trim(), skills: [...new Set(draft.skills.split(",").map(value => value.trim()).filter(Boolean))] }));
     setSaved(true);
   }
-  return <Paper component="section" elevation={0} sx={{ p: { xs: 2, sm: 3 }, mt: 3 }}>
-    <Typography component="h2" variant="h6" sx={{ mb: 1 }}>Thông tin hồ sơ công khai</Typography>
+  return <Paper component="section" id="professional-profile" aria-labelledby="professional-profile-heading" elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, mt: 3 }}>
+    <Typography id="professional-profile-heading" component="h2" variant="h6" sx={{ mb: 1, fontWeight: 800 }}>Hồ sơ công khai</Typography>
     <Typography color="text.secondary" sx={{ mb: 2 }}>Thông tin dưới đây hiển thị trên trang cá nhân. Thông tin liên lạc và mật khẩu được quản lý riêng.</Typography>
     {saved && <Alert severity="success" sx={{ mb: 2 }} role="status">Đã cập nhật hồ sơ công khai trong bản demo.</Alert>}
     <Box component="form" onSubmit={submit} sx={{ display: "grid", gap: 2 }}>
@@ -29,7 +29,7 @@ function ProfileForm({ talent }: { talent: TalentProfile }) {
       </Box>
       <TextField label="Giới thiệu" value={draft.about} multiline minRows={3} onChange={e => { setDraft(current => ({ ...current, about: e.target.value })); setSaved(false); }} />
       <TextField label="Các kỹ năng chuyên môn" value={draft.skills} helperText="Phân cách các kỹ năng bằng dấu phẩy." onChange={e => { setDraft(current => ({ ...current, skills: e.target.value })); setSaved(false); }} />
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}><Button type="submit" variant="contained">Lưu hồ sơ công khai</Button><Button variant="outlined" onClick={() => { setDraft({ ...profile, skills: profile.skills.join(", ") }); setSaved(false); }}>Hủy thay đổi</Button></Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 1.5 }}><Button variant="outlined" onClick={() => { setDraft({ ...profile, skills: profile.skills.join(", ") }); setSaved(false); }}>Hủy thay đổi</Button><Button type="submit" variant="contained">Lưu hồ sơ công khai</Button></Box>
     </Box>
   </Paper>;
 }
