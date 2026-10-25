@@ -126,7 +126,6 @@ export function BusinessProjectDetailPage() {
 
   return (
     <Box sx={(theme) => ({
-      zoom: 0.9,
       fontFamily: theme.typography.fontFamily,
       "&& .MuiBreadcrumbs-li > *": { fontFamily: theme.typography.fontFamily },
       "&& h1": { fontFamily: theme.typography.h1.fontFamily, letterSpacing: "-0.02em" },
