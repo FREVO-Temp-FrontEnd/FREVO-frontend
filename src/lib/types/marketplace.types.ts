@@ -154,6 +154,9 @@ export interface Milestone {
   completedAt?: string;
   submissionNotes?: string;
   submissionFiles?: { name: string; url: string; size: string }[];
+  previewImage?: string;
+  previewAlt?: string;
+  acceptanceCriteria?: { id: string; title: string; description: string }[];
   revisionAllowance: RevisionAllowance;
   revisionHistory?: MilestoneRevision[];
 }

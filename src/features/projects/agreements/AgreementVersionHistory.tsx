@@ -1,15 +1,5 @@
-import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-} from "@mui/material";
-import { CheckCircle2, Clock, XCircle, History, ShieldCheck } from "lucide-react";
+import { Box, ButtonBase, Chip, Paper, Typography } from "@mui/material";
+import { CheckCircle2, ClipboardCheck, History, XCircle } from "lucide-react";
 import type { AgreementProposal } from "@/lib/types/marketplace.types";
 
 interface AgreementVersionHistoryProps {
@@ -18,124 +8,17 @@ interface AgreementVersionHistoryProps {
   onSelectVersion: (version: number) => void;
 }
 
-export const AgreementVersionHistory: React.FC<AgreementVersionHistoryProps> = ({
-  agreements,
-  selectedVersion,
-  onSelectVersion,
-}) => {
+export function AgreementVersionHistory({ agreements, selectedVersion, onSelectVersion }: AgreementVersionHistoryProps) {
   const sorted = [...agreements].sort((a, b) => b.version - a.version);
-  const effective = agreements.find((a) => a.isEffective);
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: "16px",
-        border: "1px solid #e2e8f0",
-        bgcolor: "#ffffff",
-      }}
-    >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-        <History size={18} color="#f4490b" />
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-          Lịch sử phiên bản thỏa thuận (FR-048)
-        </Typography>
-      </Box>
-
-      <Typography variant="caption" sx={{ color: "#64748b", display: "block", mb: 2 }}>
-        Theo quy tắc <strong>FR-048</strong>, phiên bản đang có hiệu lực vẫn duy trì ràng buộc nguyên vẹn trong khi hai bên đề xuất và xem xét bản điều chỉnh mới.
-      </Typography>
-
-      <List disablePadding sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-        {sorted.map((item) => {
-          const isSelected = item.version === selectedVersion;
-          return (
-            <ListItem
-              key={item.id}
-              onClick={() => onSelectVersion(item.version)}
-              sx={{
-                p: 1.5,
-                borderRadius: "8px",
-                border: isSelected ? "2px solid #f4490b" : "1px solid #e2e8f0",
-                bgcolor: isSelected ? "#fffaf7" : "#ffffff",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-                "&:hover": { bgcolor: "#f8fafc" },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                {item.status === "confirmed" ? (
-                  <CheckCircle2 size={18} color="#059669" />
-                ) : item.status === "pending" ? (
-                  <Clock size={18} color="#ea580c" />
-                ) : (
-                  <XCircle size={18} color="#dc2626" />
-                )}
-              </ListItemIcon>
-
-              <ListItemText
-                primary={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: "#1e293b" }}>
-                      Phiên bản {item.version}
-                    </Typography>
-                    {item.isEffective && (
-                      <Chip
-                        label="Đang có hiệu lực"
-                        size="small"
-                        sx={{
-                          bgcolor: "#ecfdf5",
-                          color: "#059669",
-                          fontWeight: 700,
-                          fontSize: "10px",
-                          height: 20,
-                        }}
-                      />
-                    )}
-                    <Chip
-                      label={
-                        item.status === "confirmed"
-                          ? "Đã xác nhận"
-                          : item.status === "pending"
-                          ? "Đang đề xuất"
-                          : "Đã từ chối"
-                      }
-                      size="small"
-                      sx={{ fontSize: "10px", height: 20 }}
-                    />
-                  </Box>
-                }
-                secondary={
-                  <Typography variant="caption" sx={{ color: "#64748b" }}>
-                    Ngân sách: {item.budget} · Hạn chót: {item.deadline}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          );
-        })}
-      </List>
-
-      {effective && (
-        <Box
-          sx={{
-            mt: 2.5,
-            p: 1.5,
-            borderRadius: "6px",
-            bgcolor: "#f0fdf4",
-            border: "1px solid #bbf7d0",
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <ShieldCheck size={16} color="#16a34a" style={{ flexShrink: 0 }} />
-          <Typography variant="caption" sx={{ color: "#166534" }}>
-            <strong>Bảo vệ quyền lợi:</strong> Phiên bản {effective.version} bảo đảm dự án không bị gián đoạn hay mất hiệu lực trong khi thỏa thuận phiên bản kế tiếp.
-          </Typography>
-        </Box>
-      )}
-    </Paper>
-  );
-};
+  return <Paper elevation={0} sx={{ p: 2.75, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+    <Typography component="h2" className="flex items-center gap-2" sx={{ fontFamily: "h3.fontFamily", fontSize: 15, fontWeight: 700, mb: 1 }}><History size={18} />Lịch sử phiên bản</Typography>
+    <Typography sx={{ fontSize: 11, color: "text.secondary", lineHeight: 1.8, mb: 2 }}>Theo dõi các đề xuất và nội dung đã được hai bên xác nhận.</Typography>
+    <Box className="flex flex-col gap-2">{sorted.map(item => {
+      const selected = item.version === selectedVersion;
+      const Icon = item.status === "confirmed" ? CheckCircle2 : item.status === "pending" ? ClipboardCheck : XCircle;
+      const color = item.isEffective ? "#16805b" : item.status === "pending" ? "#bd3d14" : "#747773";
+      const label = item.isEffective ? "Có hiệu lực" : item.status === "confirmed" ? "Bản đã xác nhận" : item.status === "pending" ? "Chờ xác nhận" : item.status === "expired" ? "Hết hạn" : "Đã từ chối";
+      return <ButtonBase key={item.id ?? item.version} onClick={() => onSelectVersion(item.version)} aria-pressed={selected} sx={{ display: "block", p: 1.75, border: "1px solid", borderColor: selected ? "#f2c8b6" : "divider", bgcolor: selected ? "#fff0e9" : "background.paper", textAlign: "left", borderRadius: "12px", "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 2 } }}><Box className="flex items-center justify-between gap-2"><Typography className="flex items-center gap-2" sx={{ fontWeight: 700, fontSize: 12 }}><Icon size={16} color={color} />Phiên bản {item.version}</Typography><Chip size="small" label={label} sx={{ height: 20, fontSize: 9, color, bgcolor: item.isEffective ? "#e8f7ef" : "background.default" }} /></Box><Typography sx={{ fontSize: 10, color: "text.secondary", mt: 1 }}>{new Date(item.sentAt).toLocaleDateString("vi-VN")} · {item.budget}</Typography></ButtonBase>;
+    })}</Box>
+  </Paper>;
+}

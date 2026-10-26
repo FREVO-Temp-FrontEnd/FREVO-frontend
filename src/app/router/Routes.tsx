@@ -31,6 +31,7 @@ import AccountSettingsPage from "@/features/settings/pages/AccountSettingsPage";
 import AdminDashboardPage from "@/features/admin/pages/AdminDashboardPage";
 
 import FreelancerLayout from "@/features/freelancer/layout/FreelancerLayout";
+import { PaymentRoute } from "./PaymentRoute";
 
 export const router = createBrowserRouter([
   {
@@ -85,8 +86,8 @@ export const router = createBrowserRouter([
             element: <WorkspaceOverviewPage />,
           },
           {
-            path: "payments/:projectId",
-            element: <PaymentLedgerPage />,
+            path: "freelancer/payments/:projectId",
+            element: <RoleGuard allowedRoles={["freelancer"]}><PaymentLedgerPage /></RoleGuard>,
           },
           {
             path: "reviews/:projectId",
@@ -129,6 +130,10 @@ export const router = createBrowserRouter([
       {
         path: "forgot-password",
         element: <ForgotPasswordPage />,
+      },
+      {
+        path: "payments/:projectId",
+        element: <PaymentRoute />,
       },
       {
         path: "business/talent/:talentId",

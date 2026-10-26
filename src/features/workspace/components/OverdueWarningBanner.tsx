@@ -7,12 +7,14 @@ interface OverdueWarningBannerProps {
   milestoneName: string;
   deadline: string;
   projectId: string;
+  chatPath?: string;
 }
 
 export const OverdueWarningBanner: React.FC<OverdueWarningBannerProps> = ({
   milestoneName,
   deadline,
   projectId,
+  chatPath,
 }) => {
   const navigate = useNavigate();
 
@@ -47,7 +49,7 @@ export const OverdueWarningBanner: React.FC<OverdueWarningBannerProps> = ({
 
       <Button
         size="small"
-        onClick={() => navigate(`/projects/${projectId}/chat`)}
+        onClick={() => navigate(chatPath ?? `/projects/${projectId}/chat`)}
         startIcon={<MessageCircle size={15} />}
         sx={{
           bgcolor: "#ffffff",

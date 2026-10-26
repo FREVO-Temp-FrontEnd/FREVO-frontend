@@ -32,7 +32,8 @@ FREVO-frontend/
 │   │   ├── layout/
 │   │   │   └── App.tsx                     # Root Layout (chứa ThemeProvider, CssBaseline, ScrollRestoration, Outlet)
 │   │   ├── router/
-│   │   │   └── Routes.tsx                  # createBrowserRouter định tuyến tập trung
+│   │   │   ├── Routes.tsx                  # createBrowserRouter định tuyến tập trung
+│   │   │   └── PaymentRoute.tsx            # Chọn layout thanh toán theo vai trò
 │   │   ├── theme/
 │   │   │   └── theme.ts                    # Cấu hình MUI theme (màu sắc, typography, overrides)
 │   │   └── shared/
@@ -50,7 +51,18 @@ FREVO-frontend/
 │   │   ├── projects/                       # Module khám phá & ứng tuyển dự án (MUI)
 │   │   │   ├── dashboard/                  # ProjectList, ProjectCard, ProjectFilters...
 │   │   │   ├── details/                    # ProjectDetailPage, ProjectDetailContent, Body, Sidebar...
-│   │   │   └── application/                # ProjectApplyDialog (MUI)
+│   │   │   ├── application/                # ProjectApplyDialog (MUI)
+│   │   │   └── agreements/                 # Trang, thành phần và hook của thỏa thuận hợp tác
+│   │   │       └── hooks/                  # useProjectAgreement: phiên bản, quyền và phản hồi
+│   │   ├── workspace/                      # Không gian thực hiện dự án (WORK-001–008)
+│   │   │   ├── pages/                      # WorkspaceOverviewPage
+│   │   │   ├── components/                 # Timeline, tổng quan, tệp và dialog nghiệm thu
+│   │   │   ├── hooks/                      # useWorkspace, useMilestoneReview
+│   │   │   └── utils/                      # Định dạng ngày, tên mốc và trạng thái
+│   │   ├── payments/                       # Sổ thanh toán mô phỏng (PAY-001–005)
+│   │   │   ├── pages/                      # PaymentLedgerPage
+│   │   │   ├── components/                 # Dialog tạm giữ, lịch sử và tình huống lỗi
+│   │   │   └── hooks/                      # usePaymentLedger: quyền, tổng hợp và trạng thái demo
 │   │   ├── profile/                        # Module hồ sơ cá nhân & portfolio (MUI)
 │   │   │   ├── pages/                      # ProfilePage, PortfolioDetailPage
 │   │   │   ├── components/                 # EditProfileDialog, PortfolioEditor, PortfolioCover
@@ -100,3 +112,7 @@ index.html
 4. **Đăng ký route**: Khai báo route mới bên trong children của `src/app/router/Routes.tsx`.
 5. **Gọi API**: Tạo client riêng trong `src/lib/api/<feature>Api.ts` sử dụng `agent` từ `src/lib/api/agent.ts`, bọc qua custom hook trong `src/lib/hooks/`.
 6. **Kiểm tra chất lượng**: Luôn chạy `npm run typecheck`, `npm run lint` và `npm run build` sau khi thêm hoặc sửa đổi code.
+
+### Dữ liệu mô phỏng workspace
+
+Dữ liệu nghiệp vụ của workspace lấy từ `src/lib/storage/mockStorage.ts` và kiểu chung trong `src/lib/types/marketplace.types.ts`. Ảnh preview, tệp bàn giao và tiêu chí nghiệm thu thuộc về từng milestone; component không tạo một bản mock riêng theo ID dự án. Tệp tải thử được đặt tại `public/assets/demo/` và ghi rõ là dữ liệu minh họa. Giao diện workspace dùng MUI `sx` và Tailwind cho bố cục, không cần stylesheet riêng.

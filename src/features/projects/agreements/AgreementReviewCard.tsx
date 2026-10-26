@@ -1,306 +1,46 @@
-import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-import {
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  ShieldAlert,
-  Edit3,
-} from "lucide-react";
-import type {
-  AgreementProposal,
-  ProjectBrief,
-  TalentProfile,
-} from "@/lib/types/marketplace.types";
+import { Alert, Avatar, Box, Button, Chip, Divider, Paper, Typography } from "@mui/material";
+import { CalendarDays, Check, CheckCircle2, ClipboardList, Clock3, FileCheck2, FilePenLine, Handshake, Info, Layers3, X } from "lucide-react";
+import type { AgreementProposal, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
+import { formatMoneyText } from "@/lib/utils/money";
 
 interface AgreementReviewCardProps {
   agreement: AgreementProposal;
   project: ProjectBrief;
   talent: TalentProfile;
   isBusiness?: boolean;
+  isLatestVersion?: boolean;
   onConfirm: () => void;
   onRequestRevision: () => void;
+  onDecline?: () => void;
 }
 
-type ReviewMilestone = AgreementProposal["milestones"][number] & {
-  title?: string;
-  description?: string;
-  maxRevisions?: number;
-};
-
-export const AgreementReviewCard: React.FC<AgreementReviewCardProps> = ({
-  agreement,
-  project,
-  talent,
-  onConfirm,
-  onRequestRevision,
-}) => {
-  const expiresAt = new Date(agreement.expiresAt);
-  const now = new Date();
-  const msRemaining = expiresAt.getTime() - now.getTime();
-  const hoursRemaining = Math.max(0, Math.floor(msRemaining / (1000 * 60 * 60)));
-  const isExpired = msRemaining <= 0 && agreement.status === "pending";
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 3, md: 4 },
-        borderRadius: "16px",
-        border: "1px solid #e2e8f0",
-        bgcolor: "#ffffff",
-      }}
-    >
-      {/* Top Banner */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: 2,
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, color: "#64748b", letterSpacing: "0.05em" }}
-            >
-              MÃ THỎA THUẬN: {agreement.reference}
-            </Typography>
-            <Chip
-              label={`Phiên bản ${agreement.version}`}
-              size="small"
-              sx={{ bgcolor: "#f1f5f9", fontWeight: 600, fontSize: "11px", height: 22 }}
-            />
-            {agreement.isEffective && (
-              <Chip
-                label="Đang có hiệu lực"
-                size="small"
-                sx={{ bgcolor: "#ecfdf5", color: "#059669", fontWeight: 700, fontSize: "11px", height: 22 }}
-              />
-            )}
-          </Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 800,
-              fontFamily: "Space Grotesk, sans-serif",
-              color: "#1e293b",
-            }}
-          >
-            Thỏa thuận hợp tác dự án
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#64748b" }}>
-            {project.title} · Giữa <strong>{project.company}</strong> và <strong>{talent.name}</strong>
-          </Typography>
-        </Box>
-
-        <Box>
-          {agreement.status === "confirmed" ? (
-            <Chip
-              icon={<CheckCircle2 size={16} />}
-              label="Hai bên đã xác nhận"
-              sx={{ bgcolor: "#dcfce7", color: "#166534", fontWeight: 700, px: 1 }}
-            />
-          ) : agreement.status === "rejected" ? (
-            <Chip
-              label="Đã từ chối"
-              sx={{ bgcolor: "#fee2e2", color: "#991b1b", fontWeight: 700, px: 1 }}
-            />
-          ) : isExpired ? (
-            <Chip
-              icon={<AlertTriangle size={16} />}
-              label="Đã hết hạn 3 ngày"
-              sx={{ bgcolor: "#fef3c7", color: "#92400e", fontWeight: 700, px: 1 }}
-            />
-          ) : (
-            <Chip
-              icon={<Clock size={16} />}
-              label={`Chờ xác nhận · Còn ${hoursRemaining} giờ`}
-              sx={{ bgcolor: "#ffedd5", color: "#c2410c", fontWeight: 700, px: 1 }}
-            />
-          )}
-        </Box>
+export function AgreementReviewCard({ agreement, project, talent, isBusiness, isLatestVersion = true, onConfirm, onRequestRevision, onDecline }: AgreementReviewCardProps) {
+  const hoursRemaining = Math.max(0, Math.ceil((Date.parse(agreement.expiresAt) - Date.now()) / 3600000));
+  const isExpired = agreement.status === "expired" || (agreement.status === "pending" && !hoursRemaining);
+  const isPending = agreement.status === "pending" && !isExpired;
+  const status = agreement.isEffective ? "Đang có hiệu lực" : agreement.status === "confirmed" ? "Đã xác nhận · Bản cũ" : agreement.status === "rejected" ? "Đã từ chối" : isExpired ? "Đã hết hạn" : "Chờ phản hồi";
+  return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: "16px", overflow: "hidden" }}>
+    <Box sx={{ px: { xs: 2.5, md: 3.5 }, py: 2.5, borderBottom: "1px solid", borderColor: "divider" }} className="flex flex-wrap items-center justify-between gap-3">
+      <Box className="flex items-center gap-3"><Box sx={{ width: 40, height: 44, display: "grid", placeItems: "center", borderRadius: "10px", bgcolor: "#fff0e9", color: "primary.dark" }}><FileCheck2 size={22} /></Box><Box><Typography sx={{ fontSize: 11, color: "text.secondary" }}>Thỏa thuận hợp tác</Typography><Typography component="h2" sx={{ fontFamily: "h2.fontFamily", fontSize: 19, fontWeight: 800, mt: .5 }}>{agreement.reference}</Typography></Box></Box>
+      <Box className="flex flex-wrap items-center gap-2"><Chip size="small" label={`Phiên bản ${agreement.version}`} sx={{ fontSize: 10, bgcolor: "background.default" }} /><Chip size="small" icon={agreement.isEffective ? <CheckCircle2 size={13} /> : <Clock3 size={13} />} label={status} sx={{ height: 25, fontSize: 10, bgcolor: agreement.isEffective ? "#e8f7ef" : "#fff0e9", color: agreement.isEffective ? "#16805b" : "primary.dark" }} /></Box>
+    </Box>
+    <Box sx={{ p: { xs: 2.5, md: 3.5 } }}>
+      <Box className="grid gap-3" sx={{ gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, mb: 3.5 }}>
+        {[[project.company, "Bên giao việc", project.company.slice(0, 1)], [talent.name, `Bên thực hiện · ${talent.kind}`, talent.initials]].map(([name, label, initials]) => <Box key={label} className="flex items-center gap-3" sx={{ p: 2, bgcolor: "background.default", borderRadius: "12px" }}><Avatar sx={{ bgcolor: "#fff0e9", color: "primary.dark", width: 38, height: 38, fontSize: 13 }}>{initials}</Avatar><Box><Typography sx={{ fontSize: 10, color: "text.secondary" }}>{label}</Typography><Typography sx={{ fontSize: 14, fontWeight: 700, mt: .5 }}>{name}</Typography></Box></Box>)}
       </Box>
-
-      {/* 3-Day Countdown Notice Banner */}
-      {agreement.status === "pending" && !isExpired && (
-        <Box
-          sx={{
-            mb: 3,
-            p: 2,
-            borderRadius: "10px",
-            bgcolor: "#fffaf7",
-            border: "1px solid #fed7aa",
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-          }}
-        >
-          <Clock size={20} color="#f4490b" />
-          <Typography variant="body2" sx={{ color: "#9a3412" }}>
-            Đề xuất hết hạn sau <strong>3 ngày</strong> kể từ khi gửi (theo quy tắc <strong>FR-032, BR-024</strong>). Còn lại xấp xỉ <strong>{hoursRemaining} giờ</strong> để phản hồi.
-          </Typography>
-        </Box>
-      )}
-
-      {/* Details Grid */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mb: 4 }}>
-        <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b", mb: 0.5 }}>
-            01. Phạm vi công việc thống nhất
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#334155", lineHeight: 1.6 }}>
-            {agreement.scope}
-          </Typography>
-        </Box>
-
-        <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b", mb: 0.5 }}>
-            02. Sản phẩm bàn giao cụ thể
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#334155", lineHeight: 1.6, whiteSpace: "pre-wrap" }}
-          >
-            {agreement.deliverables}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
-          <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "8px" }}>
-            <Typography variant="caption" sx={{ color: "#64748b" }}>
-              Thời hạn hoàn thành
-            </Typography>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-              {agreement.deadline}
-            </Typography>
-          </Box>
-          <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "8px" }}>
-            <Typography variant="caption" sx={{ color: "#64748b" }}>
-              Tổng ngân sách thống nhất
-            </Typography>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#f4490b" }}>
-              {agreement.budget}
-            </Typography>
-          </Box>
-        </Box>
+      {isPending && <Alert severity="info" icon={<Clock3 size={19} />} sx={{ mb: 3, bgcolor: "#fff0e9", color: "primary.dark", fontSize: 12, borderRadius: "12px" }}>{isLatestVersion ? `Đề xuất chờ phản hồi trong 3 ngày kể từ khi gửi. Còn khoảng ${hoursRemaining} giờ.${isBusiness ? " Bên thực hiện sẽ xem xét và xác nhận nội dung này." : " Hãy kiểm tra nội dung trước khi xác nhận."}` : "Đây là phiên bản đề xuất trước đó. Vui lòng xem phiên bản mới nhất để phản hồi."}</Alert>}
+      <Box component="section" sx={{ mb: 3.5 }}><Typography component="h3" className="flex items-center gap-2" sx={{ fontFamily: "h3.fontFamily", fontSize: 17, fontWeight: 700, mb: 1.5 }}><ClipboardList size={19} />Phạm vi công việc</Typography><Typography sx={{ fontSize: 13, color: "text.secondary", lineHeight: 1.9, whiteSpace: "pre-line" }}>{agreement.scope}</Typography></Box>
+      <Divider sx={{ mb: 3 }} />
+      <Box component="section" sx={{ mb: 3.5 }}><Typography component="h3" className="flex items-center gap-2" sx={{ fontFamily: "h3.fontFamily", fontSize: 17, fontWeight: 700, mb: 2 }}><FileCheck2 size={19} />Sản phẩm bàn giao</Typography><Box component="ul" sx={{ listStyle: "none", p: 0, m: 0 }} className="flex flex-col gap-3">{agreement.deliverables.split("\n").filter(Boolean).map(item => <Box component="li" key={item} className="flex items-start gap-2.5"><Box sx={{ mt: .2, color: "#16805b", flexShrink: 0 }}><Check size={16} /></Box><Typography sx={{ fontSize: 13, color: "text.secondary", lineHeight: 1.7 }}>{item}</Typography></Box>)}</Box></Box>
+      <Divider sx={{ mb: 3 }} />
+      <Box component="section"><Box className="mb-5 flex flex-wrap items-center justify-between gap-2"><Typography component="h3" className="flex items-center gap-2" sx={{ fontFamily: "h3.fontFamily", fontSize: 17, fontWeight: 700 }}><Layers3 size={19} />Kế hoạch bàn giao</Typography><Chip size="small" label={`${agreement.milestones.length} mốc công việc`} sx={{ fontSize: 10, bgcolor: "background.default" }} /></Box>
+        {!agreement.milestones.length && <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Chưa có mốc công việc trong phiên bản này.</Typography>}
+        <Box className="flex flex-col gap-3">{agreement.milestones.map((milestone, index) => <Box key={milestone.id} sx={{ p: 2, bgcolor: "background.default", borderRadius: "12px" }}>
+          <Box className="flex items-start gap-3"><Typography sx={{ fontFamily: "h2.fontFamily", fontWeight: 800, fontSize: 27, color: "#d6d9d1", lineHeight: 1.2 }}>{String(index + 1).padStart(2, "0")}</Typography><Box sx={{ flex: 1, minWidth: 0 }}><Box className="flex flex-wrap items-start justify-between gap-2"><Typography sx={{ fontWeight: 700, fontSize: 14 }}>{milestone.name.replace(/^Mốc\s*\d+\s*[·:–-]\s*/i, "")}</Typography><Typography sx={{ fontWeight: 700, color: "primary.dark", fontSize: 14, whiteSpace: "nowrap" }}>{formatMoneyText(milestone.amount)} đ</Typography></Box><Typography sx={{ fontSize: 12, lineHeight: 1.8, color: "text.secondary", mt: .75 }}>{milestone.deliverable}</Typography><Box className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1"><Typography className="flex items-center gap-1" sx={{ fontSize: 10, color: "text.secondary" }}><CalendarDays size={12} />{milestone.deadline}</Typography><Typography sx={{ fontSize: 10, color: "text.secondary" }}>Chỉnh sửa: {milestone.revisionAllowance?.allowed === "custom" ? "Theo thỏa thuận" : `${milestone.revisionAllowance?.allowed ?? 2} lượt`}</Typography></Box></Box></Box>
+        </Box>)}</Box>
       </Box>
-
-      {/* Milestones Table */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b", mb: 1.5 }}>
-          03. Kế hoạch mốc bàn giao & Số lượt chỉnh sửa (DEC-03)
-        </Typography>
-
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "8px" }}>
-          <Table size="small">
-            <TableHead sx={{ bgcolor: "#f8fafc" }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Mốc công việc</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Sản phẩm bàn giao</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Hạn chót</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Chi phí</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Số lượt sửa</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {agreement.milestones.map((m: ReviewMilestone, idx) => (
-                <TableRow key={m.id}>
-                  <TableCell sx={{ fontWeight: 600, fontSize: "13px" }}>
-                    {idx + 1}. {m.name || m.title || `Giai đoạn ${idx + 1}`}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: "13px", color: "#475569" }}>
-                    {m.deliverable || m.description || "Sản phẩm theo mô tả thỏa thuận"}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
-                    {m.deadline}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: "13px", fontWeight: 600, color: "#f4490b" }}>
-                    {m.amount}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: "13px" }}>
-                    {m.revisionAllowance?.allowed ?? m.maxRevisions ?? 2} lượt
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-
-      {/* Legal Disclaimer */}
-      <Box
-        sx={{
-          mb: 4,
-          p: 2,
-          borderRadius: "8px",
-          bgcolor: "#f1f5f9",
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-        }}
-      >
-        <ShieldAlert size={20} color="#475569" style={{ flexShrink: 0 }} />
-        <Typography variant="caption" sx={{ color: "#475569", lineHeight: 1.5 }}>
-          <strong>Lưu ý pháp lý (FR-047, BR-022):</strong> Bản tóm tắt thỏa thuận hợp tác ghi nhận phạm vi đã thống nhất, không mặc định là hợp đồng điện tử có chứng thực.
-        </Typography>
-      </Box>
-
-      {/* Action Buttons */}
-      {agreement.status === "pending" && !isExpired && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            pt: 2,
-            borderTop: "1px solid #e2e8f0",
-          }}
-        >
-          <Button
-            variant="outlined"
-            onClick={onRequestRevision}
-            startIcon={<Edit3 size={16} />}
-            sx={{ textTransform: "none", color: "#475569", borderColor: "#cbd5e1" }}
-          >
-            Yêu cầu điều chỉnh
-          </Button>
-
-          <Button
-            variant="contained"
-            onClick={onConfirm}
-            startIcon={<CheckCircle2 size={18} />}
-            sx={{
-              bgcolor: "#f4490b",
-              "&:hover": { bgcolor: "#bd3d14" },
-              px: 3,
-              py: 1,
-              borderRadius: "8px",
-              textTransform: "none",
-              fontWeight: 700,
-            }}
-          >
-            Xác nhận thỏa thuận
-          </Button>
-        </Box>
-      )}
-    </Paper>
-  );
-};
+      <Box className="mt-7 flex items-start gap-2.5" sx={{ p: 2, bgcolor: "background.default", borderRadius: "12px" }}><Info size={17} className="shrink-0" /><Typography sx={{ fontSize: 11, color: "text.secondary", lineHeight: 1.8 }}>Bản tóm tắt ghi nhận nội dung hai bên thống nhất trên FREVO; không mặc định là hợp đồng điện tử. Thay đổi nội dung cần tạo phiên bản mới và được bên còn lại xác nhận.</Typography></Box>
+      {isPending && isLatestVersion && <Box className="mt-5 flex flex-wrap items-center justify-end gap-2" sx={{ pt: 2.5, borderTop: "1px solid", borderColor: "divider" }}>{isBusiness ? <Button onClick={onRequestRevision} startIcon={<FilePenLine size={15} />} sx={{ fontSize: 12 }}>Điều chỉnh đề xuất</Button> : <><Button onClick={onDecline} startIcon={<X size={15} />} sx={{ color: "text.secondary", fontSize: 12 }}>Từ chối đề xuất</Button><Button variant="contained" onClick={onConfirm} startIcon={<Handshake size={16} />} sx={{ fontSize: 12, px: 2.5 }}>Xác nhận thỏa thuận</Button></>}</Box>}
+    </Box>
+  </Paper>;
+}

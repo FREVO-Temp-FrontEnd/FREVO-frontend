@@ -1,200 +1,36 @@
-import React, { useState } from "react";
-import { useParams, useSearchParams, useNavigate, useLocation } from "react-router";
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-} from "@mui/material";
-import { Plus } from "lucide-react";
+import { Alert, Box, Button, Chip, Paper, Snackbar, Typography } from "@mui/material";
+import { ArrowLeft, CalendarDays, CheckCircle2, FilePenLine, Handshake, Layers3, MessageCircle, Wallet } from "lucide-react";
+import { Link, Navigate } from "react-router";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
-import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { useBusiness } from "@/lib/hooks/useBusiness";
-import { mockStorage } from "@/lib/storage/mockStorage";
+import { useProjectAgreement } from "./hooks/useProjectAgreement";
 import { DraftAgreementForm } from "./DraftAgreementForm";
 import { AgreementReviewCard } from "./AgreementReviewCard";
 import { AgreementVersionHistory } from "./AgreementVersionHistory";
-import { SelectionClosedBanner } from "./SelectionClosedBanner";
 import { AgreementExpiredState } from "./AgreementExpiredState";
+import { formatMoneyText } from "@/lib/utils/money";
 
-export const ProjectAgreementPage: React.FC = () => {
-  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
-  const location = useLocation();
-  const parts = location.pathname.split("/").filter(Boolean);
-  const pathProjectId = parts[1] === "projects"
-    ? parts[2]
-    : parts[0] === "projects" || parts[0] === "workspace"
-    ? parts[1]
-    : undefined;
-  const projectId = routeProjectId ?? pathProjectId;
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
-  const { role } = useAuthSession();
-  const { projects, candidates, talents, agreements, confirmAgreement } = useBusiness();
-
-  const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
-  const projectAgreements = agreements.filter((a) => a.projectId === projectId);
-
-  const [selectedVersion, setSelectedVersion] = useState<number>(() => {
-    if (projectAgreements.length > 0) {
-      return Math.max(...projectAgreements.map((a) => a.version));
-    }
-    return 1;
-  });
-
-  const [isDraftingNew, setIsDraftingNew] = useState(false);
-
-  // Determine talent
-  const queryTalentId = searchParams.get("talent");
-  const currentAgreement = projectAgreements.find((a) => a.version === selectedVersion) || projectAgreements[0];
-  const effectiveAgreement = projectAgreements.find((a) => a.isEffective);
-
-  const targetTalentId =
-    currentAgreement?.talentId ||
-    queryTalentId ||
-    (candidates.find((c) => c.projectId === projectId && c.status === "offer")?.talentId) ||
-    candidates.find((c) => c.projectId === projectId)?.talentId ||
-    "minh-anh";
-
-  const talent = talents.find((t) => t.id === targetTalentId) || talents[0];
-  const isBusiness = role === "client" || role === "admin";
-
-  if (!project) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="h6" color="text.secondary">
-          Không tìm thấy dự án tương ứng.
-        </Typography>
-        <Button onClick={() => navigate(isBusiness ? "/business/projects" : "/freelancer/applications")} sx={{ mt: 2, color: "#f4490b" }}>
-          Quay lại danh sách dự án
-        </Button>
-      </Container>
-    );
-  }
-
-  const handleCreateProposal = (proposalData: Parameters<typeof DraftAgreementForm>[0]["onSubmit"] extends (arg: infer T) => void ? T : never) => {
-    mockStorage.createAgreementProposal({
-      projectId: project.id,
-      talentId: talent.id,
-      scope: proposalData.scope,
-      deliverables: proposalData.deliverables,
-      deadline: proposalData.deadline,
-      budget: proposalData.budget,
-      budgetValue: proposalData.budgetValue,
-      reference: proposalData.reference,
-      milestones: proposalData.milestones,
-    });
-    setIsDraftingNew(false);
-  };
-
-  const handleConfirm = () => {
-    if (currentAgreement?.id) {
-      confirmAgreement(currentAgreement.id);
-    }
-  };
-
-  const handleRequestRevision = () => {
-    setIsDraftingNew(true);
-  };
-
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <ProjectBreadcrumbs items={isBusiness
-        ? [
-            { label: "Dự án của tôi", to: "/business/projects" },
-            { label: project.title, to: `/business/projects/${project.id}` },
-            { label: "Thỏa thuận hợp tác" },
-          ]
-        : [
-            { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
-            { label: project.title, to: `/projects/${project.id}/details` },
-            { label: "Thỏa thuận hợp tác" },
-          ]}
-      />
-
-      {/* Selection Closed Banner if agreed */}
-      {project.status === "ongoing" && effectiveAgreement && (
-        <SelectionClosedBanner
-          selectedTalentName={talent.name}
-          selectedTalentKind={talent.kind}
-          confirmedAt={effectiveAgreement.confirmedAt}
-        />
-      )}
-
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: projectAgreements.length > 1 ? "1fr 340px" : "1fr" },
-          gap: 3,
-        }}
-      >
-        <Box>
-          {isDraftingNew || projectAgreements.length === 0 ? (
-            <DraftAgreementForm
-              project={project}
-              talent={talent}
-              existingAgreement={effectiveAgreement}
-              onSubmit={handleCreateProposal}
-              onCancel={projectAgreements.length > 0 ? () => setIsDraftingNew(false) : undefined}
-            />
-          ) : currentAgreement ? (
-            currentAgreement.status === "expired" ? (
-              <AgreementExpiredState
-                version={currentAgreement.version}
-                hasEffectiveVersion={!!effectiveAgreement && effectiveAgreement.version !== currentAgreement.version}
-                effectiveVersionNumber={effectiveAgreement?.version}
-                isBusiness={isBusiness}
-                onRecreateProposal={() => setIsDraftingNew(true)}
-              />
-            ) : (
-              <AgreementReviewCard
-                agreement={currentAgreement}
-                project={project}
-                talent={talent}
-                isBusiness={isBusiness}
-                onConfirm={handleConfirm}
-                onRequestRevision={handleRequestRevision}
-              />
-            )
-          ) : null}
-        </Box>
-
-        {/* Version History Sidebar if versions exist */}
-        {projectAgreements.length > 1 && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <AgreementVersionHistory
-              agreements={projectAgreements}
-              selectedVersion={selectedVersion}
-              onSelectVersion={(v) => {
-                setSelectedVersion(v);
-                setIsDraftingNew(false);
-              }}
-            />
-
-            {isBusiness && !isDraftingNew && (
-              <Button
-                variant="outlined"
-                fullWidth
-                startIcon={<Plus size={16} />}
-                onClick={() => setIsDraftingNew(true)}
-                sx={{
-                  borderColor: "#f4490b",
-                  color: "#f4490b",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: "8px",
-                  "&:hover": { borderColor: "#bd3d14", bgcolor: "#fffaf7" },
-                }}
-              >
-                Đề xuất điều chỉnh phiên bản mới
-              </Button>
-            )}
-          </Box>
-        )}
+export function ProjectAgreementPage() {
+  const page = useProjectAgreement();
+  const { project, talent, current, effective } = page;
+  if (!project || !talent) return <Paper elevation={0} sx={{ p: 5, textAlign: "center", borderRadius: "16px" }}><Typography variant="h5">Chưa có thỏa thuận hợp tác</Typography><Typography sx={{ fontSize: 13, color: "text.secondary", mt: 1.5 }}>Chọn dự án và bên thực hiện để xem nội dung thỏa thuận.</Typography><Button component={Link} to={page.isBusiness ? "/business/projects" : "/freelancer/applications"} sx={{ mt: 2 }}>Về danh sách dự án</Button></Paper>;
+  if (!page.canAccess) return <Navigate to="/forbidden" replace />;
+  const editing = page.isDrafting || !current;
+  const expired = current?.status === "expired" || (current?.status === "pending" && Date.parse(current.expiresAt) <= Date.now());
+  return <Box sx={{ minWidth: 0, "&& .MuiButton-root": { fontFamily: "inherit", fontSize: 12, fontWeight: 600, minHeight: 36 }, "&& .MuiButton-contained": { color: "primary.contrastText" } }}>
+    <ProjectBreadcrumbs items={[{ label: page.isBusiness ? "Dự án của tôi" : "Việc làm đã ứng tuyển", to: page.isBusiness ? "/business/projects" : "/freelancer/applications" }, { label: project.title, to: page.projectPath }, { label: "Thỏa thuận" }]} />
+    <Box className="mb-7 flex flex-wrap items-start justify-between gap-4"><Box><Box className="flex flex-wrap items-center gap-3"><Typography component="h1" sx={{ fontFamily: "h1.fontFamily", fontSize: { xs: 26, md: 32 }, lineHeight: 1.3, fontWeight: 800 }}>Thỏa thuận hợp tác<Box component="span" sx={{ color: "primary.main" }}>.</Box></Typography>{effective && <Chip size="small" icon={<CheckCircle2 size={13} />} label="Đã xác nhận" sx={{ bgcolor: "#e8f7ef", color: "#16805b", height: 25, fontSize: 10 }} />}</Box><Typography sx={{ fontSize: 13, color: "text.secondary", mt: 1 }}>{project.title}</Typography></Box><Box className="flex flex-wrap items-center gap-2"><Button component={Link} to={page.projectPath} startIcon={<ArrowLeft size={14} />} sx={{ bgcolor: "#efefec", color: "text.primary", px: 1.75 }}>Về dự án</Button>{effective && <Button component={Link} to={page.progressPath} startIcon={<Layers3 size={14} />} sx={{ bgcolor: "#efefec", color: "text.primary", px: 1.75 }}>Tiến độ</Button>}<Button component={Link} to={page.chatPath} startIcon={<MessageCircle size={14} />} sx={{ bgcolor: "#efefec", color: "text.primary", px: 1.75 }}>Tin nhắn</Button></Box></Box>
+    {current && <Paper elevation={0} sx={{ p: { xs: 2.5, md: 3 }, border: "1px solid", borderColor: "divider", borderRadius: "16px", mb: 3.5 }}><Box className="grid gap-5" sx={{ gridTemplateColumns: { xs: "1fr", sm: "1.3fr 1fr 1fr" } }}>{[{ label: "Ngân sách thống nhất", value: `${formatMoneyText(current.budget)} đ`, Icon: Wallet }, { label: "Hạn hoàn thành", value: current.deadline, Icon: CalendarDays }, { label: "Kế hoạch hợp tác", value: `${current.milestones.length} mốc bàn giao`, Icon: Layers3 }].map(({ label, value, Icon }, index) => <Box key={label} className="flex items-center gap-3" sx={{ pl: { sm: index ? 2.5 : 0 }, borderLeft: { sm: index ? "1px solid" : "none" }, borderColor: { sm: "divider" } }}><Box sx={{ width: 42, height: 42, borderRadius: "50%", display: "grid", placeItems: "center", bgcolor: index === 0 ? "#fff0e9" : "background.default", color: index === 0 ? "primary.dark" : "text.secondary", flexShrink: 0 }}><Icon size={20} /></Box><Box><Typography sx={{ fontSize: 11, color: "text.secondary" }}>{label}</Typography><Typography sx={{ fontFamily: "h3.fontFamily", fontSize: index === 0 ? 23 : 18, fontWeight: 700, mt: .5, color: index === 0 ? "primary.dark" : "text.primary" }}>{value}</Typography></Box></Box>)}</Box></Paper>}
+    {page.error && <Alert severity="error" sx={{ mb: 2 }}>{page.error}</Alert>}
+    <Box className="grid items-start gap-6" sx={{ gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 2.2fr) minmax(270px, 1fr)" } }}>
+      <Box sx={{ minWidth: 0 }}>{editing ? page.isBusiness ? <DraftAgreementForm project={project} talent={talent} existingAgreement={effective ?? current} onSubmit={page.createProposal} onCancel={current ? () => page.setIsDrafting(false) : undefined} /> : <Alert severity="info">Chưa có đề xuất thỏa thuận để phản hồi.</Alert> : expired ? <AgreementExpiredState version={current.version} hasEffectiveVersion={!!effective && effective.version !== current.version} effectiveVersionNumber={effective?.version} isBusiness={page.isBusiness} onRecreateProposal={() => page.setIsDrafting(true)} /> : <AgreementReviewCard agreement={current} project={project} talent={talent} isBusiness={page.isBusiness} isLatestVersion={current.id === page.versions[0]?.id} onConfirm={() => page.respond(true)} onDecline={() => page.respond(false)} onRequestRevision={() => page.setIsDrafting(true)} />}</Box>
+      <Box component="aside" aria-label="Phiên bản và thông tin hợp tác" className="flex flex-col gap-5">
+        <AgreementVersionHistory agreements={page.versions} selectedVersion={current?.version ?? 1} onSelectVersion={page.select} />
+        <Paper elevation={0} sx={{ p: 2.75, borderRadius: "16px", bgcolor: "#fff0e9" }}><Typography component="h2" className="flex items-center gap-2" sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, fontSize: 15 }}><Handshake size={19} />Nội dung đã thống nhất</Typography><Typography sx={{ mt: 1.5, fontSize: 12, lineHeight: 1.85, color: "text.secondary" }}>{effective ? `Phiên bản ${effective.version} tiếp tục có hiệu lực trong lúc hai bên xem xét đề xuất điều chỉnh mới.` : "Đề xuất chỉ được ghi nhận hợp tác khi bên thực hiện xác nhận trong thời hạn phản hồi."}</Typography>{page.isBusiness && !editing && <Button variant="contained" startIcon={<FilePenLine size={15} />} onClick={() => page.setIsDrafting(true)} sx={{ mt: 2, px: 2, bgcolor: "primary.dark", "&:hover": { bgcolor: "primary.main" } }}>Đề xuất điều chỉnh</Button>}</Paper>
+        <Paper elevation={0} sx={{ p: 2.75, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}><Typography component="h2" sx={{ fontFamily: "h3.fontFamily", fontSize: 15, fontWeight: 700, mb: 2 }}>Mốc xác nhận</Typography><Box className="flex flex-col gap-4">{current?.sentAt && <Box><Typography sx={{ color: "text.secondary", fontSize: 10 }}>Đã gửi đề xuất</Typography><Typography sx={{ fontSize: 12, fontWeight: 600, mt: .5 }}>{new Date(current.sentAt).toLocaleDateString("vi-VN")}</Typography></Box>}{current?.confirmedAt && <Box><Typography sx={{ color: "text.secondary", fontSize: 10 }}>Hai bên xác nhận</Typography><Typography sx={{ fontSize: 12, fontWeight: 600, mt: .5, color: "#16805b" }}>{new Date(current.confirmedAt).toLocaleDateString("vi-VN")}</Typography></Box>}<Typography sx={{ fontSize: 11, color: "text.secondary", lineHeight: 1.8 }}>Xác nhận thỏa thuận được theo dõi riêng với tiến độ thực hiện và trạng thái thanh toán.</Typography></Box></Paper>
       </Box>
-    </Container>
-  );
-};
+    </Box>
+    <Snackbar open={!!page.notice} message={page.notice} autoHideDuration={5000} onClose={() => page.setNotice("")} />
+  </Box>;
+}
 
 export default ProjectAgreementPage;
