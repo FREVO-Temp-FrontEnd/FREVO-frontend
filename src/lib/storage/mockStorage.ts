@@ -102,6 +102,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     role: "Brand & Packaging Designer",
     kind: "Cá nhân",
     initials: "HV",
+    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCLXtAvIjT9q-Q0o9Z57kH1Nlif2_urVGsvxL_xvQGXKHYl5mOLu_8lhPGvDNpp8xq2HO2m_OUlpDwvYCEuf6aikygzl3RME-vc6mn9ictLfM_RpKejXaIuJM0qxcnIX185ZEWRmEEv4gap3YK65fU9hJeghpElbcPYcGs7F1b96y0rS2fjnRfmJXponPlrijc8PNXBVtXrmfUkwAdCPvge5ppJsAzmJ11xCO0eJEzc9ZdHPJAERv4s",
     color: "#f2d7c5",
     location: "TP. Hồ Chí Minh",
     rate: "20–25 triệu / dự án",
@@ -192,6 +193,7 @@ export const initialProjectsSeed: ProjectBrief[] = [
   {
     id: "co-may-packaging",
     title: "Bao bì cho dòng trà Cỏ Mây",
+    heroImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuCl18bgNot-gy3kxxD-DzWy_ZbioA6jIEaj-AU1p3VwMTqcd7xgHBgDq557MMEQkg2EPjgYJVoJTyzAaqWHyP5IYtoH1l4Kai7EXWFHid3j1OWDlf7ke2sFSzuMEGO_XA8mP1NbIHTwVfFMDvc-m6Gfk8u9whc-Zwd5Mk2cKsz-p8WHZHexeB8R8eIB-SCpPd80T2CresPH26bHiuRRJ14izbMR3UEwTRffR7NWbkXS8TW6M1VCxNEV",
     category: "Thiết kế thương hiệu",
     type: "brand",
     company: "Nắng Studio",
@@ -515,6 +517,11 @@ class MockStorageAdapter {
         const projectImages = new Map(initialProjectsSeed.filter(project => project.heroImage).map(project => [project.id, project.heroImage]));
         if (state.projects.some(project => !project.heroImage && projectImages.has(project.id))) {
           state = { ...state, projects: state.projects.map(project => !project.heroImage && projectImages.has(project.id) ? { ...project, heroImage: projectImages.get(project.id) } : project) };
+          this.saveToStorage(state);
+        }
+        const talentAvatars = new Map(initialTalentsSeed.filter(talent => talent.avatar).map(talent => [talent.id, talent.avatar]));
+        if (state.talents.some(talent => !talent.avatar && talentAvatars.has(talent.id))) {
+          state = { ...state, talents: state.talents.map(talent => !talent.avatar && talentAvatars.has(talent.id) ? { ...talent, avatar: talentAvatars.get(talent.id) } : talent) };
           this.saveToStorage(state);
         }
         // Enrich the original demo submission only; keep all user uploads and decisions.
