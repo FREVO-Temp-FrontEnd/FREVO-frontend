@@ -102,6 +102,7 @@ export const initialTalentsSeed: TalentProfile[] = [
     role: "Brand & Packaging Designer",
     kind: "Cá nhân",
     initials: "HV",
+    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCLXtAvIjT9q-Q0o9Z57kH1Nlif2_urVGsvxL_xvQGXKHYl5mOLu_8lhPGvDNpp8xq2HO2m_OUlpDwvYCEuf6aikygzl3RME-vc6mn9ictLfM_RpKejXaIuJM0qxcnIX185ZEWRmEEv4gap3YK65fU9hJeghpElbcPYcGs7F1b96y0rS2fjnRfmJXponPlrijc8PNXBVtXrmfUkwAdCPvge5ppJsAzmJ11xCO0eJEzc9ZdHPJAERv4s",
     color: "#f2d7c5",
     location: "TP. Hồ Chí Minh",
     rate: "20–25 triệu / dự án",
@@ -192,6 +193,7 @@ export const initialProjectsSeed: ProjectBrief[] = [
   {
     id: "co-may-packaging",
     title: "Bao bì cho dòng trà Cỏ Mây",
+    heroImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuCl18bgNot-gy3kxxD-DzWy_ZbioA6jIEaj-AU1p3VwMTqcd7xgHBgDq557MMEQkg2EPjgYJVoJTyzAaqWHyP5IYtoH1l4Kai7EXWFHid3j1OWDlf7ke2sFSzuMEGO_XA8mP1NbIHTwVfFMDvc-m6Gfk8u9whc-Zwd5Mk2cKsz-p8WHZHexeB8R8eIB-SCpPd80T2CresPH26bHiuRRJ14izbMR3UEwTRffR7NWbkXS8TW6M1VCxNEV",
     category: "Thiết kế thương hiệu",
     type: "brand",
     company: "Nắng Studio",
@@ -343,6 +345,18 @@ export const initialAgreementsSeed: AgreementProposal[] = [
         status: "submitted",
         submittedAt: "2026-10-16T14:00:00.000Z",
         submissionNotes: "Gửi team bản moodboard và 2 phương án màu sắc chủ đạo cho 3 vị trà.",
+        previewImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuBXJS-Ccq5-QzPTAW7D_JfWxl-YJtuKGRavSIr89UTy1flppmahYrroG9ysKc9coSkodjjce9Kh1VZcG_FBzqv0qZdPFUOCiqTEy5es3v7H6YOdU2HyeiitsOVDK56gibF9qNFEssmeCXSZUhsWy61gVgOn9sOc9IuoPQihZfJA1joblgOlugXHSQGrYQS984Tmy_JSkzGPMEfw1xMr_HLSbtv0JVWjCBfd58iw2uWZlTB_nZ8OI_dG",
+        previewAlt: "Moodboard bao bì trà Cỏ Mây, minh họa thảo mộc và bảng màu tự nhiên",
+        submissionFiles: [
+          { name: "Moodboard_DinhHuong_CoMay_v1.pdf", url: "/assets/demo/co-may-moodboard.pdf", size: "Tệp demo PDF" },
+          { name: "BangMau_MinhHoa_Preview.png", url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBXJS-Ccq5-QzPTAW7D_JfWxl-YJtuKGRavSIr89UTy1flppmahYrroG9ysKc9coSkodjjce9Kh1VZcG_FBzqv0qZdPFUOCiqTEy5es3v7H6YOdU2HyeiitsOVDK56gibF9qNFEssmeCXSZUhsWy61gVgOn9sOc9IuoPQihZfJA1joblgOlugXHSQGrYQS984Tmy_JSkzGPMEfw1xMr_HLSbtv0JVWjCBfd58iw2uWZlTB_nZ8OI_dG", size: "Ảnh tham khảo Stitch" },
+          { name: "GhiChu_YTuong_Concept.pdf", url: "/assets/demo/co-may-concept.pdf", size: "Tệp demo PDF" },
+        ],
+        acceptanceCriteria: [
+          { id: "moodboard", title: "Moodboard đúng tinh thần mộc mạc", description: "Thể hiện chất liệu giấy thô, gam màu đất và lá trà tự nhiên theo brief đã thống nhất." },
+          { id: "palette", title: "Bảng màu cho ba vị trà", description: "Phân biệt rõ ba dòng trà; ghi nhận thông số màu và hướng ứng dụng trên bao bì." },
+          { id: "illustration", title: "Hướng minh họa cho ba bao bì", description: "Có phác thảo minh họa tương ứng cho Oolong, Hoa Vàng và Búp Non." },
+        ],
         revisionAllowance: { allowed: 2, used: 0 }, // Mutual allowance per DEC-03
       },
       {
@@ -505,6 +519,26 @@ class MockStorageAdapter {
           state = { ...state, projects: state.projects.map(project => !project.heroImage && projectImages.has(project.id) ? { ...project, heroImage: projectImages.get(project.id) } : project) };
           this.saveToStorage(state);
         }
+        const talentAvatars = new Map(initialTalentsSeed.filter(talent => talent.avatar).map(talent => [talent.id, talent.avatar]));
+        if (state.talents.some(talent => !talent.avatar && talentAvatars.has(talent.id))) {
+          state = { ...state, talents: state.talents.map(talent => !talent.avatar && talentAvatars.has(talent.id) ? { ...talent, avatar: talentAvatars.get(talent.id) } : talent) };
+          this.saveToStorage(state);
+        }
+        // Enrich the original demo submission only; keep all user uploads and decisions.
+        let workspaceSeedUpdated = false;
+        state = { ...state, agreements: state.agreements.map(agreement => {
+          const seedAgreement = initialAgreementsSeed.find(seed => seed.id === agreement.id && seed.version === agreement.version);
+          if (!seedAgreement) return agreement;
+          return { ...agreement, milestones: agreement.milestones.map(milestone => {
+            const seed = seedAgreement.milestones.find(item => item.id === milestone.id);
+            if (!seed?.acceptanceCriteria || milestone.acceptanceCriteria) return milestone;
+            workspaceSeedUpdated = true;
+            const originalSubmission = milestone.submittedAt === seed.submittedAt && !milestone.submissionFiles?.length;
+            return { ...milestone, acceptanceCriteria: seed.acceptanceCriteria,
+              ...(originalSubmission ? { submissionFiles: seed.submissionFiles, previewImage: seed.previewImage, previewAlt: seed.previewAlt } : {}) };
+          }) };
+        }) };
+        if (workspaceSeedUpdated) this.saveToStorage(state);
         const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
         if (state.candidates.some(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId)) {
           state = { ...state, candidates: state.candidates.map(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId

@@ -13,6 +13,7 @@ import TalentPublicProfilePage from "@/features/profile/pages/TalentPublicProfil
 import { TalentProfileActions } from "@/features/business/components/TalentProfileActions";
 import { BusinessLayout } from "@/features/business/layout/BusinessLayout";
 import BusinessPrototype from "@/features/business/BusinessPrototype";
+import { OngoingProjectsPage } from "@/features/business/pages/OngoingProjectsPage";
 import ProjectDetailPage from "@/features/projects/details/ProjectDetailPage";
 import RoleGuard from "@/app/shared/components/RoleGuard";
 import ForbiddenPage from "@/app/shared/components/ForbiddenPage";
@@ -31,6 +32,7 @@ import AccountSettingsPage from "@/features/settings/pages/AccountSettingsPage";
 import AdminDashboardPage from "@/features/admin/pages/AdminDashboardPage";
 
 import FreelancerLayout from "@/features/freelancer/layout/FreelancerLayout";
+import { PaymentRoute } from "./PaymentRoute";
 
 export const router = createBrowserRouter([
   {
@@ -85,8 +87,8 @@ export const router = createBrowserRouter([
             element: <WorkspaceOverviewPage />,
           },
           {
-            path: "payments/:projectId",
-            element: <PaymentLedgerPage />,
+            path: "freelancer/payments/:projectId",
+            element: <RoleGuard allowedRoles={["freelancer"]}><PaymentLedgerPage /></RoleGuard>,
           },
           {
             path: "reviews/:projectId",
@@ -131,8 +133,20 @@ export const router = createBrowserRouter([
         element: <ForgotPasswordPage />,
       },
       {
+        path: "payments/:projectId",
+        element: <PaymentRoute />,
+      },
+      {
         path: "business/talent/:talentId",
         element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><TalentPublicProfilePage actions={<TalentProfileActions />} /></BusinessLayout></RoleGuard>,
+      },
+      {
+        path: "business/ongoing",
+        element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><OngoingProjectsPage /></BusinessLayout></RoleGuard>,
+      },
+      {
+        path: "business/ongoing/:projectId/progress",
+        element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><WorkspaceOverviewPage /></BusinessLayout></RoleGuard>,
       },
       {
         path: "business/talent/:talentId/portfolio/:workId",

@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronDown,
   LifeBuoy,
+  Layers3,
 } from "lucide-react";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -24,20 +25,33 @@ import "@/features/business/business.css";
 
 const navItems = [
   { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
   { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
+  { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
+  { href: "/business/ongoing", label: "Đang tiến hành", icon: Layers3 },
   { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
 ];
 
+/** Returns true if a nav item should be highlighted as active for the given pathname. */
 function isCurrentNavItem(href: string, pathname: string) {
   if (href === "/business") return pathname === href;
+
+  // Progress pages under /business/ongoing/:id/progress belong to "Dang tien hanh" nav.
+  const isProgressPage = /^\/business\/ongoing\/[^/]+\/progress(\/.*)?$/.test(pathname);
+
+  if (href === "/business/ongoing") {
+    // Highlight when on /business/ongoing OR on any project progress page.
+    return pathname === href || isProgressPage;
+  }
+
   if (href === "/business/projects") {
     return (
-      (pathname === href || pathname.startsWith(`${href}/`)) &&
+      (pathname === href || pathname.startsWith(`${href}/`) || pathname.startsWith("/payments/")) &&
       pathname !== "/business/projects/new" &&
-      pathname !== "/business/messages"
+      pathname !== "/business/messages" &&
+      !isProgressPage
     );
   }
+
   return pathname === href;
 }
 

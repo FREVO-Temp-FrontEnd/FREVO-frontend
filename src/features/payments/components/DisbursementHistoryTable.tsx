@@ -1,105 +1,15 @@
-import React from "react";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Chip,
-  Box,
-} from "@mui/material";
-import { CheckCircle2 } from "lucide-react";
+import { Box, Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { ArrowDownToLine, ArrowUpRight, ReceiptText } from "lucide-react";
 import type { PaymentSimulation } from "@/lib/types/marketplace.types";
 
-interface DisbursementHistoryTableProps {
-  payments: PaymentSimulation[];
+interface DisbursementHistoryTableProps { payments: PaymentSimulation[]; }
+
+export function DisbursementHistoryTable({ payments }: DisbursementHistoryTableProps) {
+  return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: "16px", overflow: "hidden" }}>
+    <Box className="flex flex-wrap items-center justify-between gap-2" sx={{ p: { xs: 2.5, md: 3 }, borderBottom: "1px solid", borderColor: "divider" }}><Box><Typography component="h2" className="flex items-center gap-2" sx={{ fontFamily: "h2.fontFamily", fontSize: 20, fontWeight: 800 }}><ReceiptText size={20} />Lịch sử giao dịch</Typography><Typography sx={{ mt: 1, color: "text.secondary", fontSize: 11 }}>Các lần tạm giữ và giải ngân trong môi trường mô phỏng.</Typography></Box><Chip size="small" label={`${payments.length} giao dịch`} sx={{ bgcolor: "background.default", fontSize: 10 }} /></Box>
+    {!payments.length ? <Box sx={{ py: 5, px: 3, textAlign: "center" }}><Box sx={{ width: 50, height: 50, mx: "auto", bgcolor: "background.default", color: "text.secondary", borderRadius: "50%", display: "grid", placeItems: "center", mb: 2 }}><ReceiptText size={23} /></Box><Typography sx={{ fontWeight: 600, fontSize: 14 }}>Chưa có giao dịch mô phỏng</Typography><Typography sx={{ fontSize: 12, color: "text.secondary", mt: 1, maxWidth: 350, mx: "auto", lineHeight: 1.8 }}>Thao tác tạm giữ hoặc nghiệm thu mốc sẽ được ghi nhận tại đây.</Typography></Box> : <>
+      <TableContainer sx={{ display: { xs: "none", md: "block" } }}><Table size="small" aria-label="Lịch sử giao dịch mô phỏng"><TableHead><TableRow sx={{ bgcolor: "background.default" }}>{["Mốc / Mã giao dịch", "Giá trị", "Thời gian", "Trạng thái"].map(label => <TableCell key={label} sx={{ fontSize: 10, color: "text.secondary", borderColor: "divider", py: 1.5 }}>{label}</TableCell>)}</TableRow></TableHead><TableBody>{payments.map(payment => <TableRow key={payment.id}><TableCell sx={{ borderColor: "divider", py: 2 }}><Typography sx={{ fontSize: 12, fontWeight: 600 }}>{payment.milestoneName}</Typography><Typography sx={{ fontSize: 9, color: "text.secondary", mt: .5, overflowWrap: "anywhere" }}>{payment.id}</Typography></TableCell><TableCell sx={{ borderColor: "divider", fontWeight: 700, whiteSpace: "nowrap", fontSize: 12 }}>{payment.milestoneValue}<Typography sx={{ fontSize: 9, color: "text.secondary", mt: .5 }}>Phí: {payment.platformFeeLabel}</Typography></TableCell><TableCell sx={{ borderColor: "divider", fontSize: 10, whiteSpace: "nowrap", color: "text.secondary" }}>{new Date(payment.releasedAt ?? payment.createdAt).toLocaleDateString("vi-VN")}</TableCell><TableCell sx={{ borderColor: "divider" }}><Chip size="small" icon={payment.status === "released_simulated" ? <ArrowUpRight size={12} /> : <ArrowDownToLine size={12} />} label={payment.status === "released_simulated" ? "Giải ngân mô phỏng" : "Tạm giữ mô phỏng"} sx={{ height: 23, fontSize: 9, bgcolor: payment.status === "released_simulated" ? "#e8f7ef" : "#fff0e9", color: payment.status === "released_simulated" ? "#16805b" : "primary.dark" }} /></TableCell></TableRow>)}</TableBody></Table></TableContainer>
+      <Box sx={{ display: { xs: "block", md: "none" } }}>{payments.map(payment => <Box key={payment.id} sx={{ p: 2.5, borderBottom: "1px solid", borderColor: "divider" }}><Box className="flex flex-wrap items-start justify-between gap-2"><Typography sx={{ fontSize: 13, fontWeight: 700 }}>{payment.milestoneName}</Typography><Typography sx={{ fontSize: 13, fontWeight: 700, color: "primary.dark" }}>{payment.milestoneValue}</Typography></Box><Typography sx={{ fontSize: 10, color: "text.secondary", mt: .75, overflowWrap: "anywhere" }}>{payment.id}</Typography><Box className="mt-3 flex flex-wrap items-center justify-between gap-2"><Typography sx={{ fontSize: 10, color: "text.secondary" }}>{new Date(payment.releasedAt ?? payment.createdAt).toLocaleDateString("vi-VN")}</Typography><Chip size="small" label={payment.status === "released_simulated" ? "Giải ngân mô phỏng" : "Tạm giữ mô phỏng"} sx={{ fontSize: 9, height: 23, bgcolor: payment.status === "released_simulated" ? "#e8f7ef" : "#fff0e9" }} /></Box></Box>)}</Box>
+    </>}
+  </Paper>;
 }
-
-export const DisbursementHistoryTable: React.FC<DisbursementHistoryTableProps> = ({
-  payments,
-}) => {
-  return (
-    <Box sx={{ my: 2 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-            Lịch sử giải ngân mô phỏng (PAY-003 / FR-058, FR-060)
-          </Typography>
-          <Typography variant="caption" sx={{ color: "#64748b" }}>
-            Chứng từ đối soát mô phỏng phục vụ mục đích kiểm thử luồng sản phẩm (FR-062)
-          </Typography>
-        </Box>
-        <Chip
-          label="MÔ PHỎNG / SIMULATED DISBURSEMENTS"
-          size="small"
-          sx={{ bgcolor: "#ffedd5", color: "#c2410c", fontWeight: 700, fontSize: "10px" }}
-        />
-      </Box>
-
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "12px" }}>
-        <Table size="small">
-          <TableHead sx={{ bgcolor: "#f8fafc" }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Mã GD mô phỏng</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Mốc công việc</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Giá trị mốc</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Phí nền tảng (DEC-04)</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Thời gian giải ngân</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: "12px" }}>Trạng thái</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {payments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} sx={{ textAlign: "center", py: 4, color: "#94a3b8" }}>
-                  Chưa có giao dịch giải ngân nào. Khi Business nghiệm thu mốc, chứng từ mô phỏng sẽ hiển thị tại đây.
-                </TableCell>
-              </TableRow>
-            ) : (
-              payments.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell sx={{ fontWeight: 600, fontSize: "12px", color: "#64748b" }}>
-                    {p.id}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 600, fontSize: "13px" }}>
-                    {p.milestoneName}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: "#f4490b", fontSize: "13px" }}>
-                    {p.milestoneValue}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={p.platformFeeLabel}
-                      size="small"
-                      sx={{ bgcolor: "#f1f5f9", color: "#475569", fontSize: "10px", height: 20 }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ fontSize: "12px", color: "#64748b" }}>
-                    {new Date(p.releasedAt || p.createdAt).toLocaleString("vi-VN")}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={<CheckCircle2 size={12} />}
-                      label="Giải ngân mô phỏng"
-                      size="small"
-                      sx={{
-                        bgcolor: "#dcfce7",
-                        color: "#166534",
-                        fontWeight: 700,
-                        fontSize: "10px",
-                        height: 20,
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
-};

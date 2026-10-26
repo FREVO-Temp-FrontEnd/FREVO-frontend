@@ -8,7 +8,6 @@ import { useProjectList, type ProjectFilter, type ProjectSort } from "@/features
 const filters: { value: ProjectFilter; label: string }[] = [
   { value: "all", label: "Tất cả" },
   { value: "published", label: "Đang tuyển" },
-  { value: "ongoing", label: "Đang tiến hành" },
   { value: "draft", label: "Bản nháp" },
   { value: "closed", label: "Đã đóng tuyển" },
   { value: "completed", label: "Hoàn thành" },

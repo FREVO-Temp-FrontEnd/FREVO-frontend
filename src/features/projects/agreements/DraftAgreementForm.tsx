@@ -161,10 +161,11 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
       component="form"
       onSubmit={handleSubmit}
       sx={{
-        p: { xs: 3, md: 4 },
+        p: { xs: 2.5, md: 3.5 },
         borderRadius: "16px",
-        border: "1px solid #e2e8f0",
-        bgcolor: "#ffffff",
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
       }}
     >
       <Box sx={{ mb: 3 }}>
@@ -172,25 +173,25 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           variant="caption"
           sx={{
             fontWeight: 700,
-            color: "#f4490b",
+            color: "primary.dark",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
           }}
         >
-          {existingAgreement ? `Điều chỉnh thỏa thuận (Phiên bản ${existingAgreement.version + 1})` : "Soạn thảo thỏa thuận hợp tác (PROJ-003)"}
+          {existingAgreement ? `Điều chỉnh thỏa thuận · Phiên bản ${existingAgreement.version + 1}` : "Soạn thảo thỏa thuận hợp tác"}
         </Typography>
         <Typography
           variant="h5"
           sx={{
             fontWeight: 800,
-            fontFamily: "Space Grotesk, sans-serif",
-            color: "#1e293b",
+            fontFamily: "h2.fontFamily",
+            color: "text.primary",
             mt: 0.5,
           }}
         >
           Đề xuất điều khoản hợp tác với {talent.name}
         </Typography>
-        <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5 }}>
+        <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
           Dự án: <strong>{project.title}</strong> · Đối tác: <strong>{talent.name}</strong> ({talent.kind})
         </Typography>
       </Box>
@@ -200,32 +201,31 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
         sx={{
           mb: 3,
           p: 2,
-          borderRadius: "8px",
-          bgcolor: "#fffaf7",
-          border: "1px solid #fed7aa",
+          borderRadius: "12px",
+          bgcolor: "#fff0e9",
           display: "flex",
           flexDirection: "column",
           gap: 1,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Clock size={18} color="#f4490b" />
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#9a3412" }}>
-            Quy định hiệu lực đề xuất 3 ngày (FR-032, BR-024)
+          <Clock size={18} color="#bd3d14" />
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "primary.dark" }}>
+            Thời hạn phản hồi: 3 ngày
           </Typography>
         </Box>
-        <Typography variant="caption" sx={{ color: "#7c2d12" }}>
+        <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.7 }}>
           Sau khi gửi, đối tác có tối đa <strong>3 ngày</strong> để xác nhận hoặc yêu cầu chỉnh sửa. Nếu đề xuất hết hạn mà không được xác nhận, hai bên có thể gửi lại đề xuất mới.
         </Typography>
         {existingAgreement?.isEffective && (
-          <Typography variant="caption" sx={{ color: "#0369a1", mt: 0.5 }}>
-            <strong>Bảo toàn hiệu lực (FR-048):</strong> Thỏa thuận Phiên bản {existingAgreement.version} hiện tại vẫn giữ nguyên hiệu lực ràng buộc cho đến khi đề xuất mới này được cả hai bên xác nhận.
+          <Typography variant="caption" sx={{ color: "text.primary", mt: 0.5, lineHeight: 1.7 }}>
+            <strong>Phiên bản đang có hiệu lực:</strong> Thỏa thuận phiên bản {existingAgreement.version} vẫn được áp dụng cho đến khi đề xuất mới được cả hai bên xác nhận.
           </Typography>
         )}
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: "12px" }}>
           {error}
         </Alert>
       )}
@@ -277,10 +277,10 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1e293b" }}>
-              Kế hoạch mốc công việc & Số lượt chỉnh sửa (DEC-03)
+            <Typography variant="subtitle1" sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, color: "text.primary" }}>
+              Kế hoạch mốc công việc & số lượt chỉnh sửa
             </Typography>
-            <Typography variant="caption" sx={{ color: "#64748b" }}>
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
               Thỏa thuận số lượt chỉnh sửa phù hợp theo từng mốc. FREVO không áp đặt cố định 2 lượt.
             </Typography>
           </Box>
@@ -288,7 +288,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
             size="small"
             onClick={handleAddMilestone}
             startIcon={<Plus size={16} />}
-            sx={{ color: "#f4490b", fontWeight: 600, textTransform: "none" }}
+            sx={{ color: "primary.dark", fontWeight: 600, textTransform: "none" }}
           >
             Thêm mốc
           </Button>
@@ -299,17 +299,18 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
             <Paper
               key={milestone.id}
               variant="outlined"
-              sx={{ p: 2.5, borderRadius: "10px", bgcolor: "#f8fafc", position: "relative" }}
+              sx={{ p: 2.5, borderRadius: "12px", bgcolor: "background.default", borderColor: "divider", position: "relative" }}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                <Typography variant="subtitle2" sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, color: "text.primary" }}>
                   Mốc {index + 1}
                 </Typography>
                 {milestones.length > 1 && (
                   <IconButton
                     size="small"
                     onClick={() => handleRemoveMilestone(milestone.id)}
-                    sx={{ color: "#94a3b8", "&:hover": { color: "#ef4444" } }}
+                    aria-label={`Xóa mốc ${index + 1}`}
+                    sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}
                   >
                     <Trash2 size={16} />
                   </IconButton>
@@ -356,7 +357,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
                   <TextField
                     size="small"
                     type="number"
-                    label="Số lượt sửa đổi (DEC-03)"
+                    label="Số lượt sửa đổi"
                     value={typeof milestone.revisionAllowance?.allowed === "number" ? milestone.revisionAllowance.allowed : 2}
                     onChange={(e) =>
                       handleUpdateMilestone(
@@ -379,20 +380,20 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
         sx={{
           mb: 4,
           p: 2,
-          borderRadius: "8px",
-          bgcolor: "#f1f5f9",
+          borderRadius: "12px",
+          bgcolor: "background.default",
           display: "flex",
           alignItems: "center",
           gap: 1.5,
         }}
       >
-        <ShieldAlert size={20} color="#475569" style={{ flexShrink: 0 }} />
-        <Typography variant="caption" sx={{ color: "#475569", lineHeight: 1.5 }}>
-          <strong>Lưu ý pháp lý (FR-047, BR-022):</strong> Bản tóm tắt thỏa thuận hợp tác ghi nhận phạm vi công việc và các mốc bàn giao đã được hai bên thống nhất, không mặc định là hợp đồng điện tử có chứng thực.
+        <ShieldAlert size={20} color="#747773" style={{ flexShrink: 0 }} />
+        <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.7 }}>
+          Bản tóm tắt thỏa thuận hợp tác ghi nhận phạm vi công việc và các mốc bàn giao đã được hai bên thống nhất; đây không mặc định là hợp đồng điện tử có chứng thực.
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 2 }}>
         {onCancel && (
           <Button variant="outlined" onClick={onCancel} sx={{ textTransform: "none" }}>
             Hủy bỏ
@@ -403,11 +404,11 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           variant="contained"
           endIcon={<ArrowRight size={18} />}
           sx={{
-            bgcolor: "#f4490b",
-            "&:hover": { bgcolor: "#bd3d14" },
+            bgcolor: "primary.dark",
+            "&:hover": { bgcolor: "primary.main" },
             px: 3,
             py: 1.2,
-            borderRadius: "8px",
+            borderRadius: "999px",
             textTransform: "none",
             fontWeight: 700,
           }}
