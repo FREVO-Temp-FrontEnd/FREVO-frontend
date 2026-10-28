@@ -1,3 +1,6 @@
+import { creativeServices } from "../data/creativeBriefTemplates";
+import { GuidedBriefSummary } from "../components/GuidedBriefSummary";
+import { GuidedBriefEditor } from "../components/GuidedBriefEditor";
 import { useState } from "react";
 import { BusinessQuotaSummary } from "../components/BusinessQuotaSummary";
 import { Link, useNavigate, useParams } from "react-router";
@@ -9,7 +12,7 @@ import { useProjectBriefForm } from "@/features/business/hooks/useProjectBriefFo
 import { BriefFormSummary } from "@/features/business/components/BriefFormSummary";
 import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 
-const categories = ["Thiết kế thương hiệu", "UI/UX & Website", "Nội dung sáng tạo", "Motion & Digital", "Nhiếp ảnh & Video"];
+const categories = ["Nhận diện thương hiệu", "Thiết kế mạng xã hội", "Dựng video ngắn", "Viết nội dung", "Chiến lược & định hướng sáng tạo", "Thiết kế thương hiệu", "UI/UX & Website", "Nội dung sáng tạo", "Motion & Digital", "Nhiếp ảnh & Video"];
 const durations = ["2 tuần", "4 tuần", "6 tuần", "8 tuần"];
 const font = '"Space Grotesk", Arial, sans-serif';
 const buttonSx = { "&&": { fontFamily: font, fontSize: 13, fontWeight: 600, textTransform: "none" } };
@@ -106,6 +109,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                 <Typography sx={{ mt: 3, fontFamily: font, fontSize: 12, color: "text.secondary" }}>Ưu tiên bên thực hiện: {fields.preference === "both" ? "Cả cá nhân và team" : fields.preference === "individual" ? "Freelancer cá nhân" : "Team"}</Typography>
                 {fields.referenceFiles.length > 0 && <Typography sx={{ mt: 1, fontFamily: font, fontSize: 12, color: "text.secondary" }}>Tệp tham khảo: {fields.referenceFiles.map((file) => file.name).join(", ")}</Typography>}
               </SectionCard>
+              {fields.guidedBrief && <GuidedBriefSummary brief={fields.guidedBrief} />}
               <div className="flex flex-wrap justify-end gap-2">
                 <Button type="button" variant="outlined" onClick={() => setIsPreview(false)} sx={{ ...buttonSx, borderRadius: 999 }}>Quay lại chỉnh sửa</Button>
                 <Button type="button" variant="contained" onClick={publish} endIcon={<ArrowRight size={16} />} sx={{ ...buttonSx, borderRadius: 999, boxShadow: "none" }}>{isEditingPublished ? "Lưu thay đổi" : "Công bố dự án"}</Button>
@@ -117,16 +121,17 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
               <SectionCard id="brief-basics">
                 <SectionHeading number="1" title="Thông tin cơ bản" description="Các trường có dấu * là bắt buộc." />
                 <div className="space-y-5">
-                  <TextField fullWidth required label="Tên dự án" value={fields.title} onChange={(event) => setField("title", event.target.value)} slotProps={{ htmlInput: { maxLength: 100 }, formHelperText: { sx: { textAlign: errors.title ? "left" : "right" } } }} placeholder="Ví dụ: Thiết kế bộ nhận diện cho Nắng Studio" error={!!errors.title} helperText={errors.title || `${fields.title.length}/100 ký tự`} sx={formFieldsSx} />
-                  <div className="pt-2">
+                  <TextField fullWidth required label="Tên dự án" value={fields.title} onChange={(event) => setField("title", event.target.value)} slotProps={{ htmlInput: { maxLength: 100 }, formHelperText: { sx: { textAlign: errors.title ? "left" : "right" } } }} placeholder="Ví dụ: Thiết kế bộ nhận diện cho Nắng Studio" error={!!errors.title} helperText={errors.title} sx={formFieldsSx} />
+                  {!fields.guidedBrief && <div className="pt-2">
                     <TextField select fullWidth required label="Lĩnh vực chuyên môn" value={fields.category} onChange={event => setField("category", event.target.value)} error={!!errors.category} helperText={errors.category} sx={formFieldsSx}>{(categories.includes(fields.category) ? categories : [...categories, fields.category]).map(item => <MenuItem key={item} value={item}>{item}</MenuItem>)}</TextField>
-                  </div>
+                  </div>}
                   <TextField fullWidth required multiline minRows={5} label="Mô tả chi tiết dự án" value={fields.description} onChange={(event) => setField("description", event.target.value)} placeholder="Bối cảnh, đối tượng và kết quả bạn mong muốn..." error={!!errors.description} helperText={errors.description} sx={formFieldsSx} />
                 </div>
               </SectionCard>
 
+              <GuidedBriefEditor fields={fields} error={errors.guidedBrief} onChange={(value, category, deliverables) => { setField("guidedBrief", value); setField("category", category); setField("deliverables", deliverables); }} />
               <SectionCard id="brief-scope">
-                <SectionHeading number="2" title="Yêu cầu và bàn giao" />
+                <SectionHeading number="3" title="Kỹ năng và tài liệu tham khảo" />
                 <div className="space-y-5">
                   <div>
                     <Typography sx={{ fontFamily: font, fontSize: 12, fontWeight: 700, mb: 1 }}>Kỹ năng yêu cầu *</Typography>
@@ -136,8 +141,14 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                       <Button type="button" variant="outlined" onClick={addSkill} disabled={!skillInput.trim()} sx={{ ...buttonSx, flexShrink: 0, minHeight: 40 }}>Thêm</Button>
                     </div>
                     <FieldError message={errors.skills} />
+                    {fields.guidedBrief && <Box sx={{ mt: 2 }}><Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1 }}>Gợi ý theo dịch vụ — bấm để chọn hoặc bỏ</Typography><div className="flex flex-wrap gap-2">{creativeServices.find(service => service.id === fields.guidedBrief?.serviceId)?.skills.map(skill => {
+                      const chosen = fields.skills.some(value => value.toLocaleLowerCase() === skill.toLocaleLowerCase());
+                      return <Chip key={skill} label={`${chosen ? "✓ " : "+ "}${skill}`} aria-pressed={chosen} onClick={() => setField("skills", chosen ? fields.skills.filter(value => value.toLocaleLowerCase() !== skill.toLocaleLowerCase()) : [...fields.skills, skill])} variant={chosen ? "filled" : "outlined"} sx={{ bgcolor: chosen ? "#fff0e9" : "background.paper", color: chosen ? "primary.dark" : "text.secondary", minHeight: 34 }} />;
+                    })}</div></Box>}
+
                   </div>
 
+                  {!fields.guidedBrief && <>
                   <div>
                     <Typography sx={{ fontFamily: font, fontSize: 12, fontWeight: 700, mb: 1 }}>Sản phẩm bàn giao *</Typography>
                     <div className="space-y-2">{fields.deliverables.map((item, index) => <div key={index} className="flex items-start gap-2">
@@ -148,6 +159,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                     <FieldError message={errors.deliverables} />
                   </div>
 
+                  </>}
                   <div className="rounded-2xl border border-dashed border-[#d7dbd2] bg-[#fafbf9] p-4">
                     <Typography sx={{ fontFamily: font, fontSize: 12, fontWeight: 700, mb: 1 }}>Tệp tham khảo (tùy chọn)</Typography>
                     <Button component="label" variant="outlined" startIcon={<Upload size={16} />} sx={{ ...buttonSx, borderRadius: 999 }}>
@@ -161,7 +173,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
               </SectionCard>
 
               <SectionCard id="brief-budget">
-                <SectionHeading number="3" title="Ngân sách và thời hạn" />
+                <SectionHeading number="4" title="Ngân sách và thời hạn" />
                 <div className="mb-5">
                   <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 600, mb: 1 }}>Thời lượng dự kiến</Typography>
                   <div className="flex flex-wrap gap-2">{durationOptions.map(duration => <Button key={duration} type="button" aria-pressed={fields.duration === duration} variant="outlined" onClick={() => setField("duration", duration)} sx={{ ...buttonSx, minHeight: 38, px: 2, borderColor: fields.duration === duration ? "primary.main" : "divider", bgcolor: fields.duration === duration ? "#fff0e9" : "background.paper", color: fields.duration === duration ? "primary.dark" : "text.secondary" }}>{duration}</Button>)}</div>
@@ -175,7 +187,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
               </SectionCard>
 
               <SectionCard id="brief-performer">
-                <SectionHeading number="4" title="Bên thực hiện ưu tiên" />
+                <SectionHeading number="5" title="Bên thực hiện ưu tiên" />
                 <RadioGroup value={fields.preference} onChange={event => setField("preference", event.target.value as ProjectBrief["preference"])} aria-label="Bên thực hiện ưu tiên" sx={{ display: "grid", gap: 1.5, gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0,1fr))" } }}>
                   {([
                     ["both", "Cả cá nhân và team", "Mở rộng lựa chọn ứng viên"],

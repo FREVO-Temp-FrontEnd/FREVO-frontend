@@ -1,3 +1,4 @@
+import type { GuidedBrief } from "./guidedBrief.types";
 /**
  * FREVO Marketplace Unified Domain Types
  * Traceable to SRS (FR-001 through FR-065, BR-001 through BR-030)
@@ -242,6 +243,7 @@ export interface PaymentSimulation {
 }
 
 export interface ProjectBrief {
+  guidedBrief?: GuidedBrief;
   id: string;
   title: string;
   category: string;

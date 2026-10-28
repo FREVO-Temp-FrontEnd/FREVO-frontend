@@ -1,7 +1,10 @@
+import type { GuidedBrief } from "@/lib/types/guidedBrief.types";
+import { creativeServices, creativeTemplateVersion } from "../data/creativeBriefTemplates";
 import { useState } from "react";
 import type { ProjectBrief } from "@/lib/types/marketplace.types";
 
 export interface BriefFields {
+  guidedBrief?: GuidedBrief;
   title: string;
   category: string;
   description: string;
@@ -33,8 +36,9 @@ function toDisplayDate(value: string) {
 
 function initialFields(project?: ProjectBrief): BriefFields {
   return {
+    guidedBrief: project ? project.guidedBrief : { serviceId: "brand", templateVersion: creativeTemplateVersion, inScope: "", outOfScope: "", items: [] },
     title: project?.title === "Dự án chưa đặt tên" ? "" : project?.title ?? "",
-    category: project?.category ?? "Thiết kế thương hiệu",
+    category: project?.category ?? creativeServices[0].name,
     description: project?.description ?? "",
     skills: project?.skills ?? [],
     deliverables: project?.deliverables.length ? project.deliverables : [""],
@@ -58,6 +62,15 @@ function validate(fields: BriefFields): BriefErrors {
   if (!fields.skills.length) errors.skills = "Hãy thêm ít nhất một kỹ năng.";
   if (!fields.deliverables.some((item) => item.trim())) errors.deliverables = "Hãy thêm ít nhất một sản phẩm bàn giao.";
 
+  const guided = fields.guidedBrief;
+  if (guided) {
+    const service = creativeServices.find(item => item.id === guided.serviceId);
+    const invalidItem = guided.items.some(item => {
+      const template = service?.deliverables.find(option => option.id === item.typeId);
+      return !template || !item.acceptanceCriteria.trim() || template.fields.some(field => !item.specifications[field.id]?.trim());
+    });
+    if (!service || !guided.inScope.trim() || !guided.outOfScope.trim() || !guided.items.length || invalidItem) errors.guidedBrief = "Hoàn thiện phạm vi, thông số và tiêu chí nghiệm thu của các hạng mục đã chọn.";
+  } else if (!fields.category.trim()) errors.guidedBrief = "Vui lòng chọn loại dịch vụ.";
   const min = Number(fields.budgetMin);
   const max = Number(fields.budgetMax);
   if (!fields.budgetMin || !fields.budgetMax || !Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0 || max < min) {
@@ -83,7 +96,7 @@ export function useProjectBriefForm(existingProject?: ProjectBrief) {
 
   function setField<K extends BriefField>(field: K, value: BriefFields[K]) {
     setFields((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
+    setErrors((current) => ({ ...current, [field]: field === "guidedBrief" && current.guidedBrief ? validate({ ...fields, [field]: value }).guidedBrief : undefined }));
   }
 
   function addSkill() {
@@ -129,6 +142,7 @@ export function useProjectBriefForm(existingProject?: ProjectBrief) {
     return {
       ...existingProject,
       id: existingProject?.id ?? `project-${Date.now()}`,
+      guidedBrief: fields.guidedBrief,
       title: fields.title.trim() || "Dự án chưa đặt tên",
       category: fields.category,
       company: existingProject?.company ?? "Nắng Studio",
@@ -153,7 +167,8 @@ export function useProjectBriefForm(existingProject?: ProjectBrief) {
   const validation = validate(fields);
   const sections = [
     { id: "brief-basics", title: "Thông tin cơ bản", complete: !validation.title && !validation.category && !validation.description },
-    { id: "brief-scope", title: "Yêu cầu và bàn giao", complete: !validation.skills && !validation.deliverables },
+    { id: "brief-guided", title: "Dịch vụ và bàn giao", complete: !validation.guidedBrief },
+    { id: "brief-scope", title: "Yêu cầu và bàn giao", complete: !validation.skills && !validation.deliverables && !validation.guidedBrief },
     { id: "brief-budget", title: "Ngân sách và thời hạn", complete: !validation.budgetMin && !validation.deadline && !validation.applicationDeadline },
     { id: "brief-performer", title: "Bên thực hiện", complete: !!fields.preference },
   ];
