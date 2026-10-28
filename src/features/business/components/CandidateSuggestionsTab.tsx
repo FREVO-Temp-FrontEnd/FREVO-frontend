@@ -1,3 +1,4 @@
+import { normalized } from "@/lib/utils/formatters";
 import { CandidateComparison } from "./CandidateComparison";
 import { useState, useMemo } from "react";
 import {
@@ -5,7 +6,7 @@ import {
   Typography,
   TextField,
   InputAdornment,
-  Chip,
+  Chip, Checkbox, FormControlLabel,
 } from "@mui/material";
 import { Search } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
@@ -14,7 +15,7 @@ import { TalentEvidenceCard } from "./TalentEvidenceCard";
 import { AIFitAnalysisModal } from "./AIFitAnalysisModal";
 import { SendInvitationDialog } from "./SendInvitationDialog";
 import { EmptyMatchingState } from "./EmptyMatchingState";
-import { calculateMatchingScore } from "@/lib/utils/matchingScore";
+import { calculateMatchingScore, canonicalSkill } from "@/lib/utils/matchingScore";
 
 interface CandidateSuggestionsTabProps {
   project: ProjectBrief;
@@ -25,6 +26,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
 
   // Search & Filter state (BUS-008)
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [budgetOnly, setBudgetOnly] = useState(false);
+  const [availableOnly, setAvailableOnly] = useState(false);
   const [query, setQuery] = useState("");
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [minScoreFilter, setMinScoreFilter] = useState<number>(0);
@@ -42,8 +45,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
 
     for (const t of talents) {
       if (t.kind === "Team") {
-        if (!seenTeams.has(t.name)) {
-          seenTeams.add(t.name);
+        if (!seenTeams.has(t.id)) {
+          seenTeams.add(t.id);
           result.push(t);
         }
       } else {
@@ -64,10 +67,10 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
       .filter(({ talent, evaluation }) => {
         // Query search
         if (query.trim()) {
-          const q = query.toLowerCase().trim();
-          const matchesName = talent.name.toLowerCase().includes(q);
-          const matchesRole = talent.role.toLowerCase().includes(q);
-          const matchesSkills = talent.skills.some((s) => s.toLowerCase().includes(q));
+          const q = normalized(query).trim();
+          const matchesName = normalized(talent.name).includes(q);
+          const matchesRole = normalized(talent.role).includes(q);
+          const matchesSkills = talent.skills.some((s) => normalized(s).includes(q) || canonicalSkill(s) === canonicalSkill(query));
           if (!matchesName && !matchesRole && !matchesSkills) return false;
         }
 
@@ -76,6 +79,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
           return false;
         }
 
+        if (budgetOnly && evaluation.budget !== "overlap") return false;
+        if (availableOnly && !evaluation.availableNow) return false;
         // Min score filter
         if (evaluation.score < minScoreFilter) {
           return false;
@@ -84,17 +89,18 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
         // Specific skill chip filter
         if (selectedSkillFilter) {
           const hasSkill = talent.skills
-            .map((s) => s.toLowerCase().trim())
-            .includes(selectedSkillFilter.toLowerCase().trim());
+            .map(canonicalSkill)
+            .includes(canonicalSkill(selectedSkillFilter));
           if (!hasSkill) return false;
         }
 
         return true;
       })
-      .sort((a, b) => b.evaluation.score - a.evaluation.score);
-  }, [deduplicatedTalents, project, query, entityFilter, minScoreFilter, selectedSkillFilter]);
+      .sort((a, b) => b.evaluation.score - a.evaluation.score || Number(b.evaluation.preferenceFit) - Number(a.evaluation.preferenceFit));
+  }, [deduplicatedTalents, project, query, entityFilter, minScoreFilter, selectedSkillFilter, budgetOnly, availableOnly]);
 
   const handleResetFilters = () => {
+    setBudgetOnly(false); setAvailableOnly(false);
     setQuery("");
     setEntityFilter("all");
     setMinScoreFilter(0);
@@ -163,8 +169,8 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
 
           {/* Min Score Filter */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>Mức phù hợp:</Typography>
-            {([ [0, "Tất cả"], [75, "Có nhiều tiêu chí"], [85, "Nổi bật"] ] as const).map(([value, label]) => (
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>Tiêu chí có bằng chứng:</Typography>
+            {([ [0, "Tất cả"], [2, "Từ 2 tiêu chí"], [3, "Đủ 3 tiêu chí"] ] as const).map(([value, label]) => (
               <button
                 key={value}
                 type="button"
@@ -197,6 +203,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
           />
         </Box>
 
+        <div className="flex flex-wrap gap-x-5 gap-y-1"><FormControlLabel control={<Checkbox size="small" checked={budgetOnly} onChange={event => setBudgetOnly(event.target.checked)} />} label={<Typography sx={{ fontSize: 12 }}>Khoảng phí giao với ngân sách</Typography>} /><FormControlLabel control={<Checkbox size="small" checked={availableOnly} onChange={event => setAvailableOnly(event.target.checked)} />} label={<Typography sx={{ fontSize: 12 }}>Hồ sơ ghi có thể bắt đầu ngay</Typography>} /></div>
         {/* Skill filter chips */}
         {project.skills.length > 0 && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", pt: 1, borderTop: "1px solid #eceae7" }}>

@@ -1,3 +1,4 @@
+import { canonicalSkill } from "@/lib/utils/matchingScore";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Avatar, Box, Button, Dialog, DialogContent, DialogTitle, Typography, Chip } from "@mui/material";
@@ -32,7 +33,7 @@ export function CandidateComparison({ project, suggestions = false, ids, onRemov
           {selected.map(talent => {
             const candidate = records.find(record => record.talentId === talent.id);
             const submission = candidate?.submission;
-            const matched = project.skills.filter(skill => talent.skills.some(value => value.trim().toLocaleLowerCase() === skill.trim().toLocaleLowerCase()));
+            const matched = project.skills.filter(skill => talent.skills.some(value => canonicalSkill(value) === canonicalSkill(skill)));
             const missing = project.skills.filter(skill => !matched.includes(skill));
             return <Box key={talent.id} sx={{ border: "1px solid", borderColor: "divider", display: "grid", gridTemplateRows: "subgrid", gridRow: "span 11", overflow: "hidden" }}>
               <Box sx={{ p: 2, bgcolor: "#fff6f1" }}><Avatar src={talent.avatar} alt="" sx={{ bgcolor: talent.color, color: "text.primary", mb: 1 }}>{talent.initials}</Avatar><Typography component="h3" sx={{ fontWeight: 700 }}>{talent.name}</Typography><Typography sx={{ fontSize: 12, color: "text.secondary" }}>{talent.kind} · {talent.role}</Typography></Box>

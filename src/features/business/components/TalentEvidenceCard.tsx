@@ -3,7 +3,7 @@ import { Avatar, Box, Button, Card, Typography, Chip, Tooltip, IconButton, Menu,
 import { Link } from "react-router";
 import { Sparkles, Check, ArrowRight, Clock3, Wallet, MoreHorizontal } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
-import { calculateMatchingScore } from "@/lib/utils/matchingScore";
+import { calculateMatchingScore, canonicalSkill } from "@/lib/utils/matchingScore";
 import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
 
 interface TalentEvidenceCardProps {
@@ -81,14 +81,14 @@ export function TalentEvidenceCard({
 
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 0.5 }}>
             <Chip
-              label={evaluation.score >= 85 ? "Phù hợp nổi bật" : "Có tiêu chí phù hợp"}
+              label={evaluation.score ? `${evaluation.score}/3 tiêu chí có bằng chứng` : "Cần đối chiếu thêm"}
               size="small"
               sx={{
-                bgcolor: evaluation.score >= 80 ? "#f0fdf4" : "#fff7ed",
-                color: evaluation.score >= 80 ? "#15803d" : "#c2410c",
+                bgcolor: evaluation.score >= 2 ? "#f0fdf4" : "#fff7ed",
+                color: evaluation.score >= 2 ? "#15803d" : "#c2410c",
                 fontWeight: 700,
                 border: "1px solid",
-                borderColor: evaluation.score >= 80 ? "#bbf7d0" : "#ffedd5",
+                borderColor: evaluation.score >= 2 ? "#bbf7d0" : "#ffedd5",
               }}
             />
             <Chip
@@ -102,7 +102,7 @@ export function TalentEvidenceCard({
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5, p: 1.5, mb: 2.5, bgcolor: "background.default", borderRadius: 2 }}>
           <div className="flex items-start gap-2"><Wallet size={15} className="mt-0.5 shrink-0 text-[#747773]" aria-hidden="true" /><div><p className="m-0 text-[11px] text-[#747773]">Mức phí dự kiến</p><p className="mb-0 mt-1 text-[13px] font-semibold">{talent.rate || "Chưa cập nhật"}</p></div></div>
-          <div className="flex items-start gap-2"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#747773]" aria-hidden="true" /><div><p className="m-0 text-[11px] text-[#747773]">Lịch làm việc</p><p className="mb-0 mt-1 text-[13px] font-medium">{talent.availability || "Chưa cập nhật"}</p></div></div>
+          <div className="flex items-start gap-2"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#747773]" aria-hidden="true" /><div><p className="m-0 text-[11px] text-[#747773]">Lịch làm việc</p><p className="mb-0 mt-1 text-[13px] font-medium">{evaluation.availability}</p></div></div>
         </Box>
 
         {/* Explainable Rationale Badges (BR-026) */}
@@ -111,6 +111,7 @@ export function TalentEvidenceCard({
             Lý do phù hợp
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            {!evaluation.reasons.length && <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Chưa đủ dữ liệu đối chiếu. Hãy xem hồ sơ và portfolio.</Typography>}
             {evaluation.reasons.map((reason, idx) => (
               <Box key={idx} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Check size={14} color="#16a34a" />
@@ -122,13 +123,14 @@ export function TalentEvidenceCard({
           </Box>
         </Box>
 
+        <Typography sx={{ fontSize: 11, color: evaluation.budget === "outside" ? "primary.dark" : "text.secondary", mb: 2 }}>{evaluation.budget === "unknown" ? "Chưa có đủ khoảng phí để đối chiếu ngân sách." : evaluation.budget === "outside" ? "Khoảng phí tham khảo nằm ngoài ngân sách." : "Mức phí tham khảo chưa phải báo giá cam kết cho dự án."}</Typography>
         {/* Matched & Relevant Skills (FR-017) */}
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
             {talent.skills.slice(0, 4).map((skill) => {
               const isOverlap = evaluation.skillOverlap
-                .map((s) => s.toLowerCase().trim())
-                .includes(skill.toLowerCase().trim());
+                .map(canonicalSkill)
+                .includes(canonicalSkill(skill));
               return (
                 <Chip
                   key={skill}
