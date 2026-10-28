@@ -1,6 +1,7 @@
+import { canManageApplication } from "@/lib/storage/applicationAccess";
 import React from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router";
-import { Container, Typography, Button } from "@mui/material";
+import { Navigate, useParams, useSearchParams, useNavigate } from "react-router";
+import { Alert, Container, Typography, Button } from "@mui/material";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -24,6 +25,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
   const projectId = projectIdOverride ?? routeProjectId;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [sendError, setSendError] = React.useState("");
 
   const { user, role } = useAuthSession();
   const { projects, candidates, talents, unlockChat } = useBusiness();
@@ -38,7 +40,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
   let targetCandidate = projectCandidates.find((c) => c.talentId === queryTalentId);
   if (!targetCandidate && projectCandidates.length > 0) {
     if (role === "freelancer") {
-      targetCandidate = projectCandidates.find((c) => c.talentId === "minh-anh" || c.talentId === "ha-vy") || projectCandidates[0];
+      targetCandidate = projectCandidates.find((c) => !!user && canManageApplication(c, user));
     } else {
       targetCandidate = projectCandidates[0];
     }
@@ -87,11 +89,14 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
     );
   }
 
+  if (!(role === "admin" || (role === "client" && user?.companyName === project.company) || (!!user && canManageApplication(targetCandidate, user)))) return <Navigate to="/forbidden" replace />;
+
   const handleSendMessage = (body: string, attachment?: { name: string; url: string }) => {
     const isBusiness = role === "client" || role === "admin";
     const senderRole = isBusiness ? "business" : "talent";
     const senderName = user?.name || (isBusiness ? project.company : targetTalent.name);
 
+    try {
     const newMsg = mockStorage.sendMessage(
       project.id,
       targetTalent.id,
@@ -101,6 +106,8 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
       attachment
     );
     setMessages((prev) => [...prev, newMsg]);
+    setSendError(""); return true;
+    } catch (issue) { setSendError(issue instanceof Error ? issue.message : "Chưa gửi được tin nhắn. Vui lòng thử lại."); return false; }
   };
 
   const handleApproveChat = () => {
@@ -112,7 +119,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
   };
 
   const chatRoom = (
-    <ProjectChatRoom
+    <>{sendError && <Alert severity="error" sx={{ m: 1 }}>{sendError}</Alert>}<ProjectChatRoom
       project={project}
       candidate={targetCandidate}
       talent={targetTalent}
@@ -124,7 +131,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
       onNavigateToAgreement={handleNavigateToAgreement}
       inboxMode={embedded}
       onBackToList={onBackToList}
-    />
+    /></>
   );
 
   if (embedded) return chatRoom;

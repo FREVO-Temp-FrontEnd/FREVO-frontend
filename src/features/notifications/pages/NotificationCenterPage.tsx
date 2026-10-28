@@ -1,3 +1,4 @@
+import { canManageApplication } from "@/lib/storage/applicationAccess";
 import React, { useState } from "react";
 import {
   Container,
@@ -40,16 +41,25 @@ const iconMap: Record<NotificationType, React.ReactNode> = {
   system: <Bell size={20} color="#64748b" />,
 };
 
+function visibleNotifications() {
+  const state = mockStorage.getState();
+  const user = state.activeUser;
+  return state.notifications.filter(item => {
+    if (item.recipientCompany) return user.role === "client" && item.recipientCompany === user.companyName;
+    return !item.userId || item.userId === user.id || (user.role === "freelancer" && state.candidates.some(candidate => candidate.talentId === item.userId && canManageApplication(candidate, user)));
+  });
+}
+
 export const NotificationCenterPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>("all");
   const [notifications, setNotifications] = useState<NotificationItem[]>(() =>
-    mockStorage.getNotifications()
+    visibleNotifications()
   );
 
   React.useEffect(() => {
     const unsub = mockStorage.subscribe(() => {
-      setNotifications(mockStorage.getNotifications());
+      setNotifications(visibleNotifications());
     });
     return unsub;
   }, []);
@@ -62,7 +72,7 @@ export const NotificationCenterPage: React.FC = () => {
   };
 
   const handleMarkAllRead = () => {
-    mockStorage.markAllNotificationsRead();
+    visibleNotifications().filter(item => !item.read).forEach(item => mockStorage.markNotificationRead(item.id));
   };
 
   const filtered = notifications.filter((n) => {

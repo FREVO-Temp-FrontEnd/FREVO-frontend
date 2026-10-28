@@ -128,6 +128,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
                   bgcolor: "#ffffff",
                 }}
               >
+                {inv.status === "cancelled" && <Alert severity="info" sx={{ width: "100%", fontSize: 12 }}>Đã hủy lời mời do dự án đã chốt người thực hiện.</Alert>}
                 {/* Talent Identity & Invitation Meta */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Box

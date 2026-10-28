@@ -1,4 +1,4 @@
-import { Box, Button, Chip, IconButton, Paper, Snackbar, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, IconButton, Paper, Snackbar, Typography } from "@mui/material";
 import { ArrowLeft, CalendarDays, CheckCircle2, ClipboardCheck, Eye, FileText, Handshake, History, Info, MessageCircle, RotateCcw, UploadCloud, Wallet } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
@@ -36,6 +36,7 @@ export function WorkspaceOverviewPage() {
       "&& .MuiButton-contained": { color: "primary.contrastText" },
       "& h1, & h2, & h3": { letterSpacing: "-.015em" }
     }}>
+    {agreement.confirmationSource === "demo" && <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>Dự án bắt đầu từ xác nhận mô phỏng của Provider. Không phải phản hồi thật hoặc giao dịch thanh toán.</Alert>}
     <ProjectBreadcrumbs
       items={isBusiness ? [
         { label: "Dự án của tôi", to: "/business/projects" },

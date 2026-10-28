@@ -7,7 +7,7 @@ export function useBusinessNotifications() {
   useEffect(() => mockStorage.subscribe(() => setState(mockStorage.getState())), []);
 
   const notifications = useMemo(() => state.notifications
-    .filter((notification) => !notification.userId || notification.userId === state.activeUser.id)
+    .filter((notification) => notification.recipientCompany ? state.activeUser.role === "client" && notification.recipientCompany === state.activeUser.companyName : !notification.userId || notification.userId === state.activeUser.id)
     .sort((a, b) => b.timestamp - a.timestamp), [state]);
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;

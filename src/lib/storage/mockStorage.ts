@@ -1,3 +1,6 @@
+import { isDemoMode } from "@/lib/api/agent";
+import { resolveAgreement } from "./agreementSelection";
+import { canManageApplication } from "./applicationAccess";
 import { briefSnapshot, changedBriefFields, materialBriefChanges } from "@/lib/utils/briefVersions";
 import { businessQuotaPolicy } from "@/lib/config/businessQuota";
 import { businessInvitationQuota, businessProjectQuota } from "@/lib/utils/businessQuota";
@@ -861,6 +864,11 @@ class MockStorageAdapter {
    * Traceable to FR-031, BR-012, BR-013, BUS-013
    */
   public unlockCandidateChat(projectId: string, talentId: string): void {
+    const project = this.getProjectById(projectId);
+    const actor = this.getActiveUser();
+    const candidate = this.memoryState.candidates.find(item => item.projectId === projectId && item.talentId === talentId);
+    if (!project || project.status !== "published" || project.selectedTalentId || !candidate || !["new", "under_review"].includes(candidate.status)) throw new Error("Dự án đã đóng tuyển hoặc hồ sơ không còn chờ duyệt.");
+    if (!(actor.role === "admin" || (actor.role === "client" && actor.companyName === project.company))) throw new Error("Chỉ chủ dự án được duyệt mở chat.");
     const nextCandidates = this.memoryState.candidates.map((c) => {
       if (c.projectId === projectId && c.talentId === talentId) {
         return {
@@ -874,7 +882,7 @@ class MockStorageAdapter {
     });
 
     // Also push a notification to the talent
-    const project = this.getProjectById(projectId);
+
     const nextNotifications: NotificationItem[] = [
       {
         id: `notif-chat-${Date.now()}`,
@@ -952,6 +960,8 @@ class MockStorageAdapter {
   }
 
   public respondToInvitation(invitationId: string, accept: boolean): void {
+    const requested = this.memoryState.invitations.find(item => item.id === invitationId);
+    if (!requested || requested.status !== "pending" || Date.parse(requested.expiresAt) <= Date.now() || this.getProjectById(requested.projectId)?.status !== "published") throw new Error("Lời mời đã hết hạn hoặc dự án đã đóng tuyển.");
     let targetInv: Invitation | undefined;
     const nextInvitations = this.memoryState.invitations.map((i) => {
       if (i.id === invitationId) {
@@ -1024,6 +1034,12 @@ class MockStorageAdapter {
   public createAgreementProposal(
     proposal: Omit<AgreementProposal, "id" | "version" | "isEffective" | "sentAt" | "expiresAt" | "status">
   ): AgreementProposal {
+    const projectRecord = this.getProjectById(proposal.projectId);
+    const candidateRecord = this.memoryState.candidates.find(item => item.projectId === proposal.projectId && item.talentId === proposal.talentId);
+    const owner = this.getActiveUser();
+    if (!projectRecord || !(owner.role === "admin" || (owner.role === "client" && owner.companyName === projectRecord.company))) throw new Error("Chỉ chủ dự án được gửi thỏa thuận.");
+    if (!candidateRecord?.chatUnlocked || !["discussing", "offer", "selected"].includes(candidateRecord.status)) throw new Error("Cần duyệt ứng viên trước khi gửi thỏa thuận.");
+    if (projectRecord.status !== "published" && !(projectRecord.status === "ongoing" && projectRecord.selectedTalentId === proposal.talentId)) throw new Error("Dự án đã đóng tuyển với Provider khác.");
     const existing = this.memoryState.agreements.filter(
       (a) => a.projectId === proposal.projectId && a.talentId === proposal.talentId
     );
@@ -1068,56 +1084,26 @@ class MockStorageAdapter {
     return newProposal;
   }
 
+  /** Explicit demo action: execute provider acceptance without changing the signed-in session. */
+  public simulateAgreementAcceptance(agreementId: string): void {
+    if (!isDemoMode) throw new Error("Thao tác này chỉ có trong chế độ demo.");
+    const agreement = this.memoryState.agreements.find(item => item.id === agreementId);
+    const project = this.memoryState.projects.find(item => item.id === agreement?.projectId);
+    const actor = this.getActiveUser();
+    if (!agreement || !project || !(actor.role === "admin" || (actor.role === "client" && actor.companyName === project.company))) throw new Error("Chỉ chủ dự án được dùng công cụ demo này.");
+    if (agreement.status === "confirmed" && agreement.confirmationSource === "demo") return;
+    if (agreement.status !== "pending") throw new Error("Chỉ mô phỏng phản hồi cho đề xuất đang chờ xác nhận.");
+    const candidate = this.memoryState.candidates.find(item => item.projectId === project.id && item.talentId === agreement.talentId);
+    if (!candidate) throw new Error("Không tìm thấy hồ sơ Provider.");
+    const talent = this.getTalentById(agreement.talentId);
+    const provider: UserSession = { ...actor, id: candidate.applicantAccountId || talent?.teamLeaderId || agreement.talentId, name: talent?.name || "Provider", role: "freelancer", companyName: undefined, actingIdentity: talent?.kind === "Team" ? { type: "team", teamId: talent.id } : { type: "individual" } };
+    const next = resolveAgreement({ ...this.memoryState, activeUser: provider }, agreementId, true);
+    this.saveToStorage({ ...next, activeUser: actor, agreements: next.agreements.map(item => item.id === agreementId ? { ...item, confirmationSource: "demo" } : item) }, true);
+  }
+
   public respondToAgreement(agreementId: string, accept: boolean): void {
-    let targetAgr: AgreementProposal | undefined;
-    const nextAgreements = this.memoryState.agreements.map((a) => {
-      if (a.id === agreementId) {
-        targetAgr = {
-          ...a,
-          status: accept ? ("confirmed" as const) : ("rejected" as const),
-          confirmedAt: accept ? new Date().toISOString() : undefined,
-          rejectedAt: !accept ? new Date().toISOString() : undefined,
-          isEffective: accept, // Becomes the effective version if confirmed per FR-048
-        };
-        return targetAgr;
-      }
-      // If confirmed, deactivate any older versions for this project per FR-048
-      if (accept && targetAgr && a.projectId === targetAgr.projectId) {
-        return { ...a, isEffective: false };
-      }
-      return a;
-    });
-
-    let nextProjects = [...this.memoryState.projects];
-    let nextCandidates = [...this.memoryState.candidates];
-
-    if (accept && targetAgr) {
-      // Transition project status to ongoing and lock recruitment (FR-022)
-      nextProjects = nextProjects.map((p) =>
-        p.id === targetAgr!.projectId
-          ? {
-              ...p,
-              status: "ongoing" as const,
-              selectedTalentId: targetAgr!.talentId,
-              closedAt: p.closedAt || new Date().toISOString(),
-            }
-        : p
-      );
-
-      // Transition candidate status to selected
-      nextCandidates = nextCandidates.map((c) =>
-        c.projectId === targetAgr!.projectId && c.talentId === targetAgr!.talentId
-          ? { ...c, status: "selected" as const }
-          : c
-      );
-    }
-
-    this.saveToStorage({
-      ...this.memoryState,
-      agreements: nextAgreements,
-      projects: nextProjects,
-      candidates: nextCandidates,
-    });
+    const next = resolveAgreement(this.memoryState, agreementId, accept);
+    if (next !== this.memoryState) this.saveToStorage(next, true);
   }
 
   // --- Milestone & Deliverable Operations (DEC-03 & BR-014) ---
@@ -1266,6 +1252,13 @@ class MockStorageAdapter {
     body: string,
     attachment?: { name: string; url: string }
   ): ChatMessage {
+    const candidate = this.memoryState.candidates.find(item => item.projectId === projectId && item.talentId === talentId);
+    const project = this.getProjectById(projectId);
+    const user = this.getActiveUser();
+    const business = user.role === "client" && user.companyName === project?.company;
+    const authorized = user.role === "admin" || business || (!!candidate && canManageApplication(candidate, user));
+    if (!authorized || sender !== (user.role === "client" || user.role === "admin" ? "business" : "talent")) throw new Error("Bạn không có quyền gửi tin nhắn trong cuộc trao đổi này.");
+    if (!project || !candidate?.chatUnlocked || candidate.status === "not_selected" || project.status === "draft" || (["ongoing", "closed", "completed"].includes(project.status) && project.selectedTalentId !== talentId)) throw new Error("Cuộc trao đổi chỉ còn quyền xem hoặc chưa được duyệt.");
     const newMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
       projectId,

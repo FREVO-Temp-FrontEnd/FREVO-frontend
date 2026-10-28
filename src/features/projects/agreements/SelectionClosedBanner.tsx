@@ -47,9 +47,9 @@ export const SelectionClosedBanner: React.FC<SelectionClosedBannerProps> = ({
         </Box>
 
         <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap", mb: 0.5 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#166534" }}>
-              Đã đóng tuyển · Đã chọn đối tác thực hiện (BR-023)
+              Đã đóng tuyển · Đã chọn người thực hiện
             </Typography>
             <Chip
               label="Đã chọn đối tác"
@@ -77,7 +77,7 @@ export const SelectionClosedBanner: React.FC<SelectionClosedBannerProps> = ({
       >
         <Info size={16} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }} />
         <Typography variant="caption" sx={{ color: "#166534", lineHeight: 1.4 }}>
-          <strong>Lưu ý BR-023:</strong> Đóng tuyển ghi nhận việc chốt đối tác và khóa nhận hồ sơ mới, không đồng nghĩa dự án đã hoàn thành. Dự án đang chuyển sang giai đoạn thực hiện.
+          <strong>Trạng thái dự án:</strong> Đóng tuyển ghi nhận việc chốt đối tác và khóa nhận hồ sơ mới, không đồng nghĩa dự án đã hoàn thành. Dự án đang chuyển sang giai đoạn thực hiện.
         </Typography>
       </Box>
     </Paper>
