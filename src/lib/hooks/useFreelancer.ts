@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { useAuthSession } from "./useAuthSession";
+import { applicationTeamIds, canManageApplication } from "@/lib/storage/applicationAccess";
 import type { Invitation, Candidate, ProjectBrief } from "@/lib/types/marketplace.types";
 
 export function useFreelancer() {
@@ -46,8 +47,12 @@ export function useFreelancer() {
 
   // My Applications
   const myApplications: Candidate[] = useMemo(() => {
-    return state.candidates.filter((c) => c.talentId === currentTalentId);
-  }, [state.candidates, currentTalentId]);
+    if (!user || user.role !== "freelancer") return [];
+    const teamIds = applicationTeamIds(user);
+    return state.candidates.filter((c) => canManageApplication(c, user) || teamIds.has(c.talentId));
+  }, [state.candidates, user]);
+
+  const canManage = useCallback((candidate: Candidate) => !!user && canManageApplication(candidate, user), [user]);
 
   // Respond to invitation per BR-005
   const acceptInvitation = useCallback((invitationId: string) => {
@@ -102,9 +107,11 @@ export function useFreelancer() {
 
   // Withdraw application per FL-012, BR-010
   const withdrawApplication = useCallback((candidateId: string) => {
+    const candidate = state.candidates.find(item => item.id === candidateId);
+    if (!candidate || !canManage(candidate) || !["new", "under_review"].includes(candidate.status)) return;
     mockStorage.updateCandidateStatus(candidateId, "not_selected");
     setToast("Đã rút hồ sơ ứng tuyển khỏi dự án (FL-012).");
-  }, []);
+  }, [state.candidates, canManage]);
 
   return {
     currentTalent,
@@ -112,6 +119,7 @@ export function useFreelancer() {
     myInvitations,
     pendingInvitationsCount,
     myApplications,
+    canManage,
     projects: state.projects,
     getProjectForInvitation,
     acceptInvitation,

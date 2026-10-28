@@ -1,4 +1,5 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
+import { Link } from "react-router";
 import {
   Dialog,
   DialogContent,
@@ -7,14 +8,17 @@ import {
   Button,
   IconButton,
   keyframes,
-  Alert, Avatar, Checkbox, MenuItem, Skeleton, TextField,
+  Alert, Avatar, Checkbox, MenuItem, TextField,
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
-import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Link as LinkIcon, Clock3 } from "lucide-react";
+import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/utils/formatters";
 import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
 import { useApplicationMaterials } from "../hooks/useApplicationMaterials";
+import { useAuthSession } from "@/lib/hooks/useAuthSession";
+import { readRepresentedTeams } from "@/lib/storage/representedTeams";
+import { validateResumeFile } from "@/lib/utils/validateResumeFile";
 
 const dialogSlideDown = keyframes`
   from {
@@ -32,10 +36,6 @@ interface ProjectApplyDialogProps {
   onClose: () => void;
   project?: Project;
   reapplying: boolean;
-  proposal: string;
-  setProposal: (val: string) => void;
-  portfolio: string;
-  setPortfolio: (val: string) => void;
   submitting: boolean;
   submitError: string;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
@@ -46,15 +46,19 @@ export function ProjectApplyDialog({
   onClose,
   project,
   reapplying,
-  proposal,
-  setProposal,
-  portfolio,
-  setPortfolio,
   submitting,
   submitError,
   onSubmit,
 }: ProjectApplyDialogProps) {
   const [applicantType, setApplicantType] = useState<"individual" | "team">("individual");
+  const [teamId, setTeamId] = useState("");
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvError, setCvError] = useState("");
+  const { user } = useAuthSession();
+  const teamLibrary = useMemo(() => {
+    try { return { teams: user ? readRepresentedTeams(user) : [], error: "" }; }
+    catch (error) { return { teams: [], error: error instanceof Error ? error.message : "Không đọc được danh sách nhóm." }; }
+  }, [user]);
   const materials = useApplicationMaterials(applicantType, isOpen);
 
   const budgetDefault = project
@@ -232,7 +236,6 @@ export function ProjectApplyDialog({
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <input type="hidden" name="applicantType" value={applicantType} />
               {materials.selectedWorkIds.map(id => <input key={id} type="hidden" name="portfolioWorkIds" value={id} />)}
-              <input type="hidden" name="resumeId" value={materials.resumeId} />
 
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: "8px" }}>
                 <Typography component="label" sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c" }}>
@@ -377,66 +380,18 @@ export function ProjectApplyDialog({
                 </Box>
               </Box>
 
-              {/* ── 2. Thư đề xuất ── */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  mt: "20px",
-                  mb: "8px",
-                }}
-              >
-                <Typography
-                  component="label"
-                  htmlFor="proposal"
-                  sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c" }}
-                >
-                  Thư đề xuất &amp; Kế hoạch (Proposal)
-                </Typography>
-                <Typography component="span" sx={{ fontSize: 11, color: "#907067" }}>
-                  Không bắt buộc
-                </Typography>
-              </Box>
+              {applicantType === "team" && <Box sx={{ mt: 2 }}>
+                <Typography component="label" htmlFor="apply-team" sx={{ display: "block", mb: 1, fontSize: 13, fontWeight: 700 }}>Chọn nhóm ứng tuyển *</Typography>
+                {teamLibrary.error ? <Alert severity="error">{teamLibrary.error}</Alert> : teamLibrary.teams.length ? <TextField id="apply-team" select name="teamId" fullWidth size="small" required value={teamId} onChange={event => setTeamId(event.target.value)} slotProps={{ select: { displayEmpty: true } }}>
+                  <MenuItem value="" disabled>Chọn một nhóm bạn đại diện</MenuItem>
+                  {teamLibrary.teams.map(team => <MenuItem key={team.id} value={team.id}>{team.name} · {team.discipline}</MenuItem>)}
+                </TextField> : <Alert severity="info" action={<Button component={Link} to="/team/profile" size="small">Tạo nhóm</Button>}>Bạn chưa có nhóm. Hãy tạo nhóm trước khi ứng tuyển theo Team.</Alert>}
+              </Box>}
 
-              <Box
-                component="textarea"
-                id="proposal"
-                name="proposal"
-                value={proposal}
-                onChange={(e) => setProposal(e.target.value)}
-                maxLength={2000}
-                minLength={50}
-                placeholder="Vì sao bạn phù hợp với dự án này? Cách bạn sẽ tiếp cận..."
-                sx={{
-                  width: "100%",
-                  minHeight: "120px",
-                  height: "130px",
-                  resize: "vertical",
-                  p: "12px 14px",
-                  borderRadius: "16px",
-                  border: "1.5px solid transparent",
-                  bgcolor: "#f5f3f3",
-                  fontFamily: "inherit",
-                  fontSize: 13,
-                  lineHeight: 1.7,
-                  color: "#1b1c1c",
-                  boxSizing: "border-box",
-                  transition: "all 0.15s ease",
-                  "&::placeholder": { color: "#b0a09a" },
-                  "&:focus": {
-                    outline: "none",
-                    borderColor: "#ab2e00",
-                    bgcolor: "#fff",
-                  },
-                }}
-              />
-              <Typography sx={{ fontSize: 11, color: "#907067", textAlign: "right", mt: "4px" }}>
-                {proposal.length} / 2000 ký tự
-              </Typography>
-
+              {applicantType === "individual" && <>
               <Typography sx={{ fontSize: 13, fontWeight: 700, mt: 3, mb: 1 }}>Tác phẩm gửi kèm ({materials.selectedWorkIds.length})</Typography>
-              <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1.5 }}>Chọn một hoặc nhiều dự án bạn muốn doanh nghiệp xem trong đơn này.</Typography>
+              <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1.5 }}>Chọn tác phẩm bạn muốn doanh nghiệp xem trong đơn này (không bắt buộc).</Typography>
+              {materials.error && <Alert severity="warning" action={<Button onClick={materials.reload}>Thử lại</Button>}>{materials.error} Bạn vẫn có thể gửi CV.</Alert>}
               <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>
                 {materials.works.map(work => <Box key={work.id} component="label" sx={{ display: "flex", gap: 1, alignItems: "center", minWidth: 0, p: 1.25, border: "1px solid", borderColor: materials.selectedWorkIds.includes(work.id) ? "primary.main" : "divider", bgcolor: materials.selectedWorkIds.includes(work.id) ? "#fff0e9" : "background.paper", borderRadius: 2, cursor: "pointer" }}>
                   <Checkbox size="small" checked={materials.selectedWorkIds.includes(work.id)} onChange={() => materials.toggleWork(work.id)} sx={{ p: 0.5 }} slotProps={{ input: { "aria-label": `Gửi kèm ${work.title}` } }} />
@@ -444,69 +399,13 @@ export function ProjectApplyDialog({
                   <div className="min-w-0"><Typography sx={{ fontSize: 12, fontWeight: 600, lineHeight: 1.5 }}>{work.title}</Typography><Typography sx={{ fontSize: 11, color: "text.secondary" }}>{work.category}</Typography></div>
                 </Box>)}
               </Box>
-              {!materials.loading && !materials.error && !materials.works.length && <Alert severity="info" sx={{ mt: 1 }}>Chưa có tác phẩm công khai. Bạn có thể gửi liên kết portfolio bên dưới.</Alert>}
+              {!materials.loading && !materials.error && !materials.works.length && <Alert severity="info" sx={{ mt: 1 }}>Chưa có tác phẩm công khai. Bạn vẫn có thể ứng tuyển bằng CV.</Alert>}
+              </>}
               <Box sx={{ mt: 3, p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
-                <Typography sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />CV gửi kèm</Typography>
-                {materials.loading ? <Skeleton variant="rectangular" height={44} sx={{ borderRadius: 1.5 }} /> : materials.error ? <Alert severity="error" action={<Button onClick={materials.reload}>Thử lại</Button>}>{materials.error}</Alert> : <>
-                  <TextField select fullWidth size="small" label="Chọn một CV" value={materials.resumeId} onChange={event => materials.setResumeId(event.target.value)} sx={{ "& .MuiSelect-select": { fontSize: 12 } }}>
-                    <MenuItem value="" sx={{ fontSize: 12 }}>{materials.primaryResume ? `CV mặc định: ${materials.primaryResume.name}` : "Chưa có CV mặc định"}</MenuItem>
-                    {materials.resumes.map(resume => <MenuItem key={resume.id} value={resume.id} sx={{ fontSize: 12 }}>{resume.name}</MenuItem>)}
-                  </TextField>
-                  <Typography sx={{ mt: 1, fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>{materials.primaryResume ? "Không chọn CV khác sẽ gửi CV mặc định. Mỗi đơn chỉ gửi một CV." : "Bạn chưa có CV. Đơn vẫn có thể gửi với portfolio và lời giới thiệu."}</Typography>
-                </>}
-              </Box>
-
-              {/* Portfolio link */}
-              <Typography
-                component="label"
-                htmlFor="portfolio"
-                sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c", mt: "12px", mb: "8px", display: "block" }}
-              >
-                Liên kết portfolio bổ sung
-              </Typography>
-
-              <Box sx={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    left: 12,
-                    color: "#907067",
-                    display: "flex",
-                    alignItems: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <LinkIcon size={14} />
-                </Box>
-                <Box
-                  component="input"
-                  id="portfolio"
-                  name="portfolio"
-                  type="url"
-                  value={portfolio}
-                  onChange={(e) => setPortfolio(e.target.value)}
-                  placeholder="https://behance.net/ten-ban"
-                  required={materials.selectedWorkIds.length === 0}
-                  sx={{
-                    width: "100%",
-                    height: "40px",
-                    p: "0 14px 0 34px",
-                    borderRadius: "20px",
-                    border: "1.5px solid transparent",
-                    bgcolor: "#f5f3f3",
-                    fontFamily: "inherit",
-                    fontSize: 12,
-                    color: "#1b1c1c",
-                    boxSizing: "border-box",
-                    transition: "all 0.15s ease",
-                    "&::placeholder": { color: "#b0a09a" },
-                    "&:focus": {
-                      outline: "none",
-                      borderColor: "#ab2e00",
-                      bgcolor: "#fff",
-                    },
-                  }}
-                />
+                <Typography component="label" htmlFor="apply-cv" sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />Tải CV lên *</Typography>
+                <Box component="input" id="apply-cv" name="cvFile" type="file" accept=".pdf,.doc,.docx" required onChange={(event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0] || null; const issue = file ? validateResumeFile(file) : ""; setCvError(issue || ""); setCvFile(issue ? null : file); if (issue) event.target.value = ""; }} sx={{ display: "block", width: "100%", fontSize: 13, "&::file-selector-button": { border: "1px solid", borderColor: "divider", bgcolor: "background.default", borderRadius: 999, px: 2, py: 1, mr: 1.5, font: "inherit", cursor: "pointer" } }} />
+                <Typography sx={{ mt: 1, fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>{cvFile ? `Đã chọn: ${cvFile.name}` : "PDF, DOC hoặc DOCX, tối đa 5 MB. CV chỉ đính kèm vào đơn này."}</Typography>
+                {cvError && <Alert severity="error" sx={{ mt: 1 }}>{cvError}</Alert>}
               </Box>
 
               {/* ── 4. Ngân sách & Thời gian hoàn thành ── */}
@@ -692,7 +591,7 @@ export function ProjectApplyDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting || materials.loading || !!materials.error}
+              disabled={submitting || materials.loading}
               sx={{
                 height: 42,
                 px: "22px",

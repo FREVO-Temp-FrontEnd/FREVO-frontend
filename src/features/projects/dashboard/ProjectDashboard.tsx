@@ -31,10 +31,6 @@ export default function ProjectDashboard() {
     applyingId,
     openApplication,
     closeApplication,
-    proposal,
-    setProposal,
-    portfolio,
-    setPortfolio,
     submitting,
     submitError,
     submitApplication,
@@ -198,10 +194,6 @@ export default function ProjectDashboard() {
         onClose={closeApplication}
         project={applyingProject}
         reapplying={applyingId !== null && applied.has(applyingId)}
-        proposal={proposal}
-        setProposal={setProposal}
-        portfolio={portfolio}
-        setPortfolio={setPortfolio}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

@@ -2,46 +2,47 @@ import agent, { isDemoMode } from "./agent";
 import { projectsApi } from "./projectsApi";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { createApplicationSubmission } from "@/lib/storage/applicationSubmission";
-import { readResumes, readSubmittedResumeFile, seedMinhAnhResumes } from "@/lib/storage/resumeStorage";
+import { readSubmittedResumeFile } from "@/lib/storage/resumeStorage";
+import { readRepresentedTeams } from "@/lib/storage/representedTeams";
+import { validateResumeFile } from "@/lib/utils/validateResumeFile";
 import type { ApplicantIdentity, ApplicationMaterials, SubmitApplicationRequest } from "@/lib/types/application.types";
 import type { Candidate, ProjectBrief } from "@/lib/types/marketplace.types";
 import type { Work } from "@/lib/types/portfolio.types";
-import type { ResumeRecord } from "@/lib/types/resume.types";
 
 /** API boundary. Demo identifiers, IndexedDB and fixtures stay behind this module.
  * Remote paths define the client contract for future backend integration.
  */
 export const applicationsApi = {
-  async getMaterials(ownerId: string, identity: ApplicantIdentity, personalWorks: Work[], signal?: AbortSignal): Promise<ApplicationMaterials> {
+  async getMaterials(identity: ApplicantIdentity, personalWorks: Work[], signal?: AbortSignal): Promise<ApplicationMaterials> {
     if (!isDemoMode) {
-      const [resumes, works] = await Promise.all([
-        agent.get<ResumeRecord[]>("/resumes", { signal }),
-        agent.get<Work[]>("/portfolio/works", { params: { identity }, signal }),
-      ]);
-      return { resumes: resumes.data, portfolioWorks: works.data };
+      const works = await agent.get<Work[]>("/portfolio/works", { params: { identity }, signal });
+      return { resumes: [], portfolioWorks: works.data };
     }
-    await seedMinhAnhResumes(ownerId);
-    const records = await readResumes(ownerId);
     return {
-      resumes: records.map(({ id, ownerId: recordOwnerId, name, size, mimeType, uploadedAt, isPrimary }) => ({ id, ownerId: recordOwnerId, name, size, mimeType, uploadedAt, isPrimary })),
+      resumes: [],
       portfolioWorks: mockStorage.getApplicantWorks(identity, personalWorks),
     };
   },
 
   async submit(request: SubmitApplicationRequest, personalWorks: Work[]): Promise<void> {
+    if (request.resume.mode !== "upload") throw new Error("Vui lòng tải CV lên trước khi gửi ứng tuyển.");
+    const fileError = validateResumeFile(request.resume.file);
+    if (fileError) throw new Error(fileError);
     if (!isDemoMode) {
       await projectsApi.createApplication(request);
       return;
     }
     const account = mockStorage.getActiveUser();
     if (account.role !== "freelancer") throw new Error("Vui lòng dùng tài khoản freelancer để gửi hồ sơ ứng tuyển.");
-    const talentId = mockStorage.getApplicantTalentId(request.applicantIdentity);
+    const team = request.applicantIdentity === "team" ? readRepresentedTeams(account).find(item => item.id === request.teamId) : undefined;
+    if (request.applicantIdentity === "team" && !team) throw new Error("Vui lòng chọn một nhóm bạn đại diện.");
+    const talentId = team ? `managed-team:${account.id}:${team.id}` : mockStorage.getApplicantTalentId("individual");
     const prior = mockStorage.getCandidates().find(candidate => candidate.projectId === request.projectId && candidate.applicantAccountId === account.id);
     if (prior && prior.talentId !== talentId) throw new Error("Bạn không thể đổi tư cách cá nhân/Team của đơn đã gửi cho dự án này.");
     const project = mockStorage.getProjectById(request.projectId);
     if (project && project.status !== "published") throw new Error("Dự án đã ngừng nhận hồ sơ ứng tuyển.");
-    if (!request.portfolioWorkIds.length && !request.portfolioUrl.trim()) throw new Error("Chọn ít nhất một tác phẩm hoặc nhập liên kết portfolio.");
     const submission = await createApplicationSubmission({ ownerId: account.id, talentId, request, works: mockStorage.getApplicantWorks(request.applicantIdentity, personalWorks) });
+    if (team) mockStorage.registerRepresentedTeam(account.id, team);
     mockStorage.submitApplication(request.projectId, talentId, request.proposal, submission, account.id);
   },
 
