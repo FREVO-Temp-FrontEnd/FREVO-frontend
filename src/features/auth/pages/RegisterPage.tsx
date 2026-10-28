@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import {
   Box,
@@ -27,7 +27,19 @@ type RegisterErrors = {
 };
 
 export default function RegisterPage() {
-  const [role, setRole] = useState<RoleType>("freelancer");
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get("role")?.toLowerCase();
+  const isBusiness = roleParam === "business" || roleParam === "client";
+  const initialRole: RoleType = isBusiness ? "client" : "freelancer";
+  const [role, setRole] = useState<RoleType>(initialRole);
+
+  useEffect(() => {
+    if (roleParam === "business" || roleParam === "client") {
+      setRole("client");
+    } else if (roleParam === "freelancer") {
+      setRole("freelancer");
+    }
+  }, [roleParam]);
 
   const [companyName, setCompanyName] = useState("");
   const [name, setName] = useState("");
