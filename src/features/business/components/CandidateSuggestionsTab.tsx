@@ -1,3 +1,4 @@
+import { CandidateComparison } from "./CandidateComparison";
 import { useState, useMemo } from "react";
 import {
   Box,
@@ -23,6 +24,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
   const { talents, invitations, sendInvitation } = useBusiness();
 
   // Search & Filter state (BUS-008)
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [minScoreFilter, setMinScoreFilter] = useState<number>(0);
@@ -255,6 +257,9 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
             return (
               <TalentEvidenceCard
                 key={talent.id}
+                comparing={compareIds.includes(talent.id)}
+                compareDisabled={!compareIds.includes(talent.id) && compareIds.length >= 3}
+                onCompare={() => setCompareIds(ids => ids.includes(talent.id) ? ids.filter(id => id !== talent.id) : ids.length < 3 ? [...ids, talent.id] : ids)}
                 talent={talent}
                 brief={project}
                 isInvited={isInvited}
@@ -272,6 +277,7 @@ export function CandidateSuggestionsTab({ project }: CandidateSuggestionsTabProp
         Gợi ý được mô phỏng từ kỹ năng và hồ sơ năng lực. Hãy xem hồ sơ trước khi gửi lời mời.
       </Typography>
 
+      <CandidateComparison project={project} suggestions ids={compareIds} onRemove={id => setCompareIds(ids => id ? ids.filter(value => value !== id) : [])} />
       {/* AI Fit Breakdown Modal (BUS-015) */}
       {aiAnalysisTalent && (
         <AIFitAnalysisModal

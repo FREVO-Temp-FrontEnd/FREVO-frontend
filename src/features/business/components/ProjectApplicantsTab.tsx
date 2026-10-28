@@ -1,3 +1,4 @@
+import { CandidateComparison } from "./CandidateComparison";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, Snackbar, TextField, Typography } from "@mui/material";
@@ -11,9 +12,10 @@ const statusLabels: Record<CandidateStatus, string> = { new: "Chờ duyệt", un
 const pillSx = { minHeight: 40, borderRadius: 999, px: 2, fontSize: 13, whiteSpace: "nowrap" } as const;
 interface CardProps {
   candidate: Candidate; talent: TalentProfile; project: ProjectBrief; priority: boolean;
+  onCompare: () => void; comparing: boolean; compareDisabled: boolean;
   onReview: () => void; onDecision: (action: CandidateDecision["action"]) => void;
 }
-function CandidateCard({ candidate, talent, project, priority, onReview, onDecision }: CardProps) {
+function CandidateCard({ candidate, talent, project, priority, onReview, onDecision, onCompare, comparing, compareDisabled }: CardProps) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const pending = matchesCandidateFilter(candidate, "pending");
   const canDecide = project.status === "published" && pending && !candidate.chatUnlocked;
@@ -47,22 +49,23 @@ function CandidateCard({ candidate, talent, project, priority, onReview, onDecis
         <Button onClick={onReview} sx={{ ...pillSx, bgcolor: "#f2f3f0", color: "text.primary", "&:hover": { bgcolor: "#e9ece5" } }}>Xem hồ sơ</Button>
         {canDecide && <Button onClick={() => onDecision("approve")} variant="contained" sx={pillSx}>Duyệt trao đổi</Button>}
         {canChat && <Button component={Link} to={`/business/messages?view=project&scope=${project.id}&project=${project.id}&talent=${candidate.talentId}`} variant="contained" startIcon={<MessageCircle size={15} />} sx={pillSx}>Nhắn tin</Button>}
-        {canDecide && <IconButton aria-label={`Thao tác với ${talent.name}`} aria-haspopup="menu" aria-expanded={Boolean(anchor)} onClick={event => setAnchor(event.currentTarget)} sx={{ width: 36, height: 40, color: "text.secondary" }}><MoreHorizontal size={18} /></IconButton>}
+        {<IconButton aria-label={`Thao tác với ${talent.name}`} aria-haspopup="menu" aria-expanded={Boolean(anchor)} onClick={event => setAnchor(event.currentTarget)} sx={{ width: 36, height: 40, color: "text.secondary" }}><MoreHorizontal size={18} /></IconButton>}
       </div>
     </div>
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}><MenuItem onClick={() => { setAnchor(null); onDecision("reject"); }} sx={{ color: "error.main", fontSize: 14 }}>Từ chối hồ sơ</MenuItem></Menu>
+    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}><MenuItem disabled={compareDisabled} onClick={() => { setAnchor(null); onCompare(); }}>{comparing ? "Bỏ khỏi so sánh" : compareDisabled ? "Đã chọn tối đa 3 ứng viên" : "Thêm vào so sánh"}</MenuItem>{canDecide && <MenuItem onClick={() => { setAnchor(null); onDecision("reject"); }} sx={{ color: "error.main", fontSize: 14 }}>Từ chối hồ sơ</MenuItem>}</Menu>
   </Box>;
 }
 
 export function ProjectApplicantsTab({ project }: { project: ProjectBrief }) {
   const vm = useProjectApplicants(project);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   const { selectedCandidate, decision } = vm;
   const filtered = vm.query.trim() !== "" || vm.statusFilter !== "all";
   const filters: { value: CandidateFilter; label: string }[] = [{ value: "all", label: "Tất cả" }, { value: "pending", label: "Chờ duyệt" }, { value: "discussing", label: "Đã duyệt" }];
   const resetFilters = () => { vm.setQuery(""); vm.setStatusFilter("all"); };
   const renderCandidate = (candidate: Candidate, priority: boolean) => {
     const talent = vm.talentById.get(candidate.talentId);
-    return talent ? <CandidateCard key={candidate.id} candidate={candidate} talent={talent} project={project} priority={priority} onReview={() => vm.setSelectedCandidate(candidate)} onDecision={action => vm.setDecision({ candidate, talent, action })} /> : null;
+    return talent ? <CandidateCard key={candidate.id} candidate={candidate} talent={talent} project={project} priority={priority} comparing={compareIds.includes(talent.id)} compareDisabled={!compareIds.includes(talent.id) && compareIds.length >= 3} onCompare={() => setCompareIds(ids => ids.includes(talent.id) ? ids.filter(id => id !== talent.id) : ids.length < 3 ? [...ids, talent.id] : ids)} onReview={() => vm.setSelectedCandidate(candidate)} onDecision={action => vm.setDecision({ candidate, talent, action })} /> : null;
   };
   return <Box component="section" id="candidate-list" aria-label="Ứng viên của dự án" className="space-y-5" sx={{ "& .MuiButton-root": { textTransform: "none" }, "&& a.MuiButton-contained": { color: "primary.contrastText" } }}>
     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -79,6 +82,7 @@ export function ProjectApplicantsTab({ project }: { project: ProjectBrief }) {
       </div>
       {zone.items.length ? <div className={"space-y-3"}>{zone.items.map(candidate => renderCandidate(candidate, zone.priority))}</div> : <div className="rounded-2xl border border-dashed border-[#e4e0da] px-5 py-8 text-center"><Users size={26} className="mx-auto text-[#747773]" aria-hidden="true" /><p className="mt-3 text-sm font-semibold">{filtered ? "Không có hồ sơ khớp bộ lọc" : zone.priority ? "Chưa có người nhận lời mời" : "Chưa có ứng viên tự ứng tuyển"}</p><p className="mt-1 text-sm text-[#747773]">{filtered ? "Thử đổi trạng thái hoặc từ khóa tìm kiếm." : zone.priority ? "Ứng viên xuất hiện tại đây sau khi chấp nhận lời mời." : "Hồ sơ mới từ bài đăng sẽ xuất hiện tại đây."}</p></div>}
     </section>)}
+    <CandidateComparison project={project} ids={compareIds} onRemove={id => setCompareIds(ids => id ? ids.filter(value => value !== id) : [])} />
     {filtered && <Button onClick={resetFilters} sx={pillSx}>Xóa bộ lọc</Button>}
     {project.status === "published" && <details className="text-sm text-[#747773]"><summary className="w-fit cursor-pointer rounded-lg p-2 focus-visible:outline-2 focus-visible:outline-[#f4490b]">Công cụ demo</summary><Button startIcon={<PlusCircle size={15} />} onClick={vm.simulateApplicant} sx={pillSx}>Mô phỏng hồ sơ mới</Button></details>}
     {selectedCandidate && <CandidateReviewModal open onClose={() => vm.setSelectedCandidate(null)} candidate={selectedCandidate} talent={vm.talentById.get(selectedCandidate.talentId)} project={project} onUnlockChat={talentId => { const talent = vm.talentById.get(talentId); if (talent) vm.setDecision({ candidate: selectedCandidate, talent, action: "approve" }); }} />}

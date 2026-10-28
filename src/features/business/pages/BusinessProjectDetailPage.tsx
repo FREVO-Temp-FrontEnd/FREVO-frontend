@@ -291,8 +291,8 @@ export function BusinessProjectDetailPage() {
       </header>
 
       {/* Pure In-Page Tab Navigation (Content switches below without navigation jumps) */}
-      <nav className="mb-5 mt-3 flex items-center justify-between gap-2 overflow-x-auto border-b border-[#e4e6e2] px-1" aria-label="Các mục của dự án">
-        <div className="flex min-w-0 items-center gap-1 overflow-x-auto">
+      <nav className="mb-5 mt-3 flex items-center justify-between gap-2 overflow-x-auto max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden border-b border-[#e4e6e2] px-1" aria-label="Các mục của dự án">
+        <div className="flex min-w-0 items-center gap-1 overflow-x-auto max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden">
           {tabs.map((tab) => {
             const targetPath = tab.segment === defaultTab
               ? `/business/projects/${project.id}`
