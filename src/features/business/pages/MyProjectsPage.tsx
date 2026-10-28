@@ -1,3 +1,4 @@
+import { BusinessQuotaSummary } from "../components/BusinessQuotaSummary";
 import { Link } from "react-router";
 import { Archive, ArrowRight, BriefcaseBusiness, CalendarDays, Check, FilePenLine, FileText, FolderOpen, Layers3, Plus, Search, UsersRound } from "lucide-react";
 import { Avatar, Box, Button, Chip, InputAdornment, MenuItem, TextField, Typography } from "@mui/material";
@@ -67,6 +68,7 @@ export function MyProjectsPage() {
       <div><Typography component="h1" sx={{ fontSize: { xs: 28, sm: 32 }, fontWeight: 800, lineHeight: 1.25 }}>Dự án của tôi</Typography><p className="mt-2 text-sm text-[#747773]">Quản lý tuyển dụng và hợp tác tại một nơi.</p></div>
       <Button component={Link} to="/business/projects/new" variant="contained" startIcon={<Plus size={17} />} sx={{ minHeight: 44, px: 2.5, alignSelf: { xs: "flex-start", sm: "center" }, flexShrink: 0 }}>Đăng dự án</Button>
     </header>
+    <BusinessQuotaSummary />
     <div className="mb-5 flex max-w-full gap-1 overflow-x-auto border-b border-[#e4e6e2]" role="group" aria-label="Lọc trạng thái dự án">
       {activeFilters.map(item => <Button key={item.value} aria-pressed={filter === item.value} onClick={() => setFilter(item.value)} sx={{ flexShrink: 0, minHeight: 48, px: 1.75, borderRadius: 0, borderBottom: "2px solid", borderColor: filter === item.value ? "primary.main" : "transparent", "&&": { color: filter === item.value ? "primary.dark" : "text.secondary", bgcolor: "transparent" }, "&:hover": { bgcolor: "#f0f2ed" } }}>{item.label}<span className={`ml-2 rounded-full px-2 py-0.5 text-[11px] ${filter === item.value ? "bg-[#fff0e9] text-[#bd3d14]" : "bg-[#eeefeb] text-[#747773]"}`}>{counts[item.value]}</span></Button>)}
     </div>

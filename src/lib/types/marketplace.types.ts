@@ -271,6 +271,7 @@ export interface ProjectBrief {
 }
 
 export interface MarketplaceState {
+  businessQuotaEvents?: { id: string; projectId: string; policyVersion: string; createdAt: string; kind: "project_soft_limit" }[];
   portfolioSeedVersion?: number;
   projects: ProjectBrief[];
   talents: TalentProfile[];

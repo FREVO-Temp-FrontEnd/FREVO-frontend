@@ -1,3 +1,5 @@
+import { businessQuotaPolicy } from "@/lib/config/businessQuota";
+import { businessInvitationQuota, businessProjectQuota } from "@/lib/utils/businessQuota";
 /**
  * FREVO Reactive Mock Storage Adapter
  * Provides local session persistence and pub/sub event reactivity across domain hooks.
@@ -679,6 +681,11 @@ class MockStorageAdapter {
   }
 
   public saveProject(project: ProjectBrief): void {
+    const quota = businessProjectQuota(this.memoryState.projects, project.company);
+    const previous = this.getProjectById(project.id);
+    if (project.status === "published" && previous?.status !== "published" && quota.reached && quota.mode === "hard") {
+      throw new Error("Đã đạt hạn mức dự án đang tuyển. Bạn vẫn có thể lưu bản nháp.");
+    }
     const existingIndex = this.memoryState.projects.findIndex((p) => p.id === project.id);
     let updatedProjects: ProjectBrief[];
     if (existingIndex >= 0) {
@@ -687,7 +694,11 @@ class MockStorageAdapter {
     } else {
       updatedProjects = [project, ...this.memoryState.projects];
     }
-    this.saveToStorage({ ...this.memoryState, projects: updatedProjects });
+    this.saveToStorage({ ...this.memoryState, projects: updatedProjects,
+      businessQuotaEvents: project.status === "published" && previous?.status !== "published" && quota.reached && quota.mode === "soft"
+        ? [...(this.memoryState.businessQuotaEvents ?? []), { id: crypto.randomUUID(), projectId: project.id, policyVersion: businessQuotaPolicy.version, createdAt: new Date().toISOString(), kind: "project_soft_limit" }]
+        : this.memoryState.businessQuotaEvents,
+    });
   }
 
   public updateProjectStatus(id: string, status: ProjectBrief["status"]): void {
@@ -878,6 +889,11 @@ class MockStorageAdapter {
   }
 
   public createInvitation(projectId: string, talentId: string, note?: string): Invitation {
+    const projectRecord = this.getProjectById(projectId);
+    if (!projectRecord || projectRecord.status !== "published") throw new Error("Dự án đã ngừng tuyển.");
+    const existing = this.memoryState.invitations.find(item => item.projectId === projectId && item.talentId === talentId && (item.status === "accepted" || (item.status === "pending" && Date.parse(item.expiresAt) > Date.now())));
+    if (existing) return existing;
+    if (businessInvitationQuota(this.memoryState.invitations, projectId).reached) throw new Error("Đã dùng hết 10 lời mời của dự án hôm nay. Lượt gửi mới mở lại lúc 00:00 giờ Việt Nam.");
     const now = new Date();
     const expires = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // Strict 7-day rule per FR-019
 

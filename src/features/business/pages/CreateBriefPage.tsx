@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { BusinessQuotaSummary } from "../components/BusinessQuotaSummary";
 import { Link, useNavigate, useParams } from "react-router";
 import { ArrowLeft, ArrowRight, Check, Eye, FileText, Plus, Upload, X } from "lucide-react";
 import { Alert, Box, Button, Card, Chip, FormControlLabel, MenuItem, Radio, RadioGroup, TextField, Typography } from "@mui/material";
@@ -34,6 +36,7 @@ function SectionCard({ children, id }: { children: React.ReactNode; id?: string 
 
 function BriefEditor({ existingProject, saveProject }: { existingProject?: ProjectBrief; saveProject: (project: ProjectBrief) => void }) {
   const navigate = useNavigate();
+  const [saveError, setSaveError] = useState("");
   const { fields, setField, errors, skillInput, setSkillInput, addSkill, isPreview, setIsPreview, openPreview, buildProject, sections } = useProjectBriefForm(existingProject);
   const isEditingPublished = existingProject?.status === "published";
   const durationOptions = durations.includes(fields.duration) ? durations : [...durations, fields.duration];
@@ -41,15 +44,15 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
   function saveDraft() {
     const project = buildProject("draft");
     if (!project) return;
-    saveProject(project);
-    navigate(`/business/projects/${project.id}`);
+    try { saveProject(project); navigate(`/business/projects/${project.id}`); }
+    catch (error) { setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại."); }
   }
 
   function publish() {
     const project = buildProject("published");
     if (!project) return;
-    saveProject(project);
-    navigate(`/business/projects/${project.id}`);
+    try { saveProject(project); navigate(`/business/projects/${project.id}`); }
+    catch (error) { setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại."); }
   }
 
   const formFieldsSx = {
@@ -71,6 +74,8 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
         </Typography>
       </div>
 
+      {saveError && <Alert severity="error" sx={{ mb: 2 }}>{saveError}</Alert>}
+      <BusinessQuotaSummary />
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_290px]">
         <div className="min-w-0 space-y-5">
           {isPreview ? (
