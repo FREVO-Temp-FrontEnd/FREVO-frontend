@@ -1,3 +1,4 @@
+import { agreementChanges } from "@/lib/utils/agreementVersions";
 import { isDemoMode } from "@/lib/api/agent";
 import { resolveAgreement } from "./agreementSelection";
 import { canManageApplication } from "./applicationAccess";
@@ -1032,7 +1033,8 @@ class MockStorageAdapter {
   }
 
   public createAgreementProposal(
-    proposal: Omit<AgreementProposal, "id" | "version" | "isEffective" | "sentAt" | "expiresAt" | "status">
+    proposal: Omit<AgreementProposal, "id" | "version" | "isEffective" | "sentAt" | "expiresAt" | "status">,
+    expectedVersion?: number
   ): AgreementProposal {
     const projectRecord = this.getProjectById(proposal.projectId);
     const candidateRecord = this.memoryState.candidates.find(item => item.projectId === proposal.projectId && item.talentId === proposal.talentId);
@@ -1043,13 +1045,25 @@ class MockStorageAdapter {
     const existing = this.memoryState.agreements.filter(
       (a) => a.projectId === proposal.projectId && a.talentId === proposal.talentId
     );
-    const version = existing.length + 1;
+    const latest = [...existing].sort((a, b) => b.version - a.version)[0];
+    if (expectedVersion !== undefined && expectedVersion !== (latest?.version ?? 0)) throw new Error("Đã có đề xuất mới hơn. Hãy tải lại và kiểm tra nội dung trước khi gửi.");
+    if (latest && !agreementChanges(latest, proposal).length) throw new Error("Nội dung chưa thay đổi so với phiên bản mới nhất.");
+    const version = (latest?.version ?? 0) + 1;
     const now = new Date();
     const expires = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3-day countdown per FR-032 & BR-024
 
     const newProposal: AgreementProposal = {
-      ...proposal,
-      id: `agr-${Date.now()}`,
+      projectId: proposal.projectId,
+      talentId: proposal.talentId,
+      scope: proposal.scope,
+      deliverables: proposal.deliverables,
+      deadline: proposal.deadline,
+      budget: proposal.budget,
+      budgetValue: proposal.budgetValue,
+      reference: proposal.reference,
+      milestones: structuredClone(proposal.milestones),
+      id: `agr-${crypto.randomUUID()}`,
+      createdBy: { id: owner.id, name: owner.name },
       version,
       isEffective: false, // Preserves active agreement until confirmed per FR-048
       status: "pending",
@@ -1057,20 +1071,21 @@ class MockStorageAdapter {
       expiresAt: expires.toISOString(),
     };
 
-    const nextAgreements = [newProposal, ...this.memoryState.agreements];
+    const nextAgreements = [newProposal, ...this.memoryState.agreements.map(item => item.projectId === proposal.projectId && item.talentId === proposal.talentId && item.status === "pending" ? { ...item, status: Date.parse(item.expiresAt) <= now.getTime() ? "expired" as const : "superseded" as const, isEffective: false, invalidatedAt: now.toISOString() } : item)];
 
     // Notification for talent
     const project = this.getProjectById(proposal.projectId);
     const nextNotifications: NotificationItem[] = [
       {
-        id: `notif-agr-${Date.now()}`,
+        id: crypto.randomUUID(),
+        userId: candidateRecord.applicantAccountId || this.getTalentById(proposal.talentId)?.teamLeaderId || proposal.talentId,
         title: `Đề xuất hợp tác mới (Phiên bản ${version})`,
         detail: `${project?.company || "Doanh nghiệp"} đã gửi đề xuất hợp tác cho dự án "${project?.title}". Vui lòng phản hồi trong 3 ngày.`,
         type: "agreement",
         time: "Vừa xong",
         timestamp: Date.now(),
         read: false,
-        href: `/projects/${proposal.projectId}/agreement`,
+        href: `/projects/${proposal.projectId}/agreement?talent=${proposal.talentId}`,
       },
       ...this.memoryState.notifications,
     ];
@@ -1079,7 +1094,7 @@ class MockStorageAdapter {
       ...this.memoryState,
       agreements: nextAgreements,
       notifications: nextNotifications,
-    });
+    }, true);
 
     return newProposal;
   }

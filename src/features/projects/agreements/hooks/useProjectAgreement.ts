@@ -43,10 +43,11 @@ export function useProjectAgreement() {
     catch (issue) { setError(issue instanceof Error ? issue.message : "Không thực hiện được thao tác demo. Vui lòng thử lại."); }
   }
   function select(version: number) { selectVersion(version); setIsDrafting(false); setError(""); }
-  function createProposal(data: ProposalData) {
+  function createProposal(data: ProposalData & { baseVersion?: number }) {
     if (!project || !talent || !canPropose) return;
     try {
-      mockStorage.createAgreementProposal({ ...data, projectId: project.id, talentId: talent.id });
+      const { baseVersion, ...terms } = data;
+      mockStorage.createAgreementProposal({ ...terms, projectId: project.id, talentId: talent.id }, baseVersion);
       selectVersion(null); setIsDrafting(false); setNotice("Đã gửi phiên bản đề xuất mới để bên thực hiện xem xét.");
     } catch (issue) { setError(issue instanceof Error ? issue.message : "Chưa gửi được đề xuất. Nội dung bạn nhập vẫn được giữ lại để thử lại."); }
   }

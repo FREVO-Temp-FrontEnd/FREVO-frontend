@@ -23,6 +23,7 @@ interface DraftAgreementFormProps {
   talent: TalentProfile;
   existingAgreement?: AgreementProposal;
   onSubmit: (proposal: {
+    baseVersion?: number;
     scope: string;
     deliverables: string;
     deadline: string;
@@ -41,15 +42,17 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [scope, setScope] = useState(existingAgreement?.scope || project.description);
+  const [baseVersion] = useState(existingAgreement?.version ?? 0);
+  const staleDraft = baseVersion !== (existingAgreement?.version ?? 0);
+  const [scope, setScope] = useState(existingAgreement?.scope ?? project.description);
   const [deliverables, setDeliverables] = useState(
-    existingAgreement?.deliverables || project.deliverables.join("\n")
+    existingAgreement?.deliverables ?? project.deliverables.join("\n")
   );
-  const [deadline, setDeadline] = useState(existingAgreement?.deadline || project.deadline);
-  const [budget, setBudget] = useState(existingAgreement?.budget || project.budget);
+  const [deadline, setDeadline] = useState(existingAgreement?.deadline ?? project.deadline);
+  const [budget, setBudget] = useState(existingAgreement?.budget ?? project.budget);
 
   const initialMilestones: Milestone[] = existingAgreement?.milestones?.length
-    ? existingAgreement.milestones
+    ? structuredClone(existingAgreement.milestones)
     : [
         {
           id: `ms-1-${Date.now()}`,
@@ -128,6 +131,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (staleDraft) { setError("Đã có đề xuất mới hơn. Nội dung đang soạn được giữ lại; hãy kiểm tra phiên bản mới trước khi gửi."); return; }
     if (!scope.trim() || !deliverables.trim() || !deadline.trim() || !budget.trim()) {
       setError("Vui lòng điền đầy đủ các thông tin phạm vi, bàn giao, hạn chót và ngân sách.");
       return;
@@ -145,6 +149,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
     const reference = existingAgreement?.reference || `FV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
     onSubmit({
+      baseVersion,
       scope: scope.trim(),
       deliverables: deliverables.trim(),
       deadline: deadline.trim(),

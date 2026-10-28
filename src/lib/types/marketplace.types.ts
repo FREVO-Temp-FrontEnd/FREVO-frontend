@@ -168,6 +168,7 @@ export interface Milestone {
 export type AgreementStatus = "draft" | "pending" | "confirmed" | "rejected" | "expired" | "superseded";
 
 export interface AgreementProposal {
+  createdBy?: { id: string; name: string };
   confirmationSource?: "provider" | "demo";
   invalidatedAt?: string;
   id?: string;
