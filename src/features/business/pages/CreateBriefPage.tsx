@@ -1,11 +1,14 @@
+import { BriefRequirementsSummary } from "../components/BriefRequirementsSummary";
+import { BriefCoverInput } from "../components/BriefCoverInput";
+import { materialBriefChanges, briefFieldLabels } from "@/lib/utils/briefVersions";
 import { creativeServices } from "../data/creativeBriefTemplates";
 import { GuidedBriefSummary } from "../components/GuidedBriefSummary";
 import { GuidedBriefEditor } from "../components/GuidedBriefEditor";
 import { useState } from "react";
 import { BusinessQuotaSummary } from "../components/BusinessQuotaSummary";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useMatch } from "react-router";
 import { ArrowLeft, ArrowRight, Check, Eye, FileText, Plus, Upload, X } from "lucide-react";
-import { Alert, Box, Button, Card, Chip, FormControlLabel, MenuItem, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Card, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, MenuItem, Radio, RadioGroup, TextField, Typography } from "@mui/material";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import type { ProjectBrief } from "@/lib/types/marketplace.types";
 import { useProjectBriefForm } from "@/features/business/hooks/useProjectBriefForm";
@@ -39,7 +42,10 @@ function SectionCard({ children, id }: { children: React.ReactNode; id?: string 
 
 function BriefEditor({ existingProject, saveProject }: { existingProject?: ProjectBrief; saveProject: (project: ProjectBrief) => void }) {
   const navigate = useNavigate();
+  const { candidates } = useBusiness();
+  const [pendingPublish, setPendingPublish] = useState<ProjectBrief | null>(null);
   const [saveError, setSaveError] = useState("");
+  const [showGuidedTemplate, setShowGuidedTemplate] = useState(!existingProject || !!existingProject.guidedBrief);
   const { fields, setField, errors, skillInput, setSkillInput, addSkill, isPreview, setIsPreview, openPreview, buildProject, sections } = useProjectBriefForm(existingProject);
   const isEditingPublished = existingProject?.status === "published";
   const durationOptions = durations.includes(fields.duration) ? durations : [...durations, fields.duration];
@@ -54,6 +60,9 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
   function publish() {
     const project = buildProject("published");
     if (!project) return;
+    if (existingProject?.status === "published" && candidates.some(candidate => candidate.projectId === project.id && candidate.status !== "not_selected") && materialBriefChanges(existingProject, project).length) {
+      setPendingPublish(project); return;
+    }
     try { saveProject(project); navigate(`/business/projects/${project.id}`); }
     catch (error) { setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại."); }
   }
@@ -67,6 +76,11 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
 
   return (
     <Box sx={{ fontFamily: font }}>
+      <Dialog open={!!pendingPublish} onClose={() => setPendingPublish(null)} maxWidth="sm" fullWidth aria-labelledby="confirm-brief-change">
+        <DialogTitle id="confirm-brief-change">Cập nhật brief đã có ứng viên?</DialogTitle>
+        <DialogContent><Typography sx={{ fontSize: 14, lineHeight: 1.7 }}>Hệ thống giữ phiên bản cũ và thông báo cho các ứng viên liên quan. Thay đổi brief không tự sửa thỏa thuận hoặc có nghĩa ứng viên đã đồng ý với yêu cầu mới.</Typography><div className="mt-4 flex flex-wrap gap-2">{pendingPublish && existingProject && materialBriefChanges(existingProject, pendingPublish).map(field => <Chip key={field} label={briefFieldLabels[field]} size="small" />)}</div>{saveError && <Alert severity="error" sx={{ mt: 2 }}>{saveError}</Alert>}</DialogContent>
+        <DialogActions><Button onClick={() => setPendingPublish(null)}>Quay lại kiểm tra</Button><Button variant="contained" onClick={() => { if (!pendingPublish) return; try { saveProject(pendingPublish); navigate(`/business/projects/${pendingPublish.id}/brief`); } catch (issue) { setSaveError(issue instanceof Error ? issue.message : "Không lưu được thay đổi."); } }}>Lưu phiên bản mới</Button></DialogActions>
+      </Dialog>
       <div className="mb-6">
         <Button component={Link} to="/business/projects" startIcon={<ArrowLeft size={15} />} sx={{ ...buttonSx, mb: 2, px: 0, color: "text.secondary" }}>Dự án của tôi</Button>
         <Typography component="h1" sx={{ fontFamily: "Archivo, Arial, sans-serif", fontSize: { xs: 28, sm: 32 }, fontWeight: 800, lineHeight: 1.25, letterSpacing: "-0.02em" }}>
@@ -87,6 +101,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                 Đây là bản xem trước. Hãy kiểm tra nội dung trước khi công bố dự án.
               </Alert>
               <SectionCard>
+                {fields.heroImage && <Box component="img" src={fields.heroImage} alt={`Ảnh bìa ${fields.title}`} sx={{ width: "100%", height: { xs: 150, sm: 200 }, objectFit: "cover", borderRadius: 2, mb: 3 }} />}
                 <div className="mb-5 flex flex-wrap items-center gap-2">
                   <Chip label={fields.category} size="small" sx={{ bgcolor: "#f2f3f0", fontFamily: font, fontSize: 11 }} />
                   <Chip label="Bản xem trước" size="small" sx={{ bgcolor: "#fff0e9", color: "primary.dark", fontFamily: font, fontSize: 11, fontWeight: 700 }} />
@@ -110,6 +125,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                 {fields.referenceFiles.length > 0 && <Typography sx={{ mt: 1, fontFamily: font, fontSize: 12, color: "text.secondary" }}>Tệp tham khảo: {fields.referenceFiles.map((file) => file.name).join(", ")}</Typography>}
               </SectionCard>
               {fields.guidedBrief && <GuidedBriefSummary brief={fields.guidedBrief} />}
+              <BriefRequirementsSummary project={{ tools: fields.tools.split(",").map(item => item.trim()).filter(Boolean), experience: fields.experience, audience: fields.audience, requirements: fields.requirements.split("\n").filter(Boolean) }} />
               <div className="flex flex-wrap justify-end gap-2">
                 <Button type="button" variant="outlined" onClick={() => setIsPreview(false)} sx={{ ...buttonSx, borderRadius: 999 }}>Quay lại chỉnh sửa</Button>
                 <Button type="button" variant="contained" onClick={publish} endIcon={<ArrowRight size={16} />} sx={{ ...buttonSx, borderRadius: 999, boxShadow: "none" }}>{isEditingPublished ? "Lưu thay đổi" : "Công bố dự án"}</Button>
@@ -121,6 +137,7 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
               <SectionCard id="brief-basics">
                 <SectionHeading number="1" title="Thông tin cơ bản" description="Các trường có dấu * là bắt buộc." />
                 <div className="space-y-5">
+                  <div><Typography sx={{ fontSize: 13, fontWeight: 600, mb: 1 }}>Ảnh bìa dự án</Typography><BriefCoverInput value={fields.heroImage} error={errors.heroImage} onChange={value => setField("heroImage", value)} /></div>
                   <TextField fullWidth required label="Tên dự án" value={fields.title} onChange={(event) => setField("title", event.target.value)} slotProps={{ htmlInput: { maxLength: 100 }, formHelperText: { sx: { textAlign: errors.title ? "left" : "right" } } }} placeholder="Ví dụ: Thiết kế bộ nhận diện cho Nắng Studio" error={!!errors.title} helperText={errors.title} sx={formFieldsSx} />
                   {!fields.guidedBrief && <div className="pt-2">
                     <TextField select fullWidth required label="Lĩnh vực chuyên môn" value={fields.category} onChange={event => setField("category", event.target.value)} error={!!errors.category} helperText={errors.category} sx={formFieldsSx}>{(categories.includes(fields.category) ? categories : [...categories, fields.category]).map(item => <MenuItem key={item} value={item}>{item}</MenuItem>)}</TextField>
@@ -129,7 +146,8 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
                 </div>
               </SectionCard>
 
-              <GuidedBriefEditor fields={fields} error={errors.guidedBrief} onChange={(value, category, deliverables) => { setField("guidedBrief", value); setField("category", category); setField("deliverables", deliverables); }} />
+              {!showGuidedTemplate && <Alert severity="info" action={<Button onClick={() => setShowGuidedTemplate(true)} sx={{ whiteSpace: "nowrap" }}>Bổ sung mẫu</Button>}>Thông tin cũ đã được điền sẵn. Bạn có thể sửa trực tiếp bên dưới; chỉ chọn mẫu mới nếu cần bổ sung yêu cầu chi tiết.</Alert>}
+              {showGuidedTemplate && <GuidedBriefEditor fields={fields} error={errors.guidedBrief} onChange={(value, category, deliverables) => { setField("guidedBrief", value); setField("category", category); setField("deliverables", deliverables); }} />}
               <SectionCard id="brief-scope">
                 <SectionHeading number="3" title="Kỹ năng và tài liệu tham khảo" />
                 <div className="space-y-5">
@@ -148,6 +166,12 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
 
                   </div>
 
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <TextField label="Công cụ sử dụng" value={fields.tools} onChange={event => setField("tools", event.target.value)} helperText="Phân cách bằng dấu phẩy, ví dụ: Figma, FigJam." sx={formFieldsSx} />
+                    <TextField label="Kinh nghiệm mong muốn" value={fields.experience} onChange={event => setField("experience", event.target.value)} placeholder="Ví dụ: Đã thiết kế ứng dụng đặt lịch" sx={formFieldsSx} />
+                    <TextField label="Ứng viên phù hợp" value={fields.audience} onChange={event => setField("audience", event.target.value)} multiline minRows={2} placeholder="Mô tả chuyên môn hoặc thế mạnh bạn tìm kiếm" sx={formFieldsSx} />
+                    <TextField label="Yêu cầu bổ sung" value={fields.requirements} onChange={event => setField("requirements", event.target.value)} multiline minRows={2} helperText="Mỗi yêu cầu một dòng. Các trường này là tùy chọn." sx={formFieldsSx} />
+                  </div>
                   {!fields.guidedBrief && <>
                   <div>
                     <Typography sx={{ fontFamily: font, fontSize: 12, fontWeight: 700, mb: 1 }}>Sản phẩm bàn giao *</Typography>
@@ -212,7 +236,8 @@ function BriefEditor({ existingProject, saveProject }: { existingProject?: Proje
 }
 
 export function CreateBriefPage() {
-  const { projectId } = useParams();
+  const editRoute = useMatch("/business/projects/:projectId/edit");
+  const projectId = editRoute?.params.projectId;
   const { projects, saveProject } = useBusiness();
   const existingProject = projectId ? projects.find((project) => project.id === projectId) : undefined;
   if (projectId && !existingProject) {

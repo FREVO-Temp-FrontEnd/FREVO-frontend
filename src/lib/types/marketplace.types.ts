@@ -67,6 +67,7 @@ export interface CandidateSubmission {
 }
 
 export interface Candidate {
+  briefAtSubmission?: Omit<ProjectBrief, "briefHistory">;
   id: string;
   projectId: string;
   talentId: string;
@@ -243,6 +244,12 @@ export interface PaymentSimulation {
 }
 
 export interface ProjectBrief {
+  tools?: string[];
+  experience?: string;
+  audience?: string;
+  requirements?: string[];
+  briefVersion?: number;
+  briefHistory?: ProjectBriefRevision[];
   guidedBrief?: GuidedBrief;
   id: string;
   title: string;
@@ -285,4 +292,14 @@ export interface MarketplaceState {
   reviews: ReviewItem[];
   payments: PaymentSimulation[];
   activeUser: UserSession;
+}
+
+/** Immutable before/after snapshots; agreement versions remain independent. */
+export interface ProjectBriefRevision {
+  version: number;
+  changedAt: string;
+  changedBy: { id: string; name: string };
+  fields: string[];
+  before: Omit<ProjectBrief, "briefHistory">;
+  after: Omit<ProjectBrief, "briefHistory">;
 }

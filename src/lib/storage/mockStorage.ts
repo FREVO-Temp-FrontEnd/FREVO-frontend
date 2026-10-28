@@ -1,3 +1,4 @@
+import { briefSnapshot, changedBriefFields, materialBriefChanges } from "@/lib/utils/briefVersions";
 import { businessQuotaPolicy } from "@/lib/config/businessQuota";
 import { businessInvitationQuota, businessProjectQuota } from "@/lib/utils/businessQuota";
 /**
@@ -587,7 +588,11 @@ class MockStorageAdapter {
     return fresh;
   }
 
-  private saveToStorage(state: MarketplaceState): void {
+  private saveToStorage(state: MarketplaceState, requirePersistence = false): void {
+    if (requirePersistence && typeof window !== "undefined") {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch { throw new Error("Không đủ dung lượng lưu brief trên trình duyệt. Chọn ảnh nhỏ hơn hoặc dùng liên kết ảnh; nội dung đang nhập được giữ lại."); }
+    }
     this.memoryState = state;
     if (typeof window !== "undefined") {
       try {
@@ -686,6 +691,17 @@ class MockStorageAdapter {
     if (project.status === "published" && previous?.status !== "published" && quota.reached && quota.mode === "hard") {
       throw new Error("Đã đạt hạn mức dự án đang tuyển. Bạn vẫn có thể lưu bản nháp.");
     }
+    if (previous && !["draft", "published"].includes(previous.status)) throw new Error("Dự án đã đóng tuyển. Thay đổi phạm vi cần qua đề xuất điều chỉnh thỏa thuận.");
+    if (previous && (project.briefVersion ?? 1) !== (previous.briefVersion ?? 1)) throw new Error("Brief đã có phiên bản mới. Tải lại trang và kiểm tra thay đổi trước khi lưu.");
+    const changed = previous ? changedBriefFields(previous, project) : [];
+    const material = previous ? materialBriefChanges(previous, project) : [];
+    const versioned = !!previous && previous.status === "published" && changed.length > 0;
+    const version = (previous?.briefVersion ?? 1) + (versioned ? 1 : 0);
+    const now = new Date().toISOString();
+    const revision = versioned ? { version, changedAt: now, changedBy: { id: this.memoryState.activeUser.id, name: this.memoryState.activeUser.name }, fields: changed, before: briefSnapshot(previous!), after: briefSnapshot({ ...project, briefVersion: version }) } : undefined;
+    project = { ...project, briefVersion: version, briefHistory: [...(previous?.briefHistory ?? []), ...(revision ? [revision] : [])] };
+    const recipients = versioned && material.length ? [...new Set(this.memoryState.candidates.filter(candidate => candidate.projectId === project.id && candidate.status !== "not_selected").map(candidate => candidate.applicantAccountId || this.getTalentById(candidate.talentId)?.teamLeaderId || candidate.talentId))] : [];
+    const notices: NotificationItem[] = recipients.map(userId => ({ id: crypto.randomUUID(), userId, title: "Brief dự án đã được cập nhật", detail: `${project.title} · Phiên bản ${version}. Vui lòng kiểm tra nội dung trước khi tiếp tục trao đổi.`, type: "system", time: "Vừa xong", timestamp: Date.now(), read: false, href: `/projects/${project.id}/details` }));
     const existingIndex = this.memoryState.projects.findIndex((p) => p.id === project.id);
     let updatedProjects: ProjectBrief[];
     if (existingIndex >= 0) {
@@ -694,11 +710,11 @@ class MockStorageAdapter {
     } else {
       updatedProjects = [project, ...this.memoryState.projects];
     }
-    this.saveToStorage({ ...this.memoryState, projects: updatedProjects,
+    this.saveToStorage({ ...this.memoryState, projects: updatedProjects, notifications: [...notices, ...this.memoryState.notifications],
       businessQuotaEvents: project.status === "published" && previous?.status !== "published" && quota.reached && quota.mode === "soft"
         ? [...(this.memoryState.businessQuotaEvents ?? []), { id: crypto.randomUUID(), projectId: project.id, policyVersion: businessQuotaPolicy.version, createdAt: new Date().toISOString(), kind: "project_soft_limit" }]
         : this.memoryState.businessQuotaEvents,
-    });
+    }, true);
   }
 
   public updateProjectStatus(id: string, status: ProjectBrief["status"]): void {
@@ -782,6 +798,7 @@ class MockStorageAdapter {
     } else {
       candidateRecord = {
         id: `c-app-${Date.now()}`,
+        briefAtSubmission: latestProject ? briefSnapshot({ ...latestProject, briefVersion: latestProject.briefVersion ?? 1 }) : undefined,
         projectId,
         talentId,
         source: "Ứng tuyển",
@@ -965,6 +982,7 @@ class MockStorageAdapter {
       } else {
         const newCandidate: Candidate = {
           id: `c-inv-${Date.now()}`,
+          briefAtSubmission: this.getProjectById(targetInv.projectId) ? briefSnapshot({ ...this.getProjectById(targetInv.projectId)!, briefVersion: this.getProjectById(targetInv.projectId)?.briefVersion ?? 1 }) : undefined,
           projectId: targetInv.projectId,
           talentId: targetInv.talentId,
           source: "Lời mời",
