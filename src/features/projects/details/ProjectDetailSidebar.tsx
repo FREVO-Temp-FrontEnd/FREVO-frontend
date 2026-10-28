@@ -270,7 +270,7 @@ export function ProjectDetailSidebar({
               {
                 date: project.deadline,
                 title: "Hạn chót nộp hồ sơ ứng tuyển",
-                description: "Gửi portfolio và đề xuất của bạn trước thời hạn.",
+                description: "Gửi CV và hồ sơ ứng tuyển trước thời hạn.",
               },
             ]
           ).map((milestone, idx) => (

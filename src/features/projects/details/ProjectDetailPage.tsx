@@ -21,10 +21,6 @@ export default function ProjectDetailPage() {
     applyingId,
     openApplication,
     closeApplication,
-    proposal,
-    setProposal,
-    portfolio,
-    setPortfolio,
     submitting,
     submitError,
     submitApplication,
@@ -197,10 +193,6 @@ export default function ProjectDetailPage() {
         onClose={closeApplication}
         project={project}
         reapplying={applyingId !== null && applied.has(applyingId)}
-        proposal={proposal}
-        setProposal={setProposal}
-        portfolio={portfolio}
-        setPortfolio={setPortfolio}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

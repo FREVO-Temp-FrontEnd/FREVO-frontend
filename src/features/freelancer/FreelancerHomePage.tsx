@@ -41,10 +41,6 @@ export default function FreelancerHomePage() {
     applyingId,
     openApplication,
     closeApplication,
-    proposal,
-    setProposal,
-    portfolio,
-    setPortfolio,
     submitting,
     submitError,
     submitApplication,
@@ -202,10 +198,6 @@ export default function FreelancerHomePage() {
         onClose={closeApplication}
         project={applyingProject}
         reapplying={applyingId !== null && applied.has(applyingId)}
-        proposal={proposal}
-        setProposal={setProposal}
-        portfolio={portfolio}
-        setPortfolio={setPortfolio}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

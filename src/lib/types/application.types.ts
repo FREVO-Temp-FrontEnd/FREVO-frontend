@@ -11,12 +11,14 @@ export interface ApplicationMaterials {
 /** Primary is resolved once when the application is submitted. */
 export type ResumeSelection =
   | { mode: "primary" }
-  | { mode: "selected"; resumeId: string };
+  | { mode: "selected"; resumeId: string }
+  | { mode: "upload"; file: File };
 
 /** JSON request: the server obtains the account from authentication, never from this body. */
 export interface SubmitApplicationRequest {
   projectId: string;
   applicantIdentity: ApplicantIdentity;
+  teamId?: string;
   proposal: string;
   portfolioWorkIds: string[];
   portfolioUrl: string;

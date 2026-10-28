@@ -5,6 +5,7 @@ import type { Candidate, ProjectBrief } from '@/lib/types/marketplace.types';
 export interface ApplicationItem {
     candidate: Candidate;
     project?: ProjectBrief;
+    readOnly?: boolean;
 }
 const applicationDate = (value: string) => new Date(value).toLocaleDateString('vi-VN');
 export function ApplicationCard({ item, selected, onSelect, onWithdraw }: {
@@ -35,20 +36,20 @@ export function ApplicationCard({ item, selected, onSelect, onWithdraw }: {
     }}><Typography variant="caption" color="text.secondary">{c.status === 'not_selected' ? 'Hồ sơ không tiếp tục xét duyệt' : c.chatUnlocked ? 'Doanh nghiệp đã duyệt hồ sơ.' : 'Chat sẽ mở khi doanh nghiệp duyệt hồ sơ.'}</Typography><Stack direction="row" sx={{
         gap: 1,
         justifyContent: "end"
-    }}>{['new', 'under_review'].includes(c.status) && <Button size="small" color="secondary" onClick={onWithdraw}>Rút hồ sơ</Button>}<Button size="small" onClick={onSelect}>Xem hồ sơ</Button></Stack></Stack>
+    }}>{!item.readOnly && ['new', 'under_review'].includes(c.status) && <Button size="small" color="secondary" onClick={onWithdraw}>Rút hồ sơ</Button>}<Button size="small" onClick={onSelect}>Xem hồ sơ</Button></Stack></Stack>
  </Box>;
 }
 export function ApplicationDetail({ item }: {
     item: ApplicationItem;
 }) {
     const { candidate: c, project: p } = item;
-    const chat = c.chatUnlocked && ['discussing', 'offer', 'selected'].includes(c.status);
+    const chat = !item.readOnly && c.chatUnlocked && ['discussing', 'offer', 'selected'].includes(c.status);
     return <Box component="aside" aria-label="Chi tiết hồ sơ ứng tuyển" sx={{ p: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: '13px' }}><Typography variant="h6" sx={{
         fontWeight: 700
     }}>Hồ sơ ứng tuyển</Typography><Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>{p?.company}</Typography><Typography variant="h6" sx={{ mt: 1, mb: 2 }}>{p?.title ?? 'Dự án không còn khả dụng'}</Typography><Chip label={applicationLabels[c.status]} size="small"/><Box sx={{ my: 3, p: 2, bgcolor: '#fff0e9', borderRadius: '13px' }}><Typography variant="body2">{c.status === 'offer' ? 'Doanh nghiệp đã gửi đề xuất hợp tác. Xem chi tiết để phản hồi.' : chat ? 'Hồ sơ đã được duyệt. Bạn có thể tiếp tục trao đổi.' : c.status === 'not_selected' ? 'Hồ sơ đã đóng. Bạn có thể xem lại nội dung đã gửi.' : 'Hồ sơ đang chờ doanh nghiệp xét duyệt.'}</Typography>{chat && <Button component={Link} to={c.status === 'selected' ? `/workspace/${c.projectId}` : `/projects/${c.projectId}/${c.status === 'offer' ? 'agreement' : 'chat'}`} variant="contained" fullWidth sx={{ mt: 2 }}>{c.status === 'offer' ? 'Xem thỏa thuận' : c.status === 'selected' ? 'Không gian làm việc' : 'Mở trao đổi'}</Button>}</Box><Typography variant="body2" sx={{
         fontWeight: 700
-    }}>Tiến trình hồ sơ</Typography><Typography variant="body2" sx={{ mt: 1 }}>Đã gửi hồ sơ: {applicationDate(c.receivedAt)}</Typography>{c.chatUnlockedAt && <Typography variant="body2" sx={{ mt: 1 }}>Đã mở trao đổi: {applicationDate(c.chatUnlockedAt)}</Typography>}<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{applicationLabels[c.status]}</Typography><Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 3, pt: 3 }}><Typography variant="body2" sx={{
+    }}>Tiến trình hồ sơ</Typography><Typography variant="body2" sx={{ mt: 1 }}>Đã gửi hồ sơ: {applicationDate(c.receivedAt)}</Typography>{c.chatUnlockedAt && <Typography variant="body2" sx={{ mt: 1 }}>Đã mở trao đổi: {applicationDate(c.chatUnlockedAt)}</Typography>}<Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{applicationLabels[c.status]}</Typography>{c.proposal && <Box sx={{ borderTop: '1px solid', borderColor: 'divider', mt: 3, pt: 3 }}><Typography variant="body2" sx={{
         fontWeight: 700
-    }}>Đề xuất của bạn</Typography><Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{c.proposal || 'Không có nội dung đề xuất.'}</Typography></Box>{p && <Button component={Link} to={`/projects/${c.projectId}/details`} fullWidth sx={{ mt: 3 }}>Xem chi tiết dự án</Button>}</Box>;
+    }}>Đề xuất của bạn</Typography><Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{c.proposal}</Typography></Box>}{p && <Button component={Link} to={`/projects/${c.projectId}/details`} fullWidth sx={{ mt: 3 }}>Xem chi tiết dự án</Button>}</Box>;
 }
 

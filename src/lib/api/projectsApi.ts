@@ -14,7 +14,17 @@ export const projectsApi = {
 
   createApplication: async (payload: SubmitApplicationRequest): Promise<void> => {
     if (isDemoMode) return;
-    await agent.post("/applications", payload);
+    if (payload.resume.mode !== "upload") throw new Error("Vui lòng tải CV lên trước khi gửi ứng tuyển.");
+    const body = new FormData();
+    body.set("projectId", payload.projectId);
+    body.set("applicantIdentity", payload.applicantIdentity);
+    if (payload.teamId) body.set("teamId", payload.teamId);
+    body.set("proposal", payload.proposal);
+    payload.portfolioWorkIds.forEach(id => body.append("portfolioWorkIds", id));
+    if (payload.proposedBudget !== null) body.set("proposedBudget", String(payload.proposedBudget));
+    body.set("deliveryEstimate", payload.deliveryEstimate);
+    body.set("cv", payload.resume.file);
+    await agent.post("/applications", body);
   },
 };
 

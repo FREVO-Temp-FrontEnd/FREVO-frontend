@@ -8,6 +8,7 @@ import { moneyDigits } from "@/lib/utils/money";
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
 import { applicationsApi } from "@/lib/api/applicationsApi";
 import type { SubmitApplicationRequest } from "@/lib/types/application.types";
+import { validateResumeFile } from "@/lib/utils/validateResumeFile";
 
 const SAVED_PROJECTS_KEY = "frevo-saved-projects";
 
@@ -46,8 +47,6 @@ export function useProjects() {
   const [applied, setApplied] = useState(appliedProjectIds);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [applyingId, setApplyingId] = useState<string | null>(null);
-  const [proposal, setProposal] = useState("");
-  const [portfolio, setPortfolio] = useState("");
   const [toast, setToast] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -157,8 +156,6 @@ export function useProjects() {
 
   function openApplication(id: string) {
     setApplyingId(id);
-    setProposal("");
-    setPortfolio("");
     setSubmitError("");
   }
 
@@ -169,10 +166,6 @@ export function useProjects() {
   async function submitApplication(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!applyingId || !event.currentTarget.reportValidity()) return;
-    if (proposal.trim() && proposal.trim().length < 50) {
-      setSubmitError("Thư đề xuất cần ít nhất 50 ký tự nếu bạn chọn nhập.");
-      return;
-    }
     const reapplying = applied.has(applyingId);
     if (reapplying && !isDemoMode) {
       setSubmitError("Chưa thể ứng tuyển lại khi kết nối API: dịch vụ hiện chưa có luồng cập nhật đơn ứng tuyển.");
@@ -182,14 +175,20 @@ export function useProjects() {
     const proposedBudget = moneyDigits(String(formData.get("proposedBudget") ?? ""));
     const deliveryEstimate = String(formData.get("deliveryEstimate") ?? "").trim();
     const identity = formData.get("applicantType") === "team" ? "team" : "individual";
-    const resumeId = String(formData.get("resumeId") ?? "").trim();
+    const teamId = String(formData.get("teamId") ?? "").trim();
+    if (identity === "team" && !teamId) { setSubmitError("Vui lòng chọn nhóm bạn đại diện."); return; }
+    const cvFile = formData.get("cvFile");
+    if (!(cvFile instanceof File)) { setSubmitError("Vui lòng tải CV lên."); return; }
+    const cvError = validateResumeFile(cvFile);
+    if (cvError) { setSubmitError(cvError); return; }
     const request: SubmitApplicationRequest = {
       projectId: applyingId,
       applicantIdentity: identity,
-      proposal: proposal.trim(),
+      ...(identity === "team" ? { teamId } : {}),
+      proposal: "",
       portfolioWorkIds: formData.getAll("portfolioWorkIds").map(String),
-      portfolioUrl: portfolio.trim(),
-      resume: resumeId ? { mode: "selected", resumeId } : { mode: "primary" },
+      portfolioUrl: "",
+      resume: { mode: "upload", file: cvFile },
       proposedBudget: proposedBudget ? Number(proposedBudget) : null,
       deliveryEstimate,
     };
@@ -239,10 +238,6 @@ export function useProjects() {
     applyingId,
     openApplication,
     closeApplication,
-    proposal,
-    setProposal,
-    portfolio,
-    setPortfolio,
     submitting,
     submitError,
     submitApplication,

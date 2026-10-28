@@ -637,7 +637,7 @@ class MockStorageAdapter {
   }
 
   public getApplicantWorks(identity: ApplicantIdentity, personalWorks: Work[]): Work[] {
-    const works = identity === "team" ? talentPortfolioSeeds[this.getApplicantTalentId(identity)] ?? [] : personalWorks;
+    const works = identity === "team" ? [] : personalWorks;
     return works.filter(work => work.visibility === "public");
   }
 
@@ -711,6 +711,20 @@ class MockStorageAdapter {
 
   public getTalentById(id: string): TalentProfile | undefined {
     return this.memoryState.talents.find((t) => t.id === id);
+  }
+
+  public registerRepresentedTeam(accountId: string, team: { id: string; name: string; summary: string; discipline: string; memberCount: number }): string {
+    const id = `managed-team:${accountId}:${team.id}`;
+    const previous = this.getTalentById(id);
+    const profile: TalentProfile = {
+      id, name: team.name, role: team.discipline, kind: "Team",
+      initials: team.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase(),
+      color: "#fff0e9", location: "Việt Nam", rate: "Theo dự án", availability: "Sẵn sàng",
+      skills: [team.discipline], about: team.summary, portfolio: [], teamMembersCount: team.memberCount,
+      teamLeaderId: accountId,
+    };
+    this.saveToStorage({ ...this.memoryState, talents: previous ? this.memoryState.talents.map(item => item.id === id ? { ...item, ...profile } : item) : [...this.memoryState.talents, profile] });
+    return id;
   }
 
   // --- Candidate Operations ---

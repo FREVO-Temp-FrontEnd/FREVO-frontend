@@ -1,22 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { StoredResumeRecord } from "@/lib/types/resume.types";
 import { readResumes, seedMinhAnhResumes, writeResume, deleteResume, writePrimaryResume } from "@/lib/storage/resumeStorage";
-
-const DEMO_MAX_BYTES = 5 * 1024 * 1024;
-
-function validateResume(file: File): string | null {
-  const extension = file.name.split(".").at(-1)?.toLowerCase();
-  const mimeByExtension: Record<string, string> = {
-    pdf: "application/pdf",
-    doc: "application/msword",
-    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  };
-  if (!extension || !mimeByExtension[extension]) return "Chỉ nhận tệp PDF, DOC hoặc DOCX.";
-  if (file.type && file.type !== mimeByExtension[extension]) return "Định dạng tệp không khớp với CV PDF, DOC hoặc DOCX.";
-  if (file.size === 0) return "Tệp trống. Vui lòng chọn CV khác.";
-  if (file.size > DEMO_MAX_BYTES) return "Bản demo chỉ nhận tệp tối đa 5 MB.";
-  return null;
-}
+import { validateResumeFile } from "@/lib/utils/validateResumeFile";
 
 export function useResumes(ownerId: string | undefined, seedDemoResumes = false) {
   const [resumes, setResumes] = useState<StoredResumeRecord[]>([]);
@@ -46,7 +31,7 @@ export function useResumes(ownerId: string | undefined, seedDemoResumes = false)
   useEffect(() => { void reload(); }, [reload]);
 
   const upload = async (file: File) => {
-    const validationError = validateResume(file);
+    const validationError = validateResumeFile(file);
     if (validationError) {
       setError(validationError);
       return false;
