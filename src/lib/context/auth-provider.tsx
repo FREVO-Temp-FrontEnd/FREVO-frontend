@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { ActingIdentity, UserRole, UserSession } from "@/lib/types/marketplace.types";
 import { mockStorage } from "@/lib/storage/mockStorage";
+import { rememberAccountIdentity, resolveAccountIdentity } from "@/lib/storage/accountIdentity";
 import { AuthSessionContext, type AuthSessionContextType } from "./auth-context";
 
 export default function AuthSessionProvider({ children }: { children: ReactNode }) {
@@ -15,6 +16,8 @@ export default function AuthSessionProvider({ children }: { children: ReactNode 
   }, []);
 
   const login = async (email: string, targetRole?: UserRole) => {
+    rememberAccountIdentity(mockStorage.getActiveUser());
+    email = email.trim().toLowerCase();
     const isTeam = email.includes("team") || email.includes("pixelcraft");
     const determinedRole: UserRole =
       targetRole ||
@@ -25,7 +28,7 @@ export default function AuthSessionProvider({ children }: { children: ReactNode 
         : "freelancer");
 
     const loggedInUser: UserSession = {
-      id: `user-${Date.now()}`,
+      id: resolveAccountIdentity(email),
       email,
       name:
         determinedRole === "client"
@@ -48,10 +51,12 @@ export default function AuthSessionProvider({ children }: { children: ReactNode 
       verified: true,
     };
 
+    rememberAccountIdentity(loggedInUser);
     mockStorage.setActiveUser(loggedInUser);
   };
 
   const logout = () => {
+    rememberAccountIdentity(mockStorage.getActiveUser());
     const guestUser: UserSession = {
       id: "guest-user",
       email: "",

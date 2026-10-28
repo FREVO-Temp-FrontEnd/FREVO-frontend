@@ -20,7 +20,6 @@ export function useApplicationMaterials(applicantType: ApplicantIdentity, enable
   const resumes = isCurrent ? library.resumes : [];
   const [selections, setSelections] = useState<Record<ApplicantIdentity, string[]>>({ individual: [], team: [] });
   const selectedWorkIds = selections[applicantType].filter(id => works.some(work => work.id === id));
-  const [resumeId, setResumeId] = useState("");
   const [attempt, setAttempt] = useState(0);
   const reload = useCallback(() => setAttempt(value => value + 1), []);
 
@@ -29,16 +28,16 @@ export function useApplicationMaterials(applicantType: ApplicantIdentity, enable
     const controller = new AbortController();
     const ownerId = user.id;
     setLibrary({ ownerId, identity: applicantType, resumes: [], portfolioWorks: [], loading: true, error: "" });
-    void applicationsApi.getMaterials(ownerId, applicantType, personalWorks, controller.signal)
+    void applicationsApi.getMaterials(applicantType, personalWorks, controller.signal)
       .then(materials => {
         if (!controller.signal.aborted) setLibrary({ ...materials, ownerId, identity: applicantType, loading: false, error: "" });
       })
       .catch(() => {
-        if (!controller.signal.aborted) setLibrary({ ownerId, identity: applicantType, resumes: [], portfolioWorks: [], loading: false, error: "Không tải được CV và portfolio. Vui lòng thử lại trước khi gửi." });
+        if (!controller.signal.aborted) setLibrary({ ownerId, identity: applicantType, resumes: [], portfolioWorks: [], loading: false, error: "Không tải được tác phẩm đã lưu." });
       });
     return () => controller.abort();
   }, [enabled, user?.id, applicantType, personalWorks, attempt]);
 
   const toggleWork = (id: string) => setSelections(previous => ({ ...previous, [applicantType]: previous[applicantType].includes(id) ? previous[applicantType].filter(item => item !== id) : [...previous[applicantType], id] }));
-  return { works, selectedWorkIds, toggleWork, resumeId, setResumeId, resumes, primaryResume: resumes.find(resume => resume.isPrimary), loading: enabled && (!isCurrent || library.loading), error: isCurrent ? library.error : "", reload };
+  return { works, selectedWorkIds, toggleWork, resumes, loading: enabled && (!isCurrent || library.loading), error: isCurrent ? library.error : "", reload };
 }

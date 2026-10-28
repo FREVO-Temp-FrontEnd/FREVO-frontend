@@ -11,7 +11,7 @@ export function useApplicationsPage() {
     const [withdrawId, setWithdrawId] = useState<string | null>(null);
     const filterKey = `${filter}:${query.trim().toLocaleLowerCase('vi')}`;
     const [pagination, setPagination] = useState({ filterKey, page: 1 });
-    const rows = data.myApplications.map(candidate => ({ candidate, project: data.projects.find(p => p.id === candidate.projectId) }));
+    const rows = data.myApplications.map(candidate => ({ candidate, readOnly: !data.canManage(candidate), project: data.projects.find(p => p.id === candidate.projectId) }));
     const visible = rows.filter(({ candidate, project }) => {
         const matchesStatus = filter === 'new'
             ? ['new', 'under_review'].includes(candidate.status)

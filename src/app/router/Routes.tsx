@@ -96,7 +96,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "team/profile",
-            element: <TeamProfilePage />,
+            element: <RoleGuard allowedRoles={["freelancer"]}><TeamProfilePage /></RoleGuard>,
           },
           {
             path: "profile",
