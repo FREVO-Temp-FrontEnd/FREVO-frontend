@@ -1,11 +1,15 @@
-import { Avatar, Box, Button, Card, Typography, Chip, Tooltip } from "@mui/material";
+import { useState } from "react";
+import { Avatar, Box, Button, Card, Typography, Chip, Tooltip, IconButton, Menu, MenuItem } from "@mui/material";
 import { Link } from "react-router";
-import { Sparkles, Check, ArrowRight, Clock3, Wallet } from "lucide-react";
+import { Sparkles, Check, ArrowRight, Clock3, Wallet, MoreHorizontal } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { calculateMatchingScore } from "@/lib/utils/matchingScore";
 import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
 
 interface TalentEvidenceCardProps {
+  onCompare?: () => void;
+  comparing?: boolean;
+  compareDisabled?: boolean;
   talent: TalentProfile;
   brief: ProjectBrief;
   isInvited: boolean;
@@ -14,12 +18,14 @@ interface TalentEvidenceCardProps {
 }
 
 export function TalentEvidenceCard({
+  onCompare, comparing, compareDisabled,
   talent,
   brief,
   isInvited,
   onOpenAIAnalysis,
   onOpenInvite,
 }: TalentEvidenceCardProps) {
+  const [menu, setMenu] = useState<HTMLElement | null>(null);
   const evaluation = calculateMatchingScore(brief, talent);
 
   return (
@@ -41,6 +47,7 @@ export function TalentEvidenceCard({
         "@media (prefers-reduced-motion: reduce)": { transition: "none" },
       }}
     >
+      {onCompare && <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}><IconButton aria-label={`Thao tác với ${talent.name}`} aria-haspopup="menu" aria-expanded={Boolean(menu)} onClick={event => setMenu(event.currentTarget)}><MoreHorizontal size={18} /></IconButton><Menu anchorEl={menu} open={Boolean(menu)} onClose={() => setMenu(null)}><MenuItem disabled={compareDisabled} onClick={() => { setMenu(null); onCompare(); }}>{comparing ? "Bỏ khỏi so sánh" : compareDisabled ? "Đã chọn tối đa 3 ứng viên" : "Thêm vào so sánh"}</MenuItem></Menu></Box>}
       <Box>
         {/* Card Header: Avatar, Name, Type, Match Score */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>

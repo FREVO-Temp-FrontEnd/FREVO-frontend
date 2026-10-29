@@ -1,3 +1,4 @@
+import type { GuidedBrief } from "./guidedBrief.types";
 /**
  * FREVO Marketplace Unified Domain Types
  * Traceable to SRS (FR-001 through FR-065, BR-001 through BR-030)
@@ -66,6 +67,7 @@ export interface CandidateSubmission {
 }
 
 export interface Candidate {
+  briefAtSubmission?: Omit<ProjectBrief, "briefHistory">;
   id: string;
   projectId: string;
   talentId: string;
@@ -242,6 +244,13 @@ export interface PaymentSimulation {
 }
 
 export interface ProjectBrief {
+  tools?: string[];
+  experience?: string;
+  audience?: string;
+  requirements?: string[];
+  briefVersion?: number;
+  briefHistory?: ProjectBriefRevision[];
+  guidedBrief?: GuidedBrief;
   id: string;
   title: string;
   category: string;
@@ -271,6 +280,7 @@ export interface ProjectBrief {
 }
 
 export interface MarketplaceState {
+  businessQuotaEvents?: { id: string; projectId: string; policyVersion: string; createdAt: string; kind: "project_soft_limit" }[];
   portfolioSeedVersion?: number;
   projects: ProjectBrief[];
   talents: TalentProfile[];
@@ -282,4 +292,14 @@ export interface MarketplaceState {
   reviews: ReviewItem[];
   payments: PaymentSimulation[];
   activeUser: UserSession;
+}
+
+/** Immutable before/after snapshots; agreement versions remain independent. */
+export interface ProjectBriefRevision {
+  version: number;
+  changedAt: string;
+  changedBy: { id: string; name: string };
+  fields: string[];
+  before: Omit<ProjectBrief, "briefHistory">;
+  after: Omit<ProjectBrief, "briefHistory">;
 }

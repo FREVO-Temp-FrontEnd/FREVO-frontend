@@ -34,30 +34,17 @@ export function projectBriefToProject(brief: ProjectBrief): Project {
   const ageDays = Math.max(1, Math.round((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
 
   const details: ProjectDetails = {
-    heroImage: "/assets/project-placeholder.jpg",
+    heroImage: brief.heroImage || "",
     heroAlt: brief.title,
     heroCaption: brief.category,
     expertise: brief.skills.length > 0 ? brief.skills : ["Thiết kế thương hiệu", "Sáng tạo"],
-    tools: ["Figma", "Adobe Creative Cloud", "Illustrator", "Photoshop"],
-    experience: "Từ 1–3 năm kinh nghiệm trong lĩnh vực sáng tạo tương ứng",
-    audience: "Khách hàng mục tiêu và đối tác truyền thông của thương hiệu",
-    intro: [
-      brief.description,
-      "Dự án yêu cầu bên thực hiện có tư duy thẩm mỹ nhất quán, quy trình làm việc minh bạch và cam kết chất lượng theo từng mốc bàn giao đã thỏa thuận."
-    ],
-    scope: brief.deliverables.map((item) => ({
-      title: item,
-      text: `Nghiên cứu định hướng, triển khai phương án thiết kế và hoàn thiện hồ sơ bàn giao tiêu chuẩn cho hạng mục "${item}".`
-    })),
-    requirements: [
-      "Có portfolio chứng minh năng lực thực tế tương thích với yêu cầu brief (BR-002, BR-003).",
-      "Chủ động trao đổi, làm rõ yêu cầu và phản hồi kịp thời trong suốt quá trình triển khai.",
-      "Cam kết tuân thủ thời hạn mốc bàn giao và chính sách chỉnh sửa đã thống nhất (DEC-03)."
-    ],
-    deliverables: brief.deliverables.map((item) => ({
-      title: item,
-      text: "Tệp thiết kế gốc hoàn chỉnh, các định dạng xuất bản chuẩn kỹ thuật số và tài liệu hướng dẫn ứng dụng."
-    })),
+    tools: brief.tools ?? [],
+    experience: brief.experience || "Chưa có yêu cầu kinh nghiệm cụ thể",
+    audience: brief.audience || "Ứng viên có năng lực phù hợp với yêu cầu dự án",
+    intro: [brief.description],
+    scope: brief.guidedBrief ? [{ title: "Trong phạm vi", text: brief.guidedBrief.inScope }, { title: "Ngoài phạm vi", text: brief.guidedBrief.outOfScope }] : brief.deliverables.map(item => ({ title: item, text: "Theo nội dung brief và thỏa thuận hai bên." })),
+    requirements: brief.requirements?.length ? brief.requirements : ["Doanh nghiệp chưa bổ sung yêu cầu khác."],
+    deliverables: brief.guidedBrief ? brief.guidedBrief.items.map(item => ({ title: item.name, text: [...Object.values(item.specifications), `Tiêu chí nghiệm thu: ${item.acceptanceCriteria}`].filter(Boolean).join("\n") })) : brief.deliverables.map(item => ({ title: item, text: "Chi tiết sẽ được hai bên thống nhất trong thỏa thuận." })),
     benefits: {
       title: "Chính sách hợp tác & Bảo đảm quy trình",
       payments: [
@@ -86,11 +73,11 @@ export function projectBriefToProject(brief: ProjectBrief): Project {
     employer: {
       monogram: brief.company.slice(0, 2).toUpperCase(),
       industry: brief.category,
-      description: `${brief.company} là đơn vị sáng tạo đăng tuyển dự án trên nền tảng FREVO với hồ sơ doanh nghiệp đã được xác thực thông tin cơ bản.`,
-      verified: true,
-      teamSize: "5–20 nhân sự",
-      completedProjects: "3 dự án",
-      rating: "4.9"
+      description: `${brief.company} đăng tuyển dự án trên FREVO.`,
+      verified: false,
+      teamSize: "Chưa cung cấp",
+      completedProjects: "Chưa có dữ liệu",
+      rating: "Chưa có đánh giá"
     },
     hiringCount: brief.preference === "team" ? "1 Nhóm sáng tạo" : brief.preference === "individual" ? "1 Freelancer cá nhân" : "1 Cá nhân hoặc Nhóm",
     timeline: [

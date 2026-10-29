@@ -1,3 +1,5 @@
+import { useBusiness } from "@/lib/hooks/useBusiness";
+import { businessInvitationQuota } from "@/lib/utils/businessQuota";
 import { useState } from "react";
 import {
   Dialog,
@@ -30,14 +32,17 @@ export function SendInvitationDialog({
   onConfirm,
 }: SendInvitationDialogProps) {
   const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+  const { invitations } = useBusiness();
+  const quota = businessInvitationQuota(invitations, brief.id);
 
   if (!talent) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm(talent.id, note.trim());
-    setNote("");
-    onClose();
+    if (quota.reached) { setError("Đã hết lượt gửi hôm nay. Lượt mới mở lại lúc 00:00 giờ Việt Nam."); return; }
+    try { onConfirm(talent.id, note.trim()); setNote(""); setError(""); onClose(); }
+    catch (issue) { setError(issue instanceof Error ? issue.message : "Không gửi được lời mời. Vui lòng thử lại."); }
   };
 
   return (
@@ -172,11 +177,17 @@ export function SendInvitationDialog({
           </Alert>
         </DialogContent>
 
+        <Box sx={{ px: 3, pb: 2 }}>
+          <Typography role="status" sx={{ fontSize: 12, color: quota.reached ? "error.main" : "text.secondary" }}>Đã gửi {quota.used}/{quota.limit} lời mời hôm nay · Còn {quota.remaining} lượt</Typography>
+          <Typography sx={{ fontSize: 11, color: "text.secondary", mt: .5 }}>Theo từng dự án · Mở lại lúc 00:00 giờ Việt Nam · Hạn mức mô phỏng</Typography>
+          {error && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
+        </Box>
         <DialogActions sx={{ p: 2, pt: 1, justifyContent: "space-between" }}>
           <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 2 }}>
             Hủy
           </Button>
           <Button
+            disabled={quota.reached}
             type="submit"
             variant="contained"
             sx={{

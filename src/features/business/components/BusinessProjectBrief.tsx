@@ -1,3 +1,6 @@
+import { BriefRequirementsSummary } from "./BriefRequirementsSummary";
+import { BriefVersionHistory } from "./BriefVersionHistory";
+import { GuidedBriefSummary } from "./GuidedBriefSummary";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Box, Button, Chip, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Typography } from "@mui/material";
@@ -23,7 +26,9 @@ export function BusinessProjectBrief({ project, candidateCount, executorName, in
   const buttonSx = { minHeight: 42, borderRadius: 999, px: 2 } as const;
 
   return <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
-    <section aria-labelledby="brief-overview-title" className="min-w-0 overflow-hidden rounded-3xl border border-[#e4e6e2] bg-white">
+    <BriefVersionHistory project={project} />
+    <Box sx={{ gridColumn: "1 / -1", "&:empty": { display: "none" } }}><BriefRequirementsSummary project={project} /></Box>
+    {project.guidedBrief && <Box sx={{ gridColumn: "1 / -1" }}><GuidedBriefSummary brief={project.guidedBrief} /></Box>}<section aria-labelledby="brief-overview-title" className="min-w-0 overflow-hidden rounded-3xl border border-[#e4e6e2] bg-white">
       <div className="p-5 sm:p-7">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div><span className="text-xs font-medium text-[#747773]">{project.category}</span><Typography id="brief-overview-title" component="h2" sx={{ mt: 0.5, fontSize: 23, fontWeight: 700 }}>Về dự án</Typography></div>
