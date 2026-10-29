@@ -77,7 +77,7 @@ export function AIFitAnalysisModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
-              Đánh giá mức độ phù hợp AI (BUS-015)
+              Đối chiếu hồ sơ với brief
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               Đối chiếu hồ sơ ứng viên với yêu cầu dự án theo FR-034 và FR-035
@@ -131,17 +131,17 @@ export function AIFitAnalysisModal({
 
           <Box sx={{ textAlign: "right" }}>
             <Typography variant="caption" sx={{ color: "text.secondary", display: "block" }}>
-              Điểm tương thích AI (DEC-01)
+              Tiêu chí có bằng chứng
             </Typography>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 800,
-                color: evaluation.score >= 80 ? "#1e8e3e" : "#f4490b",
+                color: evaluation.score >= 2 ? "#1e8e3e" : "#f4490b",
                 fontFamily: "'Space Grotesk', sans-serif",
               }}
             >
-              {evaluation.score}%
+              {evaluation.score}/3
             </Typography>
           </Box>
         </Box>
@@ -149,7 +149,7 @@ export function AIFitAnalysisModal({
         {/* Explainable Rationale Badges (BR-026) */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            Lý do gợi ý chính (BR-026)
+            Dữ liệu dùng để gợi ý
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {evaluation.reasons.map((reason, idx) => (
@@ -169,6 +169,12 @@ export function AIFitAnalysisModal({
           </Box>
         </Box>
 
+        <Box sx={{ display: "grid", gap: 1.5, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, p: 2, bgcolor: "background.default", borderRadius: 2 }}>
+          <Box><Typography sx={{ fontSize: 12, color: "text.secondary" }}>Ngân sách dự án / phí tham khảo</Typography><Typography sx={{ fontSize: 13, mt: .5 }}>{brief.budget} / {talent.rate || "Chưa cung cấp"}</Typography><Typography sx={{ fontSize: 12, mt: 1, color: evaluation.budget === "outside" ? "primary.dark" : "text.secondary" }}>{evaluation.budget === "overlap" ? "Có giao khoảng phí, chưa phải báo giá cam kết." : evaluation.budget === "outside" ? "Khoảng phí nằm ngoài ngân sách." : "Chưa đủ số liệu để đối chiếu."}</Typography></Box>
+          <Box><Typography sx={{ fontSize: 12, color: "text.secondary" }}>Lịch nhận việc do ứng viên khai báo</Typography><Typography sx={{ fontSize: 13, mt: .5 }}>{evaluation.availability}</Typography><Typography sx={{ fontSize: 12, mt: 1, color: "text.secondary" }}>Chưa xác nhận khả năng hoàn thành trước deadline dự án.</Typography></Box>
+        </Box>
+        {!evaluation.reasons.length && <Alert severity="info">Chưa có tiêu chí đủ bằng chứng để gợi ý. Không đồng nghĩa ứng viên không đủ năng lực.</Alert>}
+        <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Ba tiêu chí: kỹ năng khai báo, lĩnh vực portfolio và khoảng phí. Số lượng tiêu chí không phải phần trăm năng lực; ưu tiên cá nhân/Team chỉ dùng để sắp xếp khi bằng nhau.</Typography>
         <Divider />
 
         {/* Skill Overlap Breakdown */}
@@ -178,9 +184,7 @@ export function AIFitAnalysisModal({
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {brief.skills.map((skill) => {
-              const matched = evaluation.skillOverlap
-                .map((s) => s.toLowerCase().trim())
-                .includes(skill.toLowerCase().trim());
+              const matched = evaluation.skillOverlap.includes(skill);
               return (
                 <Chip
                   key={skill}
@@ -206,7 +210,7 @@ export function AIFitAnalysisModal({
         {/* Relevant Portfolio Evidence (BR-027) */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            Bằng chứng Portfolio liên quan (BR-027)
+            Portfolio do ứng viên cung cấp
           </Typography>
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
             {talent.portfolio.map((item, idx) => (

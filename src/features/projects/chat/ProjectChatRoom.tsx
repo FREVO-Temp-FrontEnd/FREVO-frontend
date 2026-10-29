@@ -42,7 +42,7 @@ interface ProjectChatRoomProps {
   onSendMessage: (
     body: string,
     attachment?: { name: string; url: string }
-  ) => void;
+  ) => boolean | void;
   onApproveChat?: () => void;
   onNavigateToAgreement?: () => void;
   inboxMode?: boolean;
@@ -84,7 +84,8 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!draft.trim() && !selectedFile) return;
-    onSendMessage(draft.trim(), selectedFile || undefined);
+    if (isReadOnly || !isChatUnlocked) return;
+    if (onSendMessage(draft.trim(), selectedFile || undefined) === false) return;
     setDraft("");
     setSelectedFile(null);
   };

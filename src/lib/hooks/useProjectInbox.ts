@@ -1,3 +1,4 @@
+import { canManageApplication } from "@/lib/storage/applicationAccess";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -65,7 +66,7 @@ export function useBusinessInbox() {
 
   return useMemo(() => {
     const groups: BusinessChatGroup[] = projects
-      .map((project) => ({ project, contacts: contactsForProject(project, candidates, talents, messages, freelancer ? "business" : "talent").filter(contact => !freelancer || contact.talent.id === (talents.some(talent => talent.id === user?.id) ? user?.id : "minh-anh")) }))
+      .map((project) => ({ project, contacts: contactsForProject(project, candidates, talents, messages, freelancer ? "business" : "talent").filter(contact => !freelancer || (!!user && canManageApplication(contact.candidate, user))) }))
       .filter(group => !freelancer || group.contacts.length > 0);
 
     groups.sort((a, b) => {
@@ -77,7 +78,7 @@ export function useBusinessInbox() {
     });
 
     return groups;
-  }, [projects, candidates, talents, messages, freelancer, user?.id]);
+  }, [projects, candidates, talents, messages, freelancer, user]);
 }
 
 interface InboxPreferences {

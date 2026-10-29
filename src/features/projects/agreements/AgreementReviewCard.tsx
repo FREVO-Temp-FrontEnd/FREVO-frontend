@@ -18,7 +18,7 @@ export function AgreementReviewCard({ agreement, project, talent, isBusiness, is
   const hoursRemaining = Math.max(0, Math.ceil((Date.parse(agreement.expiresAt) - Date.now()) / 3600000));
   const isExpired = agreement.status === "expired" || (agreement.status === "pending" && !hoursRemaining);
   const isPending = agreement.status === "pending" && !isExpired;
-  const status = agreement.isEffective ? "Đang có hiệu lực" : agreement.status === "confirmed" ? "Đã xác nhận · Bản cũ" : agreement.status === "rejected" ? "Đã từ chối" : isExpired ? "Đã hết hạn" : "Chờ phản hồi";
+  const status = agreement.isEffective ? "Đang có hiệu lực" : agreement.status === "confirmed" ? "Đã xác nhận · Bản cũ" : agreement.status === "superseded" ? "Không còn hiệu lực" : agreement.status === "rejected" ? "Đã từ chối" : isExpired ? "Đã hết hạn" : "Chờ phản hồi";
   return <Paper elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: "16px", overflow: "hidden" }}>
     <Box sx={{ px: { xs: 2.5, md: 3.5 }, py: 2.5, borderBottom: "1px solid", borderColor: "divider" }} className="flex flex-wrap items-center justify-between gap-3">
       <Box className="flex items-center gap-3"><Box sx={{ width: 40, height: 44, display: "grid", placeItems: "center", borderRadius: "10px", bgcolor: "#fff0e9", color: "primary.dark" }}><FileCheck2 size={22} /></Box><Box><Typography sx={{ fontSize: 11, color: "text.secondary" }}>Thỏa thuận hợp tác</Typography><Typography component="h2" sx={{ fontFamily: "h2.fontFamily", fontSize: 19, fontWeight: 800, mt: .5 }}>{agreement.reference}</Typography></Box></Box>

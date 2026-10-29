@@ -84,9 +84,11 @@ export interface Candidate {
   permissions?: { canViewResume: boolean };
 }
 
-export type InviteStatus = "pending" | "accepted" | "declined" | "expired";
+export type InviteStatus = "pending" | "accepted" | "declined" | "expired" | "cancelled";
 
 export interface Invitation {
+  invalidatedAt?: string;
+  invalidationReason?: "selection_closed";
   id: string;
   projectId: string;
   talentId: string;
@@ -163,9 +165,12 @@ export interface Milestone {
   revisionHistory?: MilestoneRevision[];
 }
 
-export type AgreementStatus = "draft" | "pending" | "confirmed" | "rejected" | "expired";
+export type AgreementStatus = "draft" | "pending" | "confirmed" | "rejected" | "expired" | "superseded";
 
 export interface AgreementProposal {
+  createdBy?: { id: string; name: string };
+  confirmationSource?: "provider" | "demo";
+  invalidatedAt?: string;
   id?: string;
   projectId: string;
   talentId: string;
@@ -207,6 +212,7 @@ export type NotificationType =
   | "system";
 
 export interface NotificationItem {
+  recipientCompany?: string;
   id: string;
   userId?: string;
   title: string;

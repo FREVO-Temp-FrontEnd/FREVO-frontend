@@ -1,83 +1,45 @@
-/**
- * Heuristic Candidate Matching & Fit Evaluation Utility
- * Traceable to DEC-01, FR-014 through FR-016, and BUS-007 / BUS-014 / BUS-015
- * Computes deterministic match percentage and explainable evidence badges.
- */
-
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
+import { skillAliases } from "@/lib/config/skillTaxonomy";
+import { normalized } from "./formatters";
 
-export interface MatchEvaluation {
-  score: number;       // Percentage (e.g. 92)
-  reasons: string[];   // Explainable match rationale (e.g. "3 kỹ năng trùng brief")
-  skillOverlap: string[];
-  preferenceFit: boolean;
+const clean = (value: string) => normalized(value).trim().replace(/\s+/g, " ");
+export function canonicalSkill(value: string): string {
+  const text = clean(value);
+  return Object.entries(skillAliases).find(([, aliases]) => aliases.some(alias => clean(alias) === text))?.[0] ?? `custom:${text}`;
 }
-
+export interface MatchEvaluation {
+  /** Count of supported criteria (skills, portfolio category, budget), not a suitability percentage. */
+  score: number;
+  reasons: string[];
+  skillOverlap: string[];
+  missingSkills: string[];
+  preferenceFit: boolean;
+  budget: "overlap" | "outside" | "unknown";
+  portfolioRelevant: boolean;
+  availability: string;
+  availableNow: boolean;
+}
 export function calculateMatchingScore(
-  brief: Pick<ProjectBrief, "skills" | "preference" | "category" | "budget">,
-  talent: Pick<TalentProfile, "skills" | "kind" | "portfolio" | "rate" | "fit">
+  brief: Pick<ProjectBrief, "skills" | "preference" | "category" | "budget"> & Partial<Pick<ProjectBrief, "budgetMin" | "budgetMax">>,
+  talent: Pick<TalentProfile, "skills" | "kind" | "portfolio" | "rate" | "fit"> & Partial<Pick<TalentProfile, "rateMin" | "rateMax" | "availability">>,
 ): MatchEvaluation {
-  const talentSkills = talent.skills.map((s) => s.toLowerCase().trim());
-
-  const skillOverlap = brief.skills.filter((bs) =>
-    talentSkills.includes(bs.toLowerCase().trim())
-  );
-
-  const reasons: string[] = [];
-  let calculatedScore = 65; // Base compatibility baseline
-
-  // 1. Skill overlap scoring
-  if (skillOverlap.length > 0) {
-    calculatedScore += Math.min(skillOverlap.length * 8, 20);
-    reasons.push(`${skillOverlap.length} kỹ năng trùng brief`);
-  }
-
-  // 2. Format / Entity Preference Fit
-  const preferenceFit =
-    brief.preference === "both" ||
-    (brief.preference === "individual" && talent.kind === "Cá nhân") ||
-    (brief.preference === "team" && talent.kind === "Team");
-
-  if (preferenceFit) {
-    calculatedScore += 5;
-    if (talent.kind === "Team") {
-      reasons.push("Năng lực team đáp ứng quy mô dự án");
-    }
-  }
-
-  // 3. Category & Portfolio Relevance
-  const categoryMatch = talent.portfolio.some(
-    (p) =>
-      p.category.toLowerCase().includes(brief.category.toLowerCase()) ||
-      brief.category.toLowerCase().includes(p.category.toLowerCase())
-  );
-
-  if (categoryMatch) {
-    calculatedScore += 5;
-    reasons.push("Portfolio có dự án cùng lĩnh vực");
-  }
-
-  // 4. Fallback or predefined reasons from talent data if reasons are sparse
-  if (reasons.length < 2 && talent.fit && talent.fit.length > 0) {
-    talent.fit.forEach((f) => {
-      if (!reasons.includes(f)) {
-        reasons.push(f);
-      }
-    });
-  }
-
-  // Budget alignment badge default
-  if (!reasons.some((r) => r.toLowerCase().includes("ngân sách"))) {
-    reasons.push("Trong khoảng ngân sách dự kiến");
-  }
-
-  // Clamp score between 60% and 98%
-  const finalScore = Math.min(Math.max(calculatedScore, 65), 98);
-
-  return {
-    score: finalScore,
-    reasons: reasons.slice(0, 3), // Top 3 explainable evidence badges
-    skillOverlap,
-    preferenceFit,
-  };
+  const talentSkills = new Set(talent.skills.map(canonicalSkill));
+  const requested = [...new Map(brief.skills.filter(skill => skill.trim()).map(skill => [canonicalSkill(skill), skill])).values()];
+  const skillOverlap = requested.filter(skill => talentSkills.has(canonicalSkill(skill)));
+  const missingSkills = requested.filter(skill => !talentSkills.has(canonicalSkill(skill)));
+  const preferenceFit = brief.preference === "both" || (brief.preference === "individual" && talent.kind === "Cá nhân") || (brief.preference === "team" && talent.kind === "Team");
+  const category = clean(brief.category);
+  const portfolioRelevant = !!category && talent.portfolio.some(work => !!clean(work.category) && canonicalSkill(work.category) === canonicalSkill(brief.category));
+  const validRange = (min?: number, max?: number) => Number.isFinite(min) && Number.isFinite(max) && min! > 0 && max! >= min!;
+  const budget = validRange(brief.budgetMin, brief.budgetMax) && validRange(talent.rateMin, talent.rateMax)
+    ? talent.rateMin! <= brief.budgetMax! && talent.rateMax! >= brief.budgetMin! ? "overlap" : "outside" : "unknown";
+  const declared = talent.availability?.trim() ?? "";
+  const availability = !declared || /^(chua cap nhat|chua ro|unknown|n\/a|chua cung cap)$/.test(clean(declared)) ? "Chưa cung cấp lịch nhận việc" : declared;
+  const availableNow = /^(co the bat dau ngay|san sang nhan viec ngay|san sang bat dau ngay|available now)$/.test(clean(declared));
+  const reasons = [
+    ...(skillOverlap.length ? [`Khai báo ${skillOverlap.length}/${requested.length} kỹ năng trong brief`] : []),
+    ...(portfolioRelevant ? ["Portfolio khai báo cùng lĩnh vực"] : []),
+    ...(budget === "overlap" ? ["Khoảng phí tham khảo giao với ngân sách"] : []),
+  ];
+  return { score: Number(skillOverlap.length > 0) + Number(portfolioRelevant) + Number(budget === "overlap"), reasons, skillOverlap, missingSkills, preferenceFit, budget, portfolioRelevant, availability, availableNow };
 }
