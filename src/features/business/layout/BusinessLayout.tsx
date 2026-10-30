@@ -1,59 +1,22 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router";
 import {
-  LayoutDashboard,
-  BriefcaseBusiness,
-  CirclePlus,
-  MessageCircleMore,
   UserRound,
   Settings2,
   Check,
   X,
-  ExternalLink,
   LogOut,
   ChevronDown,
   LifeBuoy,
-  Layers3,
+  Menu as MenuIcon,
 } from "lucide-react";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import { useBusiness } from "@/lib/hooks/useBusiness";
 import { BusinessNotificationPopover } from "../components/BusinessNotificationPopover";
-import { externalNavConfig } from "@/lib/config/navigation";
+import { BusinessNav } from "../components/BusinessNav";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
-import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
+import { Avatar, Box, Divider, Drawer, IconButton, Menu, MenuItem, Typography, useMediaQuery } from "@mui/material";
 import "@/features/business/business.css";
-
-const navItems = [
-  { href: "/business", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/business/projects/new", label: "Đăng dự án", icon: CirclePlus },
-  { href: "/business/projects", label: "Dự án của tôi", icon: BriefcaseBusiness },
-  { href: "/business/ongoing", label: "Đang tiến hành", icon: Layers3 },
-  { href: "/business/messages", label: "Hộp tin nhắn", icon: MessageCircleMore },
-];
-
-/** Returns true if a nav item should be highlighted as active for the given pathname. */
-function isCurrentNavItem(href: string, pathname: string) {
-  if (href === "/business") return pathname === href;
-
-  // Progress pages under /business/ongoing/:id/progress belong to "Dang tien hanh" nav.
-  const isProgressPage = /^\/business\/ongoing\/[^/]+\/progress(\/.*)?$/.test(pathname);
-
-  if (href === "/business/ongoing") {
-    // Highlight when on /business/ongoing OR on any project progress page.
-    return pathname === href || isProgressPage;
-  }
-
-  if (href === "/business/projects") {
-    return (
-      (pathname === href || pathname.startsWith(`${href}/`) || pathname.startsWith("/payments/")) &&
-      pathname !== "/business/projects/new" &&
-      pathname !== "/business/messages" &&
-      !isProgressPage
-    );
-  }
-
-  return pathname === href;
-}
 
 export function BusinessLayout({ children }: { children?: ReactNode }) {
   const location = useLocation();
@@ -61,13 +24,16 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
   const navigate = useNavigate();
   const { businessName, toast, setToast } = useBusiness();
   const { logout } = useAuthSession();
-  const [mobileNav, setMobileNav] = useState(false);
+  const [mobileNavRoute, setMobileNavRoute] = useState<string | null>(null);
+  const isMobileNav = useMediaQuery("(max-width:899.95px)");
+  const mobileNav = mobileNavRoute === location.key;
   const [accountMenuAnchor, setAccountMenuAnchor] = useState<HTMLElement | null>(null);
 
   return (
     <Box
       className="fb-app"
       sx={{
+        "&&": { display: "block" },
         "&& .fb-button": {
           fontFamily: '"Be Vietnam Pro", sans-serif',
           fontSize: "13px",
@@ -83,129 +49,25 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
         Đi đến nội dung chính
       </a>
 
-      {/* Sidebar */}
-      <aside className={`fb-sidebar ${mobileNav ? "is-open" : ""}`}>
-        <Link
-          className="fb-brand"
-          to="/business"
-          onClick={() => setMobileNav(false)}
-        >
-          <img src="/assets/frevo-logo.png" alt="FREVO" />
-          <span>Business</span>
-        </Link>
-
-        <div className="fb-side-label">KHÔNG GIAN LÀM VIỆC</div>
-        <nav aria-label="Điều hướng Business">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={() => setMobileNav(false)}
-              aria-current={isCurrentNavItem(item.href, currentPath) ? "page" : undefined}
-            >
-              <item.icon size={19} strokeWidth={1.8} />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="fb-side-label" style={{ marginTop: "24px" }}>
-          LIÊN KẾT NGOÀI
-        </div>
-        <nav aria-label="Liên kết ngoài">
-          <a
-            href={externalNavConfig.landingPageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: "flex", alignItems: "center", gap: "8px" }}
-          >
-            <ExternalLink size={17} strokeWidth={1.8} />
-            <span>Trang giới thiệu (Next.js)</span>
-          </a>
-        </nav>
-
-        <div className="fb-sidebar-account">
-          <div className="fb-side-label">TÀI KHOẢN</div>
-          <nav aria-label="Tài khoản Business">
-            <Link
-              to="/business/profile"
-              onClick={() => setMobileNav(false)}
-              aria-current={
-                location.pathname === "/business/profile" ? "page" : undefined
-              }
-            >
-              <UserRound size={19} strokeWidth={1.8} />
-              <span>Hồ sơ</span>
-            </Link>
-            <Link
-              to="/business/settings"
-              onClick={() => setMobileNav(false)}
-              aria-current={
-                location.pathname === "/business/settings" ? "page" : undefined
-              }
-            >
-              <Settings2 size={19} strokeWidth={1.8} />
-              <span>Cài đặt</span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setMobileNav(false);
-                logout();
-                navigate("/login", { replace: true, state: {} });
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "13px",
-                minHeight: "47px",
-                padding: "0 15px",
-                borderRadius: "9px",
-                color: "#a34a31",
-                fontSize: "13px",
-                fontWeight: 700,
-                background: "none",
-                border: "none",
-                width: "100%",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "background .15s, color .15s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#fff0e9";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "none";
-              }}
-            >
-              <LogOut size={19} strokeWidth={1.8} />
-              <span>Đăng xuất</span>
-            </button>
-          </nav>
-        </div>
-      </aside>
-
-      {/* Main Content Wrap */}
-      <div className="fb-content-wrap">
-        <header className="fb-topbar">
-          <button
-            className="fb-mobile-menu"
-            type="button"
-            aria-label={mobileNav ? "Đóng menu" : "Mở menu"}
-            aria-expanded={mobileNav}
-            onClick={() => setMobileNav(!mobileNav)}
-          >
-            {mobileNav ? <X size={22} /> : <span>☰</span>}
-          </button>
-
-          <Typography component="span" sx={{ minWidth: 0, fontSize: { xs: 11, sm: 13 }, fontWeight: 700, color: "text.secondary", lineHeight: 1.5 }}>
-            Không gian doanh nghiệp · {businessName}
-          </Typography>
-
+      <Box component="header" sx={{ bgcolor: "background.paper", borderBottom: "1px solid", borderColor: "divider" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, md: 2 }, minHeight: { xs: 64, md: 76 }, px: { xs: 2, md: 3 }, maxWidth: 1600, mx: "auto" }}>
+          <IconButton
+            aria-label={mobileNav ? "Đóng menu điều hướng" : "Mở menu điều hướng"}
+            aria-expanded={mobileNav && isMobileNav}
+            aria-controls="business-mobile-navigation"
+            onClick={() => setMobileNavRoute(mobileNav ? null : location.key)}
+            sx={{ display: { xs: "inline-flex", md: "none" }, color: "text.primary" }}
+          ><MenuIcon size={22} /></IconButton>
+          <Box component={Link} to="/business" aria-label="FREVO — Tổng quan doanh nghiệp" sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
+            <Box component="img" src="/assets/frevo-logo.png" alt="FREVO" sx={{ width: { xs: 90, sm: 100 }, height: "auto" }} />
+            <Typography component="span" sx={{ display: { xs: "none", sm: "block", md: "none", lg: "block" }, pl: 1.5, borderLeft: "1px solid", borderColor: "divider", fontSize: 12, fontWeight: 700, color: "primary.dark" }}>Business</Typography>
+          </Box>
+          <Box sx={{ display: { xs: "none", md: "block" }, flex: 1, minWidth: 0, ml: { md: 2, lg: 4 } }}><BusinessNav /></Box>
           <Box sx={{ "&&": { display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1.5 }, ml: "auto" } }}>
             <BusinessNotificationPopover />
             <Box
               component="button"
+              id="business-account-button"
               type="button"
               onClick={(event) => setAccountMenuAnchor(event.currentTarget)}
               aria-label={`Tài khoản ${businessName}`}
@@ -220,7 +82,7 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
                 minHeight: 48,
                 p: "4px 8px 4px 12px",
                 borderRadius: 3,
-                bgcolor: "transparent",
+                bgcolor: accountMenuAnchor ? "#fff0e9" : "transparent",
                 color: "text.primary",
                 border: 0,
                 cursor: "pointer",
@@ -229,14 +91,13 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
                 "&:focus-visible": { outline: "2px solid #f4490b", outlineOffset: 3 },
               }}
             >
-              <Box component="span" sx={{ display: { xs: "none", sm: "block" }, textAlign: "right", maxWidth: 180 }}>
-                <Typography component="span" sx={{ display: "block", fontSize: 13, fontWeight: 700, lineHeight: 1.5 }} noWrap>{businessName}</Typography>
-                <Typography component="span" sx={{ display: "block", fontSize: 12, color: "text.secondary", lineHeight: 1.5 }}>Doanh nghiệp</Typography>
-              </Box>
+              <Typography component="span" noWrap sx={{ display: { xs: "none", sm: "block", md: "none", lg: "block" }, maxWidth: 140, fontSize: 13, fontWeight: 700 }}>
+                {businessName}
+              </Typography>
               <Avatar sx={{ width: 36, height: 36, bgcolor: "primary.dark", color: "#fff" }}>
                 <PersonRoundedIcon sx={{ fontSize: 23 }} />
               </Avatar>
-              <ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" />
+              <Box component="span" sx={{ display: "inline-flex", transform: accountMenuAnchor ? "rotate(180deg)" : "none" }}><ChevronDown size={16} strokeWidth={2.5} aria-hidden="true" /></Box>
             </Box>
             <Menu
               id="business-account-menu"
@@ -245,8 +106,22 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               onClose={() => setAccountMenuAnchor(null)}
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               transformOrigin={{ vertical: "top", horizontal: "right" }}
-              slotProps={{ paper: { sx: { mt: 1, minWidth: 180, border: "1px solid #e4e6e2", borderRadius: 2, boxShadow: "0 12px 30px rgba(32,32,31,.12)" } } }}
+              slotProps={{
+                paper: { sx: { mt: 1, width: 264, maxWidth: "calc(100vw - 32px)", border: "1px solid", borderColor: "divider", borderRadius: "13px", boxShadow: "0 12px 32px rgba(32,32,31,.12)", "& .MuiMenuItem-root": { mx: 1, my: 0.5, px: 1.5, minHeight: 46, borderRadius: "9px", fontSize: 14, fontWeight: 600 } } },
+                list: { "aria-labelledby": "business-account-button" },
+              }}
             >
+              <Box component="li" role="presentation" sx={{ px: 2.5, py: 1, listStyle: "none" }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, overflowWrap: "anywhere" }}>{businessName}</Typography>
+                <Typography variant="caption" color="text.secondary">Doanh nghiệp</Typography>
+              </Box>
+              <Divider component="li" sx={{ mx: 2, mb: 1 }} />
+              <MenuItem component={Link} to="/business/profile" selected={currentPath === "/business/profile"} onClick={() => setAccountMenuAnchor(null)} sx={{ gap: 1.5 }}>
+                <UserRound size={18} aria-hidden="true" /> Hồ sơ doanh nghiệp
+              </MenuItem>
+              <MenuItem component={Link} to="/business/settings" selected={currentPath === "/business/settings"} onClick={() => setAccountMenuAnchor(null)} sx={{ gap: 1.5 }}>
+                <Settings2 size={18} aria-hidden="true" /> Cài đặt tài khoản
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   setAccountMenuAnchor(null);
@@ -268,8 +143,21 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
               </MenuItem>
             </Menu>
           </Box>
-        </header>
-
+        </Box>
+      </Box>
+      <Drawer
+        open={mobileNav && isMobileNav} onClose={() => setMobileNavRoute(null)}
+        slotProps={{ paper: { id: "business-mobile-navigation", sx: { width: "min(300px, 85vw)", p: 2 } } }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+          <Box component={Link} to="/business" onClick={() => setMobileNavRoute(null)} aria-label="FREVO Business — Tổng quan">
+            <Box component="img" src="/assets/frevo-logo.png" alt="FREVO" sx={{ width: 100, height: "auto" }} />
+          </Box>
+          <IconButton aria-label="Đóng menu điều hướng" onClick={() => setMobileNavRoute(null)}><X size={20} /></IconButton>
+        </Box>
+        <BusinessNav mobile onNavigate={() => setMobileNavRoute(null)} />
+      </Drawer>
+      <div className="fb-content-wrap">
         <Box
           component="main"
           id="fb-content"
@@ -280,7 +168,7 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
                   "&&": {
                     maxWidth: "none",
                     padding: 0,
-                    height: { xs: "calc(100dvh - 60px)", sm: "calc(100dvh - 71px)" },
+                    height: { xs: "calc(100dvh - 65px)", md: "calc(100dvh - 77px)" },
                     minHeight: "unset",
                     overflow: "hidden",
                     display: "flex",
@@ -299,15 +187,6 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
           </div>
         )}
       </div>
-
-      {mobileNav && (
-        <button
-          type="button"
-          className="fb-scrim"
-          aria-label="Đóng menu"
-          onClick={() => setMobileNav(false)}
-        />
-      )}
 
       {toast && (
         <div className="fb-toast" role="status">

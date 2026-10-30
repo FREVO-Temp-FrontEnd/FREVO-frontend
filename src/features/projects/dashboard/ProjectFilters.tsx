@@ -11,10 +11,10 @@ const budgetOptions = [{ value: 0, label: "Tất cả" }, { value: 5, label: "T�
 const FilterPill = styled(Button)(({ theme }) => ({
   minHeight: 44,
   padding: theme.spacing(1, 2),
-  border: "1px solid transparent",
+  border: "1px solid var(--surface-border)",
   borderRadius: 999,
-  backgroundColor: theme.palette.action.selected,
-  color: theme.palette.text.primary,
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.secondary,
   fontSize: 14,
   fontWeight: 500,
   whiteSpace: "nowrap",
@@ -22,8 +22,9 @@ const FilterPill = styled(Button)(({ theme }) => ({
   transition: theme.transitions.create(["background-color", "color"], { duration: 150 }),
   "&:hover": { backgroundColor: theme.palette.action.focus },
   '&[aria-pressed="true"]': {
-    backgroundColor: theme.palette.primary.dark,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: "#fff0e9",
+    borderColor: "#efc7b6",
+    color: theme.palette.primary.dark,
     fontWeight: 700,
   },
   "&.Mui-focusVisible": {
@@ -51,9 +52,9 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
   ].filter(Boolean).join(", ");
 
   return (
-    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
+    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, p: { xs: 2, sm: 2.5 }, bgcolor: "background.paper", border: "1px solid var(--surface-border)", borderRadius: "13px", display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
       <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 0.5, "@container (min-width: 500px)": { gridTemplateColumns: "90px minmax(0, 1fr)", gap: 1.5 } }}>
-        <Typography component="h2" sx={{ fontSize: 20, fontWeight: 700, color: "primary.dark", whiteSpace: "nowrap" }}>Lĩnh vực</Typography>
+        <Typography component="h2" sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary", whiteSpace: "nowrap" }}>Lĩnh vực</Typography>
         <FilterOptionRail label="Lĩnh vực" resetScroll={selectedCategories.length === 0}>
           <FilterPill aria-pressed={selectedCategories.length === 0} onClick={() => selectedCategories.forEach(toggleCategory)}>Tất cả</FilterPill>
           {categories.map((category) => (
@@ -62,7 +63,7 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
         </FilterOptionRail>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 1, "@container (min-width: 500px)": { gridTemplateColumns: "250px minmax(0, 1fr)", gap: 1.5 } }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 1, "@container (min-width: 500px)": { gridTemplateColumns: "270px minmax(0, 1fr)", gap: 1.5 } }}>
         <ProjectSortSelect value={sortMode} onChange={setSortMode} />
         <FilterOptionRail label="Ngân sách" resetScroll={minimumBudget === 0} splitControls>
           {budgetOptions.map((option) => (
@@ -72,8 +73,8 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
       </Box>
 
       {hasFilters && <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5 }}>
-        <Typography sx={{ fontSize: 12, color: "text.primary", minWidth: 0 }}>Đang lọc: {filterSummary}</Typography>
-        <Button onClick={clearFilters} startIcon={<RotateCcw size={14} strokeWidth={1.5} aria-hidden="true" />} sx={{ flexShrink: 0, minHeight: 44, fontSize: 12, color: "primary.dark", whiteSpace: "nowrap" }}>Xóa bộ lọc</Button>
+        <Typography sx={{ fontSize: 14, color: "text.primary", minWidth: 0 }}>Đang lọc: {filterSummary}</Typography>
+        <Button onClick={clearFilters} startIcon={<RotateCcw size={14} strokeWidth={1.5} aria-hidden="true" />} sx={{ flexShrink: 0, minHeight: 44, fontSize: 14, color: "primary.dark", whiteSpace: "nowrap" }}>Xóa bộ lọc</Button>
       </Box>}
     </Box>
   );

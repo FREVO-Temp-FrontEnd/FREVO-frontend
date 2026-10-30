@@ -1,16 +1,13 @@
 import { createTheme } from "@mui/material/styles";
 import { theme } from "./theme";
 
-// Keep section boundaries consistent between MUI surfaces and legacy CSS.
-const freelancerDivider = "#a8b0a2";
-
+// Use the same neutral boundaries for both workspaces.
 export const freelancerTheme = createTheme(theme, {
-  palette: { divider: freelancerDivider },
   components: {
     MuiPaper: {
       styleOverrides: {
-        root: { "--line": freelancerDivider },
-        outlined: { borderColor: freelancerDivider },
+        root: { "--line": theme.palette.divider },
+        outlined: { borderColor: "var(--surface-border)" },
       },
     },
   },

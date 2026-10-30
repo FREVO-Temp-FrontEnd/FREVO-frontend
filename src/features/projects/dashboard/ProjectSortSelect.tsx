@@ -17,7 +17,7 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
       inputProps={{ "aria-label": "Sắp xếp" }}
       IconComponent={ChevronDown}
       renderValue={(selected) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 13, "& > svg": { flexShrink: 0 } }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, fontSize: 14, "& > svg": { flexShrink: 0 } }}>
           <ArrowDownUp size={17} strokeWidth={1.5} aria-hidden="true" />
           <Box component="span">Sắp xếp:</Box>
           <Box component="span" sx={{ fontWeight: 600 }}>{sortLabels[selected]}</Box>
