@@ -1,5 +1,15 @@
 import { createTheme } from "@mui/material/styles";
 
+// Keep page, panel and inset surfaces distinct across MUI and legacy CSS.
+const surfaces = {
+  canvas: "#f2f4f7",
+  paper: "#ffffff",
+  inset: "#f8f9fb",
+  border: "#dfe3e8",
+  muted: "#667085",
+  shadow: "0 1px 2px rgba(32,32,31,0.025)",
+};
+
 export const theme = createTheme({
   palette: {
     primary: {
@@ -12,14 +22,14 @@ export const theme = createTheme({
       contrastText: "#ffffff",
     },
     background: {
-      default: "#f7f8f6",
-      paper: "#ffffff",
+      default: surfaces.canvas,
+      paper: surfaces.paper,
     },
     text: {
       primary: "#20201f",
-      secondary: "#747773",
+      secondary: surfaces.muted,
     },
-    divider: "#e4e6e2",
+    divider: "#e7eaee",
   },
   typography: {
     fontFamily: '"Space Grotesk", Arial, sans-serif',
@@ -49,6 +59,39 @@ export const theme = createTheme({
     borderRadius: 13,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        ":root": {
+          "--surface-canvas": surfaces.canvas,
+          "--surface-paper": surfaces.paper,
+          "--surface-inset": surfaces.inset,
+          "--surface-border": surfaces.border,
+          "--surface-muted": surfaces.muted,
+          "--surface-shadow": surfaces.shadow,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        outlined: {
+          borderColor: surfaces.border,
+          boxShadow: surfaces.shadow,
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          border: `1px solid ${surfaces.border}`,
+          boxShadow: surfaces.shadow,
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: { backgroundColor: surfaces.inset },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
