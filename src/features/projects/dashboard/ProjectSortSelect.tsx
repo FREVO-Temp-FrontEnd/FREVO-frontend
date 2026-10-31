@@ -28,11 +28,11 @@ export function ProjectSortSelect({ value, onChange }: ProjectSortSelectProps) {
         width: "100%",
         minWidth: 0,
         height: 48,
-        bgcolor: "background.paper",
-        borderRadius: "8px",
+        bgcolor: "#f4f6f8",
+        borderRadius: "10px",
         "& .MuiSelect-select": { py: 1.25 },
         "& .MuiSelect-icon": { width: 18, height: 18, right: 12 },
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
+        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#d0d5dd" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#b8c0cc" },
       }}
     >
       <MenuItem value="newest">Mới nhất</MenuItem>

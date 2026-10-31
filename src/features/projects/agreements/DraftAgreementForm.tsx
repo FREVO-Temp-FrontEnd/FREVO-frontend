@@ -53,39 +53,19 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
 
   const initialMilestones: Milestone[] = existingAgreement?.milestones?.length
     ? structuredClone(existingAgreement.milestones)
-    : [
-        {
-          id: `ms-1-${Date.now()}`,
-          name: "Mốc 1 · Định hướng & Nghiên cứu",
-          deliverable: "Tài liệu moodboard, phân tích yêu cầu và định hướng thiết kế sơ bộ.",
-          deadline: project.deadline || "10/11/2026",
-          amount: "8 triệu",
-          amountValue: 8000000,
-          status: "upcoming",
-          revisionAllowance: { allowed: 2, used: 0 }, // Mutually agreed allowance per DEC-03
-        },
-        {
-          id: `ms-2-${Date.now()}`,
-          name: "Mốc 2 · Hoàn thiện & Bàn giao",
-          deliverable: "Thiết kế hoàn chỉnh, bàn giao tài liệu và tệp gốc sử dụng.",
-          deadline: project.deadline || "30/11/2026",
-          amount: "16 triệu",
-          amountValue: 16000000,
-          status: "upcoming",
-          revisionAllowance: { allowed: 2, used: 0 },
-        },
-      ];
+    : [];
 
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [error, setError] = useState("");
 
   const handleAddMilestone = () => {
+    setError("");
     const nextIndex = milestones.length + 1;
     const newMilestone: Milestone = {
       id: `ms-${nextIndex}-${Date.now()}`,
       name: `Mốc ${nextIndex} · Bàn giao`,
       deliverable: "",
-      deadline: deadline || "30/11/2026",
+      deadline: deadline || project.deadline || "",
       amount: "",
       status: "upcoming",
       revisionAllowance: { allowed: 2, used: 0 },
@@ -94,10 +74,6 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
   };
 
   const handleRemoveMilestone = (id: string) => {
-    if (milestones.length <= 1) {
-      setError("Dự án cần có ít nhất 1 mốc công việc bàn giao.");
-      return;
-    }
     setMilestones(milestones.filter((m) => m.id !== id));
   };
 
@@ -131,9 +107,19 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (staleDraft) { setError("Đã có đề xuất mới hơn. Nội dung đang soạn được giữ lại; hãy kiểm tra phiên bản mới trước khi gửi."); return; }
+    if (staleDraft) {
+      setError(
+        "Đã có đề xuất mới hơn. Nội dung đang soạn được giữ lại; hãy kiểm tra phiên bản mới trước khi gửi."
+      );
+      return;
+    }
     if (!scope.trim() || !deliverables.trim() || !deadline.trim() || !budget.trim()) {
       setError("Vui lòng điền đầy đủ các thông tin phạm vi, bàn giao, hạn chót và ngân sách.");
+      return;
+    }
+
+    if (milestones.length === 0) {
+      setError("Vui lòng thêm ít nhất 1 mốc công việc bàn giao trước khi gửi đề xuất.");
       return;
     }
 
@@ -146,7 +132,9 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
     }
 
     setError("");
-    const reference = existingAgreement?.reference || `FV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+    const reference =
+      existingAgreement?.reference ||
+      `FV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
 
     onSubmit({
       baseVersion,
@@ -171,6 +159,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
         border: "1px solid",
         borderColor: "divider",
         bgcolor: "background.paper",
+        boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06), 0 2px 6px rgba(16, 24, 40, 0.04)",
       }}
     >
       <Box sx={{ mb: 3 }}>
@@ -183,7 +172,9 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
             letterSpacing: "0.05em",
           }}
         >
-          {existingAgreement ? `Điều chỉnh thỏa thuận · Phiên bản ${existingAgreement.version + 1}` : "Soạn thảo thỏa thuận hợp tác"}
+          {existingAgreement
+            ? `Điều chỉnh thỏa thuận · Phiên bản ${existingAgreement.version + 1}`
+            : "Soạn thảo thỏa thuận hợp tác"}
         </Typography>
         <Typography
           variant="h5"
@@ -197,7 +188,8 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           Đề xuất điều khoản hợp tác với {talent.name}
         </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-          Dự án: <strong>{project.title}</strong> · Đối tác: <strong>{talent.name}</strong> ({talent.kind})
+          Dự án: <strong>{project.title}</strong> · Đối tác: <strong>{talent.name}</strong> (
+          {talent.kind})
         </Typography>
       </Box>
 
@@ -208,6 +200,7 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           p: 2,
           borderRadius: "12px",
           bgcolor: "#fff0e9",
+          border: "1px solid rgba(244, 73, 11, 0.2)",
           display: "flex",
           flexDirection: "column",
           gap: 1,
@@ -220,17 +213,20 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
           </Typography>
         </Box>
         <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.7 }}>
-          Sau khi gửi, đối tác có tối đa <strong>3 ngày</strong> để xác nhận hoặc yêu cầu chỉnh sửa. Nếu đề xuất hết hạn mà không được xác nhận, hai bên có thể gửi lại đề xuất mới.
+          Sau khi gửi, đối tác có tối đa <strong>3 ngày</strong> để xác nhận hoặc yêu cầu chỉnh
+          sửa. Nếu đề xuất hết hạn mà không được xác nhận, hai bên có thể gửi lại đề xuất mới.
         </Typography>
         {existingAgreement?.isEffective && (
           <Typography variant="caption" sx={{ color: "text.primary", mt: 0.5, lineHeight: 1.7 }}>
-            <strong>Phiên bản đang có hiệu lực:</strong> Thỏa thuận phiên bản {existingAgreement.version} vẫn được áp dụng cho đến khi đề xuất mới được cả hai bên xác nhận.
+            <strong>Phiên bản đang có hiệu lực:</strong> Thỏa thuận phiên bản{" "}
+            {existingAgreement.version} vẫn được áp dụng cho đến khi đề xuất mới được cả hai bên xác
+            nhận.
           </Typography>
         )}
       </Box>
 
       {error && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: "12px" }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: "12px" }}>
           {error}
         </Alert>
       )}
@@ -280,9 +276,14 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
 
       {/* Milestones Section */}
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}
+        >
           <Box>
-            <Typography variant="subtitle1" sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, color: "text.primary" }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, color: "text.primary" }}
+            >
               Kế hoạch mốc công việc & số lượt chỉnh sửa
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -293,24 +294,87 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
             size="small"
             onClick={handleAddMilestone}
             startIcon={<Plus size={16} />}
-            sx={{ color: "primary.dark", fontWeight: 600, textTransform: "none" }}
+            sx={{
+              color: "primary.dark",
+              fontWeight: 700,
+              textTransform: "none",
+              border: "1px solid rgba(244, 73, 11, 0.3)",
+              borderRadius: "8px",
+              px: 1.5,
+              "&:hover": { bgcolor: "#fff0e9", borderColor: "primary.dark" },
+            }}
           >
             Thêm mốc
           </Button>
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {milestones.map((milestone, index) => (
-            <Paper
-              key={milestone.id}
+        {milestones.length === 0 ? (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 4,
+              textAlign: "center",
+              borderRadius: "12px",
+              borderStyle: "dashed",
+              borderColor: "#cbd5e1",
+              bgcolor: "#f8fafc",
+            }}
+          >
+            <Typography sx={{ fontSize: 13.5, fontWeight: 500, color: "text.secondary", mb: 1.5 }}>
+              Chưa có mốc công việc nào. Bấm nút bên dưới để thêm mốc bàn giao đầu tiên.
+            </Typography>
+            <Button
               variant="outlined"
-              sx={{ p: 2.5, borderRadius: "12px", bgcolor: "background.default", borderColor: "divider", position: "relative" }}
+              size="small"
+              onClick={handleAddMilestone}
+              startIcon={<Plus size={16} />}
+              sx={{
+                borderRadius: 999,
+                fontWeight: 600,
+                textTransform: "none",
+                color: "primary.dark",
+                borderColor: "primary.main",
+                px: 2.5,
+                py: 0.75,
+                "&:hover": { bgcolor: "#fff0e9", borderColor: "primary.dark" },
+              }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
-                <Typography variant="subtitle2" sx={{ fontFamily: "h3.fontFamily", fontWeight: 700, color: "text.primary" }}>
-                  Mốc {index + 1}
-                </Typography>
-                {milestones.length > 1 && (
+              Thêm mốc công việc
+            </Button>
+          </Paper>
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {milestones.map((milestone, index) => (
+              <Paper
+                key={milestone.id}
+                variant="outlined"
+                sx={{
+                  p: 2.5,
+                  borderRadius: "12px",
+                  bgcolor: "#f8fafc",
+                  borderColor: "#d0d5dd",
+                  position: "relative",
+                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontFamily: "h3.fontFamily",
+                      fontWeight: 700,
+                      color: "text.primary",
+                    }}
+                  >
+                    Mốc {index + 1}
+                  </Typography>
                   <IconButton
                     size="small"
                     onClick={() => handleRemoveMilestone(milestone.id)}
@@ -319,65 +383,80 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
                   >
                     <Trash2 size={16} />
                   </IconButton>
-                )}
-              </Box>
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Tên mốc *"
-                  value={milestone.name}
-                  onChange={(e) => handleUpdateMilestone(milestone.id, "name", e.target.value)}
-                />
-                <TextField
-                  fullWidth
-                  size="small"
-                  multiline
-                  rows={2}
-                  label="Sản phẩm bàn giao mốc này *"
-                  value={milestone.deliverable}
-                  onChange={(e) =>
-                    handleUpdateMilestone(milestone.id, "deliverable", e.target.value)
-                  }
-                />
-                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" }, gap: 1.5 }}>
-                  <TextField
-                    size="small"
-                    label="Hạn bàn giao *"
-                    value={milestone.deadline}
-                    onChange={(e) =>
-                      handleUpdateMilestone(milestone.id, "deadline", e.target.value)
-                    }
-                  />
-                  <TextField
-                    size="small"
-                    label="Chi phí mốc *"
-                    slotProps={{ htmlInput: { inputMode: "numeric" } }}
-                    value={formatMoneyText(milestone.amount)}
-                    onChange={(e) =>
-                      handleUpdateMilestone(milestone.id, "amount", e.target.value)
-                    }
-                  />
-                  <TextField
-                    size="small"
-                    type="number"
-                    label="Số lượt sửa đổi"
-                    value={typeof milestone.revisionAllowance?.allowed === "number" ? milestone.revisionAllowance.allowed : 2}
-                    onChange={(e) =>
-                      handleUpdateMilestone(
-                        milestone.id,
-                        "revisionAllowed",
-                        parseInt(e.target.value, 10) || 0
-                      )
-                    }
-                    helperText="Thỏa thuận giữa 2 bên"
-                  />
                 </Box>
-              </Box>
-            </Paper>
-          ))}
-        </Box>
+
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Tên mốc *"
+                    value={milestone.name}
+                    onChange={(e) => handleUpdateMilestone(milestone.id, "name", e.target.value)}
+                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#ffffff" } }}
+                  />
+                  <TextField
+                    fullWidth
+                    size="small"
+                    multiline
+                    rows={2}
+                    label="Sản phẩm bàn giao mốc này *"
+                    value={milestone.deliverable}
+                    onChange={(e) =>
+                      handleUpdateMilestone(milestone.id, "deliverable", e.target.value)
+                    }
+                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#ffffff" } }}
+                  />
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1fr" },
+                      gap: 1.5,
+                    }}
+                  >
+                    <TextField
+                      size="small"
+                      label="Hạn bàn giao *"
+                      value={milestone.deadline}
+                      onChange={(e) =>
+                        handleUpdateMilestone(milestone.id, "deadline", e.target.value)
+                      }
+                      sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#ffffff" } }}
+                    />
+                    <TextField
+                      size="small"
+                      label="Chi phí mốc *"
+                      slotProps={{ htmlInput: { inputMode: "numeric" } }}
+                      value={formatMoneyText(milestone.amount)}
+                      onChange={(e) =>
+                        handleUpdateMilestone(milestone.id, "amount", e.target.value)
+                      }
+                      sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#ffffff" } }}
+                    />
+                    <TextField
+                      size="small"
+                      type="number"
+                      label="Số lượt sửa đổi"
+                      value={
+                        typeof milestone.revisionAllowance?.allowed === "number"
+                          ? milestone.revisionAllowance.allowed
+                          : 2
+                      }
+                      onChange={(e) =>
+                        handleUpdateMilestone(
+                          milestone.id,
+                          "revisionAllowed",
+                          parseInt(e.target.value, 10) || 0
+                        )
+                      }
+                      helperText="Thỏa thuận giữa 2 bên"
+                      sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#ffffff" } }}
+                    />
+                  </Box>
+                </Box>
+              </Paper>
+            ))}
+          </Box>
+        )}
       </Box>
 
       {/* Mandatory Legal Disclaimer per FR-047, BR-022 */}
@@ -394,7 +473,8 @@ export const DraftAgreementForm: React.FC<DraftAgreementFormProps> = ({
       >
         <ShieldAlert size={20} color="#747773" style={{ flexShrink: 0 }} />
         <Typography variant="caption" sx={{ color: "text.secondary", lineHeight: 1.7 }}>
-          Bản tóm tắt thỏa thuận hợp tác ghi nhận phạm vi công việc và các mốc bàn giao đã được hai bên thống nhất; đây không mặc định là hợp đồng điện tử có chứng thực.
+          Bản tóm tắt thỏa thuận hợp tác ghi nhận phạm vi công việc và các mốc bàn giao đã được hai
+          bên thống nhất; đây không mặc định là hợp đồng điện tử có chứng thực.
         </Typography>
       </Box>
 
