@@ -9,21 +9,22 @@ const categories = ["Brand identity", "UI/UX", "Nội dung", "Motion"];
 const budgetOptions = [{ value: 0, label: "Tất cả" }, { value: 5, label: "Từ 5 triệu" }, { value: 10, label: "Từ 10 triệu" }, { value: 20, label: "Từ 20 triệu" }];
 
 const FilterPill = styled(Button)(({ theme }) => ({
-  minHeight: 44,
+  minHeight: 42,
   padding: theme.spacing(1, 2),
-  border: "1px solid var(--surface-border)",
+  border: "1px solid #d0d5dd",
   borderRadius: 999,
-  backgroundColor: theme.palette.background.paper,
-  color: theme.palette.text.secondary,
-  fontSize: 14,
-  fontWeight: 500,
+  backgroundColor: "#f4f6f8",
+  color: "#344054",
+  fontSize: 13.5,
+  fontWeight: 600,
   whiteSpace: "nowrap",
   lineHeight: 1.4,
-  transition: theme.transitions.create(["background-color", "color"], { duration: 150 }),
-  "&:hover": { backgroundColor: theme.palette.action.focus },
+  transition: theme.transitions.create(["background-color", "border-color", "color", "box-shadow"], { duration: 150 }),
+  "&:hover": { backgroundColor: "#e8ecf2", borderColor: "#b8c0cc", color: "#1e293b" },
   '&[aria-pressed="true"]': {
     backgroundColor: "#fff0e9",
-    borderColor: "#efc7b6",
+    borderColor: "#f4490b",
+    boxShadow: "0 1px 2px rgba(244, 73, 11, 0.15)",
     color: theme.palette.primary.dark,
     fontWeight: 700,
   },
@@ -52,7 +53,7 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
   ].filter(Boolean).join(", ");
 
   return (
-    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, p: { xs: 2, sm: 2.5 }, bgcolor: "background.paper", border: "1px solid var(--surface-border)", borderRadius: "13px", display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
+    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, p: { xs: 2, sm: 2.5 }, bgcolor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: "14px", boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)", display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
       <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 0.5, "@container (min-width: 500px)": { gridTemplateColumns: "90px minmax(0, 1fr)", gap: 1.5 } }}>
         <Typography component="h2" sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary", whiteSpace: "nowrap" }}>Lĩnh vực</Typography>
         <FilterOptionRail label="Lĩnh vực" resetScroll={selectedCategories.length === 0}>
