@@ -45,10 +45,10 @@ export const TeamContextToggle: React.FC<TeamContextToggleProps> = ({
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
-            Tư cách hoạt động trên FREVO (AUTH-004 / TEAM-004)
+            Tư cách hoạt động trên FREVO
           </Typography>
           <Typography variant="caption" sx={{ color: "#64748b" }}>
-            Lựa chọn tư cách đại diện khi nộp hồ sơ ứng tuyển hoặc tạo đề xuất thỏa thuận (FR-026, BR-003).
+            Lựa chọn tư cách đại diện khi nộp hồ sơ ứng tuyển hoặc tạo đề xuất thỏa thuận.
           </Typography>
         </Box>
         <Chip
@@ -136,7 +136,7 @@ export const TeamContextToggle: React.FC<TeamContextToggleProps> = ({
                 />
               </Box>
               <Typography variant="caption" sx={{ color: "#64748b" }}>
-                Tài khoản đại diện trao đổi và ký thỏa thuận hợp tác (BR-003)
+                Tài khoản đại diện trao đổi và ký thỏa thuận hợp tác
               </Typography>
             </Box>
           </Box>

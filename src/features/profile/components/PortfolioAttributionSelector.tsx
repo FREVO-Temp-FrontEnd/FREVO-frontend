@@ -25,7 +25,7 @@ export const PortfolioAttributionSelector: React.FC<PortfolioAttributionSelector
   return (
     <Box sx={{ my: 2, p: 2, bgcolor: "#f8fafc", borderRadius: "10px", border: "1px solid", borderColor: "divider" }}>
       <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#1e293b", mb: 0.5 }}>
-        Hình thức thực hiện & Đóng góp (BR-027)
+        Hình thức thực hiện & Đóng góp
       </Typography>
       <Typography variant="caption" sx={{ color: "#64748b", display: "block", mb: 1.5 }}>
         Minh bạch vai trò cá nhân khi tham gia dự án độc lập hoặc cùng đội nhóm sáng tạo.

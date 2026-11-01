@@ -1,3 +1,4 @@
+import type { PublicTeamMember } from "./portfolio.types";
 import type { GuidedBrief } from "./guidedBrief.types";
 /**
  * FREVO Marketplace Unified Domain Types
@@ -56,6 +57,7 @@ export type CandidateSource =
   | "Ứng tuyển · Lời mời";
 
 export interface CandidateSubmission {
+  teamAtSubmission?: { id: string; name: string; representativeName: string };
   /** Read model: snapshots preserve exactly what was submitted. */
   portfolioWorks: Work[];
   portfolioUrl?: string;
@@ -129,6 +131,8 @@ export interface TalentProfile {
   fit?: string[];
   teamMembersCount?: number;
   teamLeaderId?: string;
+  teamMembers?: PublicTeamMember[];
+  isSample?: boolean;
   verified?: boolean; // DEC-09
 }
 
@@ -286,6 +290,7 @@ export interface ProjectBrief {
 }
 
 export interface MarketplaceState {
+  teamPortfolios?: Record<string, Work[]>;
   businessQuotaEvents?: { id: string; projectId: string; policyVersion: string; createdAt: string; kind: "project_soft_limit" }[];
   portfolioSeedVersion?: number;
   projects: ProjectBrief[];

@@ -17,7 +17,7 @@ export function InvitationProjectCard({ invitation, project, selected, onSelect,
   const categoryType = project.category.toLocaleLowerCase("vi").includes("nội dung") ? "content" : project.type ?? "brand";
   return (
     <article className={`project-card interactive-card invitation-project-card ${selected ? "selected" : ""}`}>
-      <button className="card-main" type="button" aria-pressed={selected} aria-label={`Xem thông tin ${project.title}`} onClick={onSelect}>
+      <button id={`invitation-select-${invitation.id}`} aria-controls={selected ? "invitation-detail-region" : undefined} className="card-main" type="button" aria-pressed={selected} aria-label={`Xem thông tin ${project.title}`} onClick={onSelect}>
         <span className="card-top">
           <span className={`category-pill ${categoryType}`}>{project.category}</span>
           <span className="age">Chờ phản hồi</span>

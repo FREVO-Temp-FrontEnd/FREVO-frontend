@@ -1,3 +1,4 @@
+import { AppliedBadge } from "@/app/shared/components/AppliedBadge";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogTitle, IconButton, Box, Typography, Button } from "@mui/material";
@@ -6,12 +7,10 @@ import {
   Bookmark,
   CalendarDays,
   Camera,
-  CircleCheck,
   Clock3,
   Hourglass,
   MapPin,
   Monitor,
-  RotateCcw,
   Send,
   Share2,
   Store,
@@ -119,14 +118,7 @@ export function ProjectDetailContent({
             >
               Đang nhận ứng tuyển
             </Box>
-            {applied && (
-              <Box
-                component="span"
-                sx={{ display: "inline-flex", alignItems: "center", gap: "6px", px: "10px", py: "4px", borderRadius: "30px", bgcolor: "#e9f5ee", color: "#236747", fontSize: 11, fontWeight: 700 }}
-              >
-                <CircleCheck size={14} aria-hidden="true" /> Đã ứng tuyển
-              </Box>
-            )}
+            {applied && <AppliedBadge />}
             <Box
               component="span"
               sx={{
@@ -346,11 +338,11 @@ export function ProjectDetailContent({
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-            <Button
+            {!applied && <Button
               onClick={() => onApply(project.id)}
               sx={{
-                bgcolor: applied ? "#fff" : "#bd3d14",
-                color: applied ? "#bd3d14" : "#fff",
+                bgcolor: "#bd3d14",
+                color: "#fff",
                 border: "1px solid #bd3d14",
                 borderRadius: "999px",
                 minHeight: 46,
@@ -362,12 +354,12 @@ export function ProjectDetailContent({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                "&:hover": { bgcolor: applied ? "#fff0e9" : "#9f310f", borderColor: applied ? "#bd3d14" : "#9f310f" },
+                "&:hover": { bgcolor: "#9f310f", borderColor: "#9f310f" },
               }}
             >
-              {applied ? <RotateCcw size={18} aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
-              {applied ? "Ứng tuyển lại" : "Ứng tuyển dự án này"}
-            </Button>
+              <Send size={18} aria-hidden="true" />
+              Ứng tuyển dự án này
+            </Button>}
 
             <Button
               aria-pressed={saved}

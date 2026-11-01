@@ -1,4 +1,4 @@
-import type { Candidate, UserSession } from "../types/marketplace.types";
+import type { AgreementProposal, Candidate, UserSession } from "../types/marketplace.types";
 
 export function canManageApplication(candidate: Candidate, user: UserSession): boolean {
   if (user.role !== "freelancer") return false;
@@ -29,4 +29,11 @@ export function applicationTeamIds(user: UserSession, storage: Storage = localSt
     }
   }
   return ids;
+}
+
+// Execution belongs to the selected application account, independent of the active persona.
+export function canManageWorkspace(agreement: Pick<AgreementProposal, 'projectId' | 'talentId'>, candidates: Candidate[], user: UserSession): boolean {
+  return candidates.some(candidate => candidate.projectId === agreement.projectId
+    && candidate.talentId === agreement.talentId && candidate.status === 'selected'
+    && canManageApplication(candidate, user));
 }

@@ -71,7 +71,7 @@ export function CloseProjectDialog({
           }}
         >
           <Typography variant="caption" sx={{ color: "#8c3819", display: "block", lineHeight: 1.5 }}>
-            <strong>Quy tắc hệ thống (BR-019):</strong> Dự án sẽ chuyển sang trạng thái <strong>Đã đóng tuyển</strong>. Hệ thống sẽ ngừng nhận hồ sơ mới và các ứng viên đang chờ xét duyệt sẽ không được chọn.
+            <strong>Quy tắc hệ thống:</strong> Dự án sẽ chuyển sang trạng thái <strong>Đã đóng tuyển</strong>. Hệ thống sẽ ngừng nhận hồ sơ mới và các ứng viên đang chờ xét duyệt sẽ không được chọn.
           </Typography>
         </Box>
       </DialogContent>

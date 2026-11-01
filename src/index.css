@@ -84,13 +84,13 @@ h1,h2,h3{font-family:Archivo,Arial,sans-serif}
 .project-card.interactive-card:not(.selected):hover,.project-card.interactive-card:not(.selected):focus-within{border-color:var(--muted);box-shadow:none}
 .project-card.interactive-card.selected{border-color:var(--ink);background:var(--card);box-shadow:4px 4px 0 var(--orange)}
 .card-main{display:block;width:calc(100% - 43px);padding:0;border:0;background:none;text-align:left;color:inherit}
-.card-top{display:flex;align-items:center;gap:9px;min-height:24px}
+.card-top{display:flex;align-items:center;flex-wrap:wrap;gap:9px;min-height:24px}
 .category-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;line-height:1.3;white-space:nowrap}
 .category-pill.uiux{background:#202322;color:#fff}
 .category-pill.brand{background:#fff0e9;color:#b24b26}
 .category-pill.motion{background:var(--orange);color:#20201f}
 .category-pill.content{background:#f0f1ee;color:#4b504b}
-.applied-pill{display:inline-flex;align-items:center;width:max-content;padding:4px 9px;border:1px solid #c9e5d5;border-radius:999px;background:#e9f5ee;color:#236747;font-size:11px;font-weight:800;white-space:nowrap}
+.applied-pill{display:inline-flex;align-items:center;gap:6px;width:max-content;min-height:30px;padding:5px 11px;border:1px solid #14532d;border-radius:999px;background:#166534;color:#fff;font-size:13px;font-weight:700;line-height:1.4;white-space:nowrap;vertical-align:middle}
 .age{color:#999b96;font-size:11px;white-space:nowrap}
 .project-card h3{margin-top:8px;font-size:17px;line-height:1.25;font-weight:900;letter-spacing:-.02em}
 .card-company{display:block;margin-top:3px;color:#969994;font-size:12px;line-height:1.4}
@@ -134,8 +134,6 @@ h1,h2,h3{font-family:Archivo,Arial,sans-serif}
 .detail-actions{display:flex;align-items:center;gap:11px;padding:13px 16px;border-top:1px solid var(--line);background:#fafbf9}
 .primary-button{min-height:45px;padding:0 20px;border:1px solid var(--orange-dark);border-radius:999px;background:var(--orange-dark);color:#fff;font-size:13px;font-weight:800;box-shadow:none}
 .primary-button:hover{border-color:#9f310f;background:#9f310f}
-.primary-button.is-reapply{background:#fff;color:var(--orange-dark)}
-.primary-button.is-reapply:hover{border-color:var(--orange-dark);background:var(--peach)}
 .primary-button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
 .detail-actions .primary-button{flex:1}
 .detail-actions .bookmark{position:static;flex:none}
@@ -172,3 +170,5 @@ h1,h2,h3{font-family:Archivo,Arial,sans-serif}
 @container(max-width:440px){.project-card>.card-main .card-top{padding-right:0;padding-top:56px}}
 .project-card-actions .bookmark{position:static;flex:none;width:44px;height:44px}
 .surface-panel{background:var(--card);border:1px solid var(--surface-border,var(--line));box-shadow:var(--surface-shadow,none)}
+
+.detail-hero .applied-pill{margin-top:12px}

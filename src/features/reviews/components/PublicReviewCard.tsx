@@ -41,7 +41,7 @@ export const PublicReviewCard: React.FC<PublicReviewCardProps> = ({
 
         <Chip
           icon={<ShieldCheck size={12} />}
-          label="Dự án thực tế (FR-055)"
+          label="Dự án thực tế"
           size="small"
           sx={{ bgcolor: "#ecfdf5", color: "#059669", fontWeight: 600, fontSize: "10px", height: 20 }}
         />

@@ -80,7 +80,7 @@ export function AIFitAnalysisModal({
               Đối chiếu hồ sơ với brief
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Đối chiếu hồ sơ ứng viên với yêu cầu dự án theo FR-034 và FR-035
+              Đối chiếu kỹ năng và portfolio của ứng viên với yêu cầu dự án
             </Typography>
           </Box>
         </Box>
@@ -180,7 +180,7 @@ export function AIFitAnalysisModal({
         {/* Skill Overlap Breakdown */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            Đối sánh kỹ năng yêu cầu (FR-035)
+            Đối sánh kỹ năng yêu cầu
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {brief.skills.map((skill) => {
@@ -266,7 +266,7 @@ export function AIFitAnalysisModal({
           }}
         >
           <Typography variant="caption" sx={{ display: "block", lineHeight: 1.4 }}>
-            <strong>Khuyến cáo quy định (FR-036):</strong> Đánh giá mức độ phù hợp mang tính chất tham khảo dựa trên đối sánh kỹ năng và portfolio minh họa trong bản mẫu thử nghiệm. Doanh nghiệp chủ động thẩm định trước khi quyết định hợp tác.
+            <strong>Lưu ý:</strong> Đánh giá mức độ phù hợp mang tính chất tham khảo dựa trên đối sánh kỹ năng và portfolio minh họa trong bản mẫu thử nghiệm. Doanh nghiệp chủ động thẩm định trước khi quyết định hợp tác.
           </Typography>
         </Alert>
       </DialogContent>
@@ -290,7 +290,7 @@ export function AIFitAnalysisModal({
             fontWeight: 600,
           }}
         >
-          {isInvited ? "Đã gửi lời mời" : "Gửi lời mời tham gia dự án (FR-019)"}
+          {isInvited ? "Đã gửi lời mời" : "Gửi lời mời tham gia dự án"}
         </Button>
       </DialogActions>
     </Dialog>

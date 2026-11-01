@@ -89,10 +89,10 @@ export function SendInvitationDialog({
             </Box>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
-                Gửi lời mời tham gia dự án (BUS-009)
+                Gửi lời mời tham gia dự án
               </Typography>
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                Thời hạn phản hồi 7 ngày theo FR-019 và BR-024
+                Freelancer có 7 ngày để phản hồi
               </Typography>
             </Box>
           </Box>
@@ -152,10 +152,10 @@ export function SendInvitationDialog({
             }}
           >
             <Typography variant="caption" sx={{ display: "block", fontWeight: 600 }}>
-              Hiệu lực 7 ngày (FR-019, BR-024):
+              Hiệu lực 7 ngày:
             </Typography>
             <Typography variant="caption" sx={{ display: "block", mt: 0.2 }}>
-              Lời mời có thời hạn phản hồi trong vòng <strong>7 ngày</strong>. Sau thời hạn này, nếu Freelancer chưa phản hồi thì lời mời sẽ tự động hết hạn.
+              Lời mời tự động hết hạn nếu freelancer không phản hồi trong <strong>7 ngày</strong>.
             </Typography>
           </Alert>
 
@@ -172,7 +172,7 @@ export function SendInvitationDialog({
             }}
           >
             <Typography variant="caption" sx={{ display: "block" }}>
-              <strong>Quy trình trao đổi (BR-005, FR-031):</strong> Khi đối tác chấp nhận lời mời, hồ sơ sẽ chuyển về trạng thái <em>Chờ xem xét</em>. Bạn cần phê duyệt ứng viên để mở tính năng nhắn tin trao đổi trực tiếp.
+              Khi freelancer chấp nhận lời mời, bạn cần duyệt hồ sơ để mở trao đổi.
             </Typography>
           </Alert>
         </DialogContent>

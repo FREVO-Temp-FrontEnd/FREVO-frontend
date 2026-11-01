@@ -57,10 +57,10 @@ export const SubmitReviewDialog: React.FC<SubmitReviewDialogProps> = ({
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
             <Typography variant="caption" sx={{ color: "#f4490b", fontWeight: 700, textTransform: "uppercase" }}>
-              Đánh giá & Nhận xét đối tác (REV-001)
+              Đánh giá & Nhận xét đối tác
             </Typography>
             <Chip
-              label="PROTOTYPE P2 (BR-016)"
+              label="Bản thử nghiệm"
               size="small"
               sx={{ bgcolor: "#f1f5f9", color: "#475569", fontWeight: 700, fontSize: "10px", height: 20 }}
             />
@@ -81,11 +81,11 @@ export const SubmitReviewDialog: React.FC<SubmitReviewDialogProps> = ({
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
             <ShieldAlert size={16} color="#64748b" />
             <Typography variant="caption" sx={{ fontWeight: 700, color: "#334155" }}>
-              Chính sách hiển thị & Kiểm duyệt đánh giá đang trong giai đoạn khảo sát (BR-016)
+              Chính sách hiển thị & Kiểm duyệt đánh giá đang trong giai đoạn khảo sát
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: "#64748b", lineHeight: 1.4, display: "block" }}>
-            Tính năng đánh giá hai chiều được triển khai thử nghiệm trên các dự án đã hoàn thành hợp lệ (<strong>FR-054, FR-055</strong>). Hệ thống không áp đặt thời hạn 14 ngày hay bất kỳ quy tắc hạn chót chưa được phê duyệt nào.
+            Bạn có thể đánh giá đối tác sau khi dự án hoàn thành. Tính năng hiện đang được thử nghiệm.
           </Typography>
         </Box>
 

@@ -291,42 +291,42 @@ export const DemoController: React.FC = () => {
                   onClick={() => navigate("/projects/nang-brand/chat?talent=minh-anh")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  💬 Phòng chat dự án (PROJ-001)
+                  💬 Phòng chat dự án
                 </Button>
                 <Button
                   size="small"
                   onClick={() => navigate("/projects/nang-brand/agreement?talent=khanh-linh")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  📑 Đề xuất hợp tác & Thỏa thuận (PROJ-003)
+                  📑 Đề xuất hợp tác & Thỏa thuận
                 </Button>
                 <Button
                   size="small"
                   onClick={() => navigate("/workspace/co-may-packaging")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  🛠️ Không gian làm việc mốc (WORK-001)
+                  🛠️ Không gian làm việc mốc
                 </Button>
                 <Button
                   size="small"
                   onClick={() => navigate("/payments/co-may-packaging")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  💳 Sổ thanh toán mô phỏng (PAY-001)
+                  💳 Sổ thanh toán mô phỏng
                 </Button>
                 <Button
                   size="small"
                   onClick={() => navigate("/reviews/co-may-packaging")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  ⭐ Đánh giá đối tác hoàn tất (REV-001)
+                  ⭐ Đánh giá đối tác hoàn tất
                 </Button>
                 <Button
                   size="small"
                   onClick={() => navigate("/team/profile")}
                   sx={{ justifyContent: "flex-start", color: "#e2e8f0", textTransform: "none", fontSize: "12px", py: 0.4 }}
                 >
-                  👥 Hồ sơ Nhóm sáng tạo (TEAM-001)
+                  👥 Hồ sơ Nhóm sáng tạo
                 </Button>
               </Box>
             </Box>

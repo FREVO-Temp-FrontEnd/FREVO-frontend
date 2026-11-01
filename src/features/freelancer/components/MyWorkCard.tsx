@@ -10,7 +10,7 @@ export function MyWorkCard({ item }: { item: MyWorkItem }) {
   const agreementPath = '/projects/' + encodeURIComponent(candidate.projectId) + '/agreement?' + new URLSearchParams({ talent: candidate.talentId });
   const workspacePath = '/workspace/' + encodeURIComponent(candidate.projectId);
   const nextLabel = progress.next?.name.replace(/^Mốc\s*\d+\s*[·:–-]\s*/i, '');
-  return <Paper component="article" variant="outlined" sx={{ borderRadius: '13px', overflow: 'hidden' }}>
+  return <Paper component="article" className="project-card interactive-card work-project-card" variant="outlined" sx={{ p: 0, borderRadius: '13px', overflow: 'hidden' }}>
     <Box sx={{ p: { xs: 2.5, md: 3 }, display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.5fr) minmax(220px, 1fr) 180px' }, gap: 3, alignItems: 'center' }}>
       <Stack direction="row" spacing={2} sx={{ minWidth: 0, alignItems: "flex-start" }}>
         <Avatar variant="rounded" src={project?.heroImage} alt="" sx={{ width: { xs: 56, sm: 80 }, height: { xs: 56, sm: 80 }, borderRadius: '10px', bgcolor: 'background.default', color: 'primary.dark' }}><Briefcase size={28} aria-hidden="true" /></Avatar>
@@ -32,7 +32,7 @@ export function MyWorkCard({ item }: { item: MyWorkItem }) {
         <Box><Typography component="dt">Hạn hoàn thành</Typography><Typography component="dd">{effective?.deadline ?? 'Theo thỏa thuận'}</Typography></Box>
       </Box>
     </Box>
-    <Box sx={{ px: { xs: 2.5, md: 3 }, py: 2, bgcolor: 'background.default', borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+    <Box sx={{ px: { xs: 2.5, md: 3 }, py: 2, bgcolor: 'var(--card)', borderTop: '1px solid', borderColor: 'var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
       <Box sx={{ flex: '1 1 260px' }}><Typography variant="body2" sx={{ fontWeight: 600, color: pendingAgreement ? 'primary.dark' : 'text.primary' }}>{pendingAgreement ? 'Đề xuất điều chỉnh đang chờ bạn phản hồi' : completed ? 'Dự án đã hoàn thành' : progress.revision ? 'Cần chỉnh sửa sản phẩm bàn giao' : progress.next?.status === 'submitted' ? 'Đang chờ doanh nghiệp nghiệm thu' : nextLabel ? 'Mốc tiếp theo: ' + nextLabel : 'Theo dõi chi tiết trong không gian công việc'}</Typography>
         {readOnly ? <Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Tài khoản đại diện ứng tuyển quản lý công việc của nhóm.</Typography> : progress.next && !pendingAgreement && !completed && <Typography variant="body2" color="text.secondary" sx={{ mt: .5 }}>Hạn mốc: {progress.next.deadline}</Typography>}
       </Box>

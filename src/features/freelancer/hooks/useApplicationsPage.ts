@@ -20,7 +20,7 @@ export function useApplicationsPage(initialFilter: "new" | "selected" = "new") {
         const agreement = data.agreements.filter(item => item.projectId === candidate.projectId && item.talentId === candidate.talentId).sort((a, b) => b.version - a.version)[0];
         const pendingAgreement = data.canManage(candidate) && agreement?.status === 'pending' && Date.parse(agreement.expiresAt) > now;
         const effectiveAgreement = data.agreements.find(item => item.projectId === candidate.projectId && item.talentId === candidate.talentId && item.isEffective);
-        return { candidate, agreement, effectiveAgreement, pendingAgreement, readOnly: !data.canManage(candidate), project: data.projects.find(p => p.id === candidate.projectId) };
+        return { candidate, talent: data.talents?.find(talent => talent.id === candidate.talentId), agreement, effectiveAgreement, pendingAgreement, readOnly: !data.canManage(candidate), project: data.projects.find(p => p.id === candidate.projectId) };
     });
     const visible = rows.filter(({ candidate, project }) => {
         const matchesStatus = filter === 'new'
@@ -34,7 +34,7 @@ export function useApplicationsPage(initialFilter: "new" | "selected" = "new") {
     const page = pagination.filterKey === filterKey ? Math.min(pagination.page, pageCount) : 1;
     const pageStart = (page - 1) * PAGE_SIZE;
     const pageRows = visible.slice(pageStart, pageStart + PAGE_SIZE);
-    const selected = pageRows.find(r => r.candidate.id === selectedId) ?? pageRows[0];
+    const selected = pageRows.find(r => r.candidate.id === selectedId);
     const withdrawCandidate = data.myApplications.find(c => c.id === withdrawId);
     const confirmWithdraw = () => { if (withdrawCandidate && ['new', 'under_review'].includes(withdrawCandidate.status))
         data.withdrawApplication(withdrawCandidate.id); setWithdrawId(null); };
@@ -48,5 +48,5 @@ export function useApplicationsPage(initialFilter: "new" | "selected" = "new") {
         setSelectedId(null);
         setPagination({ filterKey, page: Math.max(1, Math.min(nextPage, pageCount)) });
     };
-    return { statusCounts, ...data, rows, visible, pageRows, page, pageCount, firstResult: visible.length ? pageStart + 1 : 0, lastResult: Math.min(pageStart + PAGE_SIZE, visible.length), changePage, selected, query, setQuery, filter, setFilter, setSelectedId, withdrawCandidate, setWithdrawId, confirmWithdraw };
+    return { statusCounts, ...data, rows, visible, pageRows, page, pageCount, firstResult: visible.length ? pageStart + 1 : 0, lastResult: Math.min(pageStart + PAGE_SIZE, visible.length), changePage, selected, query, setQuery: (value: string) => { setSelectedId(null); setQuery(value); }, filter, setFilter: (value: string) => { setSelectedId(null); setFilter(value); }, setSelectedId, withdrawCandidate, setWithdrawId, confirmWithdraw };
 }

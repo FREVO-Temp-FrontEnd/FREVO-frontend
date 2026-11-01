@@ -1,3 +1,4 @@
+import { canManageWorkspace } from "@/lib/storage/applicationAccess";
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
@@ -21,7 +22,7 @@ export function useWorkspace() {
   const parts = location.pathname.split("/").filter(Boolean);
   const projectId = routeProjectId ?? (parts[1] === "projects" ? parts[2] : parts[1]);
   const { user, role } = useAuthSession();
-  const { projects, agreements, talents, payments } = useBusiness();
+  const { projects, agreements, talents, payments, candidates } = useBusiness();
   const project = projects.find(item => item.id === projectId);
   const agreement = agreements.find(item => item.projectId === projectId && item.isEffective)
     ?? agreements.find(item => item.projectId === projectId && item.status === "confirmed");
@@ -29,7 +30,7 @@ export function useWorkspace() {
   const isBusiness = role === "client" || role === "admin";
   const canAccess = !!project && !!agreement && (role === "admin"
     || (role === "client" && user?.companyName === project.company)
-    || (role === "freelancer" && mockStorage.getApplicantTalentId() === agreement.talentId));
+    || (role === "freelancer" && !!user && canManageWorkspace(agreement, candidates, user)));
   const milestones = agreement?.milestones ?? [];
   const pendingMilestone = milestones.find(item => item.status === "submitted");
   const overdueMilestone = milestones.find(item => item.status !== "completed" && item.status !== "submitted"

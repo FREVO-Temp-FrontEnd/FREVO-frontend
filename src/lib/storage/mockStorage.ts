@@ -1,7 +1,10 @@
+import { publicTeamMembers, validateTeamWork, canManageTeamPortfolio } from "./teamPortfolio";
+import { teamPortfolioSamples } from "./seeds/teamPortfolioSeed";
+import type { PublicTeamMember } from "@/lib/types/portfolio.types";
 import { agreementChanges } from "@/lib/utils/agreementVersions";
 import { isDemoMode } from "@/lib/api/agent";
 import { resolveAgreement } from "./agreementSelection";
-import { canManageApplication } from "./applicationAccess";
+import { canManageApplication, canManageWorkspace } from "./applicationAccess";
 import { briefSnapshot, changedBriefFields, materialBriefChanges } from "@/lib/utils/briefVersions";
 import { businessQuotaPolicy } from "@/lib/config/businessQuota";
 import { businessInvitationQuota, businessProjectQuota } from "@/lib/utils/businessQuota";
@@ -744,18 +747,40 @@ class MockStorageAdapter {
     return this.memoryState.talents.find((t) => t.id === id);
   }
 
-  public registerRepresentedTeam(accountId: string, team: { id: string; name: string; summary: string; discipline: string; memberCount: number }): string {
-    const id = `managed-team:${accountId}:${team.id}`;
+  public registerRepresentedTeam(accountId: string, team: { id: string; name: string; summary: string; discipline: string; memberCount: number; members?: PublicTeamMember[]; isSample?: boolean }): string {
+    const user = this.getActiveUser();
+    if (user.role !== 'freelancer' || user.id !== accountId || (team.members && team.members.find(member => member.isLeader)?.id !== accountId)) throw new Error('Chỉ người đại diện được cập nhật hồ sơ nhóm.');
+    const id = 'managed-team:' + accountId + ':' + team.id;
     const previous = this.getTalentById(id);
+    const members = publicTeamMembers(team.members ?? previous?.teamMembers ?? [{ id: accountId, name: user.name, role: 'Người đại diện', isLeader: true }]);
     const profile: TalentProfile = {
-      id, name: team.name, role: team.discipline, kind: "Team",
-      initials: team.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase(),
-      color: "#fff0e9", location: "Việt Nam", rate: "Theo dự án", availability: "Sẵn sàng",
-      skills: [team.discipline], about: team.summary, portfolio: [], teamMembersCount: team.memberCount,
-      teamLeaderId: accountId,
+      id, name: team.name, role: team.discipline, kind: 'Team',
+      initials: team.name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase(),
+      color: '#fff0e9', location: 'Việt Nam', rate: 'Theo dự án', availability: 'Sẵn sàng',
+      skills: [team.discipline], about: team.summary, portfolio: previous?.portfolio ?? [], teamMembersCount: members.length,
+      teamLeaderId: accountId, teamMembers: members, isSample: team.isSample ?? previous?.isSample,
     };
-    this.saveToStorage({ ...this.memoryState, talents: previous ? this.memoryState.talents.map(item => item.id === id ? { ...item, ...profile } : item) : [...this.memoryState.talents, profile] });
+    const works = this.memoryState.teamPortfolios?.[id] ?? teamPortfolioSamples(team.name, members);
+    this.saveToStorage({ ...this.memoryState, talents: previous ? this.memoryState.talents.map(item => item.id === id ? { ...item, ...profile } : item) : [...this.memoryState.talents, profile], teamPortfolios: { ...this.memoryState.teamPortfolios, [id]: works.map(work => ({ ...work, team: team.name })) } }, true);
     return id;
+  }
+
+  public saveTeamPortfolio(talentId: string, works: Work[]): void {
+    const user = this.getActiveUser();
+    const talent = this.getTalentById(talentId);
+    if (!canManageTeamPortfolio(talent, user)) throw new Error('Chỉ người đại diện được quản lý portfolio nhóm.');
+    if (!talent) return;
+    for (const work of works) {
+      const error = validateTeamWork(work, talent.teamMembers ?? []);
+      if (error) throw new Error(error);
+    }
+    if (new Set(works.map(work => work.id)).size !== works.length) throw new Error('Tác phẩm bị trùng trong portfolio.');
+    if (works.filter(work => work.featured && work.visibility === 'public').length > 3) throw new Error('Chọn tối đa 3 tác phẩm nổi bật.');
+    const normalized = works.map(work => ({ ...work, team: talent.name, featured: work.visibility === 'public' && !!work.featured, contributors: work.contributors?.map(contributor => {
+      const member = talent.teamMembers!.find(item => item.id === contributor.memberId)!;
+      return { memberId: member.id, name: member.name, role: contributor.role.trim(), ...(member.talentId ? { talentId: member.talentId } : {}) };
+    }) }));
+    this.saveToStorage({ ...this.memoryState, teamPortfolios: { ...this.memoryState.teamPortfolios, [talentId]: normalized } }, true);
   }
 
   // --- Candidate Operations ---
@@ -1129,6 +1154,14 @@ class MockStorageAdapter {
     notes: string,
     files?: { name: string; url: string; size: string }[]
   ): void {
+    const effective = this.getEffectiveAgreement(projectId);
+    if (!effective || !canManageWorkspace(effective, this.memoryState.candidates, this.getActiveUser())) {
+      throw new Error("Chỉ tài khoản đã nhận công việc được nộp bàn giao.");
+    }
+    const milestone = effective.milestones.find(item => item.id === milestoneId);
+    if (!milestone || !['upcoming', 'in_progress'].includes(milestone.status)) {
+      throw new Error("Mốc này không còn nhận bàn giao. Vui lòng tải lại tiến độ.");
+    }
     const nextAgreements = this.memoryState.agreements.map((a) => {
       if (a.projectId === projectId && a.isEffective) {
         const nextMilestones = a.milestones.map((m) =>
@@ -1152,7 +1185,7 @@ class MockStorageAdapter {
 
   public requestMilestoneRevision(projectId: string, milestoneId: string, reason: string): void {
     if (!reason || reason.trim().length === 0) {
-      throw new Error("Lý do yêu cầu chỉnh sửa là bắt buộc theo quy tắc BR-014.");
+      throw new Error("Vui lòng nhập lý do yêu cầu chỉnh sửa.");
     }
 
     const nextAgreements = this.memoryState.agreements.map((a) => {

@@ -25,12 +25,16 @@ export const applicationsApi = {
     const team = request.applicantIdentity === "team" ? readRepresentedTeams(account).find(item => item.id === request.teamId) : undefined;
     if (request.applicantIdentity === "team" && !team) throw new Error("Vui lòng chọn một nhóm bạn đại diện.");
     const talentId = team ? `managed-team:${account.id}:${team.id}` : mockStorage.getApplicantTalentId("individual");
-    const prior = mockStorage.getCandidates().find(candidate => candidate.projectId === request.projectId && candidate.applicantAccountId === account.id);
+    const prior = mockStorage.getCandidates().find(candidate => candidate.projectId === request.projectId && (candidate.applicantAccountId === account.id || candidate.talentId === talentId));
     if (prior && prior.talentId !== talentId) throw new Error("Bạn không thể đổi tư cách cá nhân/Team của đơn đã gửi cho dự án này.");
+    if (prior?.source.includes("Ứng tuyển")) throw new Error("Bạn đã ứng tuyển dự án này. Không thể gửi thêm hồ sơ.");
     const project = mockStorage.getProjectById(request.projectId);
     if (project && project.status !== "published") throw new Error("Dự án đã ngừng nhận hồ sơ ứng tuyển.");
     const submission = await createApplicationSubmission({ ownerId: account.id, talentId, request });
-    if (team) mockStorage.registerRepresentedTeam(account.id, team);
+    if (team) {
+      mockStorage.registerRepresentedTeam(account.id, team);
+      submission.teamAtSubmission = { id: talentId, name: team.name, representativeName: account.name };
+    }
     mockStorage.submitApplication(request.projectId, talentId, request.proposal, submission, account.id);
   },
 

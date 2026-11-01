@@ -100,7 +100,7 @@ export function useFreelancer() {
       };
 
       mockStorage.addCandidate(newCandidate);
-      setToast("Ứng tuyển thành công! Hồ sơ đã được chuyển đến Doanh nghiệp (BR-002, BR-003).");
+      setToast("Ứng tuyển thành công! Hồ sơ đã được chuyển đến Doanh nghiệp.");
     },
     [currentTalentId, state.candidates]
   );
@@ -110,7 +110,7 @@ export function useFreelancer() {
     const candidate = state.candidates.find(item => item.id === candidateId);
     if (!candidate || !canManage(candidate) || !["new", "under_review"].includes(candidate.status)) return;
     mockStorage.updateCandidateStatus(candidateId, "not_selected");
-    setToast("Đã rút hồ sơ ứng tuyển khỏi dự án (FL-012).");
+    setToast("Đã rút hồ sơ ứng tuyển khỏi dự án.");
   }, [state.candidates, canManage]);
 
   return {
@@ -121,6 +121,7 @@ export function useFreelancer() {
     myApplications,
     canManage,
     projects: state.projects,
+    talents: state.talents,
     agreements: state.agreements,
     getProjectForInvitation,
     acceptInvitation,
