@@ -79,7 +79,7 @@ export const AgreementExpiredState: React.FC<AgreementExpiredStateProps> = ({
             Thỏa thuận hiện tại vẫn có hiệu lực:
           </Typography>
           <Typography variant="caption" sx={{ color: "#15803d", display: "block", mt: 0.5 }}>
-            Do đề xuất Phiên bản {version} đã hết hạn, hệ thống tự động duy trì <strong>Phiên bản {effectiveVersionNumber}</strong> đã xác nhận trước đó làm cơ sở pháp lý và tiến độ hợp tác hiện hành.
+            <strong>Phiên bản {effectiveVersionNumber}</strong> đã xác nhận vẫn được áp dụng cho việc hợp tác.
           </Typography>
         </Box>
       ) : (

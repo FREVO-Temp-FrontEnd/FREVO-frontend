@@ -11,7 +11,7 @@ import {
   IconButton,
   Divider,
 } from "@mui/material";
-import { Sparkles, Check, X, Briefcase, Info, ArrowRight } from "lucide-react";
+import { Sparkles, Check, Briefcase, ArrowRight } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { calculateMatchingScore } from "@/lib/utils/matchingScore";
 
@@ -80,12 +80,12 @@ export function AIFitAnalysisModal({
               Đối chiếu hồ sơ với brief
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Đối chiếu kỹ năng và portfolio của ứng viên với yêu cầu dự án
+              Đối chiếu kỹ năng và portfolio với yêu cầu dự án
             </Typography>
           </Box>
         </Box>
         <IconButton onClick={onClose} size="small" aria-label="Đóng modal">
-          <X size={18} />
+          ✕
         </IconButton>
       </DialogTitle>
 
@@ -124,7 +124,7 @@ export function AIFitAnalysisModal({
                 {talent.name}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {talent.role} · <Chip label={talent.kind} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
+                {talent.role} · <Chip component="span" label={talent.kind} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
               </Typography>
             </Box>
           </Box>
@@ -162,15 +162,14 @@ export function AIFitAnalysisModal({
                   bgcolor: "#f0fdf4",
                   borderColor: "#bbf7d0",
                   color: "#166534",
-                  fontWeight: 500,
+                  fontWeight: 600,
                 }}
               />
             ))}
           </Box>
         </Box>
-
-        <Box sx={{ display: "grid", gap: 1.5, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, p: 2, bgcolor: "background.default", borderRadius: 2 }}>
-          <Box><Typography sx={{ fontSize: 12, color: "text.secondary" }}>Ngân sách dự án / phí tham khảo</Typography><Typography sx={{ fontSize: 13, mt: .5 }}>{brief.budget} / {talent.rate || "Chưa cung cấp"}</Typography><Typography sx={{ fontSize: 12, mt: 1, color: evaluation.budget === "outside" ? "primary.dark" : "text.secondary" }}>{evaluation.budget === "overlap" ? "Có giao khoảng phí, chưa phải báo giá cam kết." : evaluation.budget === "outside" ? "Khoảng phí nằm ngoài ngân sách." : "Chưa đủ số liệu để đối chiếu."}</Typography></Box>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, bgcolor: "#fafafa", p: 2, borderRadius: 2 }}>
+          <Box><Typography sx={{ fontSize: 12, color: "text.secondary" }}>Mức độ đáp ứng khoảng ngân sách</Typography><Typography sx={{ fontSize: 13, mt: .5, fontWeight: 700, color: evaluation.budget === "overlap" ? "success.dark" : "text.primary" }}>{evaluation.budget === "overlap" ? "Khoảng phí phù hợp ngân sách dự án." : "Chưa đủ số liệu đối chiếu khoảng phí."}</Typography><Typography sx={{ fontSize: 12, mt: 1, color: "text.secondary" }}>{evaluation.budget === "overlap" ? "Dựa trên mức thù lao tham khảo do ứng viên khai báo, không phải báo giá cam kết." : evaluation.budget === "outside" ? "Khoảng phí nằm ngoài ngân sách." : "Chưa đủ số liệu để đối chiếu."}</Typography></Box>
           <Box><Typography sx={{ fontSize: 12, color: "text.secondary" }}>Lịch nhận việc do ứng viên khai báo</Typography><Typography sx={{ fontSize: 13, mt: .5 }}>{evaluation.availability}</Typography><Typography sx={{ fontSize: 12, mt: 1, color: "text.secondary" }}>Chưa xác nhận khả năng hoàn thành trước deadline dự án.</Typography></Box>
         </Box>
         {!evaluation.reasons.length && <Alert severity="info">Chưa có tiêu chí đủ bằng chứng để gợi ý. Không đồng nghĩa ứng viên không đủ năng lực.</Alert>}
@@ -253,22 +252,7 @@ export function AIFitAnalysisModal({
           </Box>
         </Box>
 
-        {/* Advisory Disclaimer Notice (FR-036) */}
-        <Alert
-          severity="info"
-          icon={<Info size={18} />}
-          sx={{
-            borderRadius: 2,
-            bgcolor: "#f0f9ff",
-            borderColor: "#bae6fd",
-            color: "#0369a1",
-            "& .MuiAlert-icon": { color: "#0284c7" },
-          }}
-        >
-          <Typography variant="caption" sx={{ display: "block", lineHeight: 1.4 }}>
-            <strong>Lưu ý:</strong> Đánh giá mức độ phù hợp mang tính chất tham khảo dựa trên đối sánh kỹ năng và portfolio minh họa trong bản mẫu thử nghiệm. Doanh nghiệp chủ động thẩm định trước khi quyết định hợp tác.
-          </Typography>
-        </Alert>
+        <Typography sx={{ fontSize: 13, color: "text.secondary", lineHeight: 1.6 }}>Gợi ý từ kỹ năng và portfolio mẫu, dùng để tham khảo khi chọn cộng sự.</Typography>
       </DialogContent>
 
       <DialogActions sx={{ p: 2, pt: 1, justifyContent: "space-between" }}>

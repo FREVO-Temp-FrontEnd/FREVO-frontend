@@ -43,7 +43,6 @@ const categories = [
   "Motion & Digital",
   "Nhiếp ảnh & Video",
 ];
-const durations = ["2 tuần", "4 tuần", "6 tuần", "8 tuần"];
 const font = '"Space Grotesk", Arial, sans-serif';
 const buttonSx = {
   "&&": {
@@ -174,9 +173,6 @@ function BriefEditor({
     sections,
   } = useProjectBriefForm(existingProject);
   const isEditingPublished = existingProject?.status === "published";
-  const durationOptions = durations.includes(fields.duration)
-    ? durations
-    : [...durations, fields.duration];
 
   function saveDraft() {
     const project = buildProject("draft");
@@ -338,8 +334,11 @@ function BriefEditor({
                     alt={`Ảnh bìa ${fields.title}`}
                     sx={{
                       width: "100%",
-                      height: { xs: 180, sm: 240 },
-                      objectFit: "cover",
+                      height: { xs: 220, sm: 300 },
+                      bgcolor: "var(--surface-inset)",
+                      p: 1.5,
+                      display: "block",
+                      objectFit: "contain",
                       borderRadius: "12px",
                       mb: 3,
                     }}
@@ -922,38 +921,6 @@ function BriefEditor({
 
               <SectionCard id="brief-budget">
                 <SectionHeading number="4" title="Ngân sách và thời hạn" />
-                <div className="mb-5">
-                  <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 700, mb: 1.5 }}>
-                    Thời lượng dự kiến
-                  </Typography>
-                  <div className="flex flex-wrap gap-2">
-                    {durationOptions.map((duration) => (
-                      <Button
-                        key={duration}
-                        type="button"
-                        aria-pressed={fields.duration === duration}
-                        variant="outlined"
-                        onClick={() => setField("duration", duration)}
-                        sx={{
-                          ...buttonSx,
-                          minHeight: 40,
-                          px: 2.25,
-                          borderRadius: "10px",
-                          borderColor: fields.duration === duration ? "primary.main" : "#d0d5dd",
-                          bgcolor: fields.duration === duration ? "#fff0e9" : "#fcfdfd",
-                          color: fields.duration === duration ? "primary.dark" : "text.primary",
-                          boxShadow: fields.duration === duration ? "0 0 0 1px #f4490b" : "none",
-                          "&:hover": {
-                            borderColor: "primary.main",
-                            bgcolor: fields.duration === duration ? "#ffe6db" : "#f8fafc",
-                          },
-                        }}
-                      >
-                        {duration}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <TextField
                     fullWidth

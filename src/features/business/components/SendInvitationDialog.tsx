@@ -13,7 +13,8 @@ import {
   Alert,
   IconButton,
 } from "@mui/material";
-import { Mail, Clock, X, ShieldCheck } from "lucide-react";
+import { InvitationTermsHint } from "./InvitationTermsHint";
+import { Mail, X } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 
 interface SendInvitationDialogProps {
@@ -139,42 +140,7 @@ export function SendInvitationDialog({
             />
           </Box>
 
-          {/* 7-Day Expiry Guarantee Banner (FR-019, BR-024) */}
-          <Alert
-            severity="warning"
-            icon={<Clock size={18} />}
-            sx={{
-              borderRadius: 2,
-              bgcolor: "#fffbeb",
-              color: "#92400e",
-              border: "1px solid #fde68a",
-              "& .MuiAlert-icon": { color: "#d97706" },
-            }}
-          >
-            <Typography variant="caption" sx={{ display: "block", fontWeight: 600 }}>
-              Hiệu lực 7 ngày:
-            </Typography>
-            <Typography variant="caption" sx={{ display: "block", mt: 0.2 }}>
-              Lời mời tự động hết hạn nếu freelancer không phản hồi trong <strong>7 ngày</strong>.
-            </Typography>
-          </Alert>
-
-          {/* Candidate Approval & Chat Gating Reminder (BR-005, FR-031) */}
-          <Alert
-            severity="info"
-            icon={<ShieldCheck size={18} />}
-            sx={{
-              borderRadius: 2,
-              bgcolor: "#f0fdf4",
-              color: "#166534",
-              border: "1px solid #bbf7d0",
-              "& .MuiAlert-icon": { color: "#16a34a" },
-            }}
-          >
-            <Typography variant="caption" sx={{ display: "block" }}>
-              Khi freelancer chấp nhận lời mời, bạn cần duyệt hồ sơ để mở trao đổi.
-            </Typography>
-          </Alert>
+          <InvitationTermsHint />
         </DialogContent>
 
         <Box sx={{ px: 3, pb: 2 }}>

@@ -2,7 +2,7 @@ import { CandidateComparison } from "./CandidateComparison";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, Snackbar, TextField, Typography } from "@mui/material";
-import { CheckCircle2, Clock3, MailCheck, MessageCircle, MoreHorizontal, PlusCircle, Search, Send, Users } from "lucide-react";
+import { CheckCircle2, Clock3, MailCheck, MessageCircle, MoreHorizontal, Search, Send, Users } from "lucide-react";
 import type { Candidate, CandidateStatus, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { matchesCandidateFilter, useProjectApplicants, type CandidateDecision, type CandidateFilter } from "../hooks/useProjectApplicants";
 import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
@@ -84,7 +84,6 @@ export function ProjectApplicantsTab({ project }: { project: ProjectBrief }) {
     </section>)}
     <CandidateComparison project={project} ids={compareIds} onRemove={id => setCompareIds(ids => id ? ids.filter(value => value !== id) : [])} />
     {filtered && <Button onClick={resetFilters} sx={pillSx}>Xóa bộ lọc</Button>}
-    {project.status === "published" && <details className="text-sm text-[#747773]"><summary className="w-fit cursor-pointer rounded-lg p-2 focus-visible:outline-2 focus-visible:outline-[#f4490b]">Công cụ demo</summary><Button startIcon={<PlusCircle size={15} />} onClick={vm.simulateApplicant} sx={pillSx}>Mô phỏng hồ sơ mới</Button></details>}
     {selectedCandidate && <CandidateReviewModal open onClose={() => vm.setSelectedCandidate(null)} candidate={selectedCandidate} talent={vm.talentById.get(selectedCandidate.talentId)} project={project} onUnlockChat={talentId => { const talent = vm.talentById.get(talentId); if (talent) vm.setDecision({ candidate: selectedCandidate, talent, action: "approve" }); }} />}
     <Dialog open={Boolean(decision)} onClose={() => vm.setDecision(null)} maxWidth="xs" fullWidth aria-labelledby="candidate-decision-title"><DialogTitle id="candidate-decision-title" sx={{ display: "flex", alignItems: "center", gap: 1 }}><CheckCircle2 size={22} />{decision?.action === "approve" ? `Duyệt ${decision.talent.name}?` : "Từ chối hồ sơ?"}</DialogTitle><DialogContent><Typography variant="body2">{decision?.action === "approve" ? "Mở chat để trao đổi về dự án. Bạn chưa chốt người thực hiện ở bước này." : `Hồ sơ ${decision?.talent.name} sẽ chuyển sang “Không được chọn” và được giữ trong lịch sử.`}</Typography></DialogContent><DialogActions><Button onClick={() => vm.setDecision(null)}>Quay lại</Button><Button variant="contained" onClick={vm.confirmDecision}>{decision?.action === "approve" ? "Duyệt trao đổi" : "Xác nhận từ chối"}</Button></DialogActions></Dialog>
     <Snackbar open={Boolean(vm.feedback)} autoHideDuration={4500} onClose={() => vm.setFeedback("")} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}><Alert severity="info" onClose={() => vm.setFeedback("")}>{vm.feedback}</Alert></Snackbar>

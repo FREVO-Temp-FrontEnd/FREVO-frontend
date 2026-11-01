@@ -54,11 +54,5 @@ export function useProjectApplicants(project: ProjectBrief) {
       setFeedback(error instanceof Error ? error.message : "Không thể cập nhật hồ sơ. Hãy thử lại.");
     }
   };
-  const simulateApplicant = () => {
-    const talent = talents.find(item => !projectCandidates.some(candidate => candidate.talentId === item.id));
-    if (!talent) { setFeedback("Không còn hồ sơ mẫu để mô phỏng."); return; }
-    mockStorage.addCandidate({ id: `c-sim-${Date.now()}`, projectId: project.id, talentId: talent.id, source: "Ứng tuyển", status: "new", proposal: `Tôi quan tâm đến dự án “${project.title}” và muốn trao đổi về phạm vi công việc.`, receivedAt: new Date().toISOString(), unread: true, chatUnlocked: false });
-    setFeedback("Đã thêm một hồ sơ ứng tuyển mẫu.");
-  };
-  return { query, setQuery, statusFilter, setStatusFilter, selectedCandidate, setSelectedCandidate, decision, setDecision, feedback, setFeedback, projectCandidates, talentById, priority, applications, priorityCount, confirmDecision, simulateApplicant };
+  return { query, setQuery, statusFilter, setStatusFilter, selectedCandidate, setSelectedCandidate, decision, setDecision, feedback, setFeedback, projectCandidates, talentById, priority, applications, priorityCount, confirmDecision };
 }

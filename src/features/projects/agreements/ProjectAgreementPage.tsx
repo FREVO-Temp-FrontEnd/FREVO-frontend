@@ -109,13 +109,6 @@ export function ProjectAgreementPage() {
         </Paper>}
         {!current && <Button component={Link} to={page.chatPath} variant="outlined" startIcon={<MessageCircle size={16} aria-hidden="true" />}>Trao đổi thêm</Button>}
         {page.versions.length > 0 && <AgreementVersionHistory agreements={page.versions} selectedVersion={current?.version ?? 1} onSelectVersion={page.select} />}
-        {page.isDemoMode && page.isBusiness && <Paper variant="outlined" sx={{ ...panelSx, borderStyle: "dashed" }}>
-          <Chip size="small" label="Công cụ demo" sx={{ mb: 1.5 }} />
-          <Typography sx={{ fontWeight: 700 }}>Mô phỏng phản hồi</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 2 }}>Giả lập bên thực hiện đồng ý để kiểm tra luồng chốt tuyển. Đây không phải phản hồi thật từ ứng viên.</Typography>
-          <Button fullWidth variant="outlined" disabled={!page.canDemoAccept || editing} onClick={page.demoAccept}>Mô phỏng đồng ý</Button>
-          {!page.canDemoAccept && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Chỉ dùng khi đề xuất mới nhất đang chờ phản hồi và còn hạn.</Typography>}
-        </Paper>}
       </Stack>
     </Box>
 

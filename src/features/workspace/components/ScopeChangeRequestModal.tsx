@@ -60,11 +60,11 @@ export const ScopeChangeRequestModal: React.FC<ScopeChangeRequestModalProps> = (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
             <ShieldAlert size={18} color="#f4490b" />
             <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#9a3412" }}>
-              Nguyên tắc bảo toàn hiệu lực thỏa thuận
+              Thỏa thuận hiện tại vẫn được áp dụng
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: "#7c2d12", lineHeight: 1.5, display: "block" }}>
-            Mọi yêu cầu công việc nằm ngoài phạm vi mốc ban đầu sẽ được chuyển thành một bản <strong>Đề xuất điều chỉnh thỏa thuận (Phiên bản mới)</strong>. Phiên bản thỏa thuận hiện tại vẫn giữ nguyên hiệu lực ràng buộc cho đến khi bản mới được cả hai bên xác nhận.
+            Điều chỉnh tạo phiên bản mới. Phiên bản hiện tại được giữ nguyên đến khi cả hai bên xác nhận thay đổi.
           </Typography>
         </Box>
 

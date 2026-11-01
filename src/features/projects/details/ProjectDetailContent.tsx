@@ -413,11 +413,10 @@ export function ProjectDetailContent({
           <Box
             component="figure"
             sx={{
-              height: 176,
               position: "relative",
               borderRadius: "16px",
               overflow: "hidden",
-              bgcolor: "#e9e8e7",
+              bgcolor: "var(--surface-inset)",
               m: 0,
             }}
           >
@@ -425,25 +424,26 @@ export function ProjectDetailContent({
               component="img"
               src={details.heroImage}
               alt={details.heroAlt}
-              sx={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+              sx={{ display: "block", width: "100%", height: { xs: 220, sm: 300 }, p: 1.5, objectFit: "contain", objectPosition: "center" }}
             />
             <Box
               component="figcaption"
               sx={{
-                position: "absolute",
-                inset: 0,
+                position: "relative",
                 p: { xs: "18px", sm: "24px" },
                 display: "flex",
                 alignItems: "flex-end",
                 justifyContent: "space-between",
                 gap: "12px",
-                color: "#fff",
-                background: "linear-gradient(0deg, rgba(33, 26, 22, 0.79), transparent 90%)",
+                color: "text.primary",
+                bgcolor: "background.paper",
+                borderTop: "1px solid",
+                borderColor: "divider",
               }}
             >
               <Box>
-                <Typography component="small" sx={{ fontSize: 10, letterSpacing: "0.8px", color: "#ffdbd1", display: "block" }}>
-                  BỐI CẢNH DỰ ÁN
+                <Typography component="small" sx={{ fontSize: 12, color: "text.secondary", display: "block" }}>
+                  Bối cảnh dự án
                 </Typography>
                 <Typography component="strong" sx={{ fontSize: { xs: 13, sm: 14 }, fontWeight: 700, display: "block" }}>
                   {details.heroCaption}
@@ -458,12 +458,12 @@ export function ProjectDetailContent({
                   fontSize: 10,
                   px: "10px",
                   py: "4px",
-                  bgcolor: "rgba(255, 255, 255, 0.19)",
+                  bgcolor: "var(--surface-inset)",
                   borderRadius: "30px",
                   whiteSpace: "nowrap",
                 }}
               >
-                <Camera size={14} /> Concept ảnh thực tế
+                <Camera size={14} /> Ảnh tham khảo
               </Box>
             </Box>
           </Box>
@@ -600,7 +600,7 @@ export function ProjectDetailContent({
             <img
               src={details?.heroImage}
               alt={details?.heroAlt ?? "Ảnh tham khảo dự án"}
-              style={{ width: "100%", borderRadius: 16 }}
+              style={{ display: "block", width: "100%", maxHeight: "75dvh", objectFit: "contain", borderRadius: 16 }}
             />
           ) : (
             <>

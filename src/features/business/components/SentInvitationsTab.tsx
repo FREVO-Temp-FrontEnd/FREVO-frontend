@@ -1,3 +1,4 @@
+import { InvitationTermsHint } from "./InvitationTermsHint";
 import { useState } from "react";
 import {
   Box,
@@ -31,9 +32,6 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
   const projectInvitations = invitations.filter((i) => i.projectId === project.id);
   const reviewTalent = talents.find((talent) => talent.id === reviewTalentId);
 
-  const handleSimulateAccept = (invitationId: string) => {
-    mockStorage.respondToInvitation(invitationId, true);
-  };
 
   const handleApprove = () => {
     if (!reviewTalentId) return;
@@ -74,7 +72,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
             Lời mời tham gia dự án đã gửi
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Theo dõi phản hồi từ freelancer. Lời mời có hiệu lực trong 7 ngày.
+            Theo dõi phản hồi từ freelancer và xem lại lời mời đã gửi.
           </Typography>
         </Box>
 
@@ -83,22 +81,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
         </Link>
       </Box>
 
-      {/* 7-Day Guarantee Banner */}
-      <Alert
-        severity="info"
-        icon={<Clock size={18} />}
-        sx={{
-          borderRadius: 2,
-          bgcolor: "#f0f9ff",
-          borderColor: "#bae6fd",
-          color: "#0369a1",
-          "& .MuiAlert-icon": { color: "#0284c7" },
-        }}
-      >
-        <Typography variant="caption" sx={{ display: "block", lineHeight: 1.5 }}>
-          <strong>Quy tắc thời hạn lời mời:</strong> Lời mời tự động hết hạn sau <strong>7 ngày</strong> kể từ thời điểm gửi. Khi Freelancer chấp nhận, hệ thống ghi nhận ứng tuyển ở trạng thái <em>Chờ xem xét</em>  và chưa mở chat cho đến khi bạn phê duyệt.
-        </Typography>
-      </Alert>
+      <InvitationTermsHint />
 
       {/* Invitations List */}
       {projectInvitations.length > 0 ? (
@@ -232,18 +215,13 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
                       <Typography variant="caption" sx={{ color: "#15803d", display: "block" }}>
                         {candidateRecord?.chatUnlocked
                           ? "Đã duyệt và mở chat"
-                          : "Đang chờ xem xét mở chat"}
+                          : "Chờ duyệt để mở chat"}
                       </Typography>
                     )}
                   </Box>
 
                   {/* Actions */}
                   <Box sx={{ display: "flex", gap: 1 }}>
-                    {isPending && project.status === "published" && (
-                      <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => handleSimulateAccept(inv.id)}>
-                        Mô phỏng chấp nhận
-                      </button>
-                    )}
 
                     {isAccepted && candidateRecord && !candidateRecord.chatUnlocked && (candidateRecord.status === "new" || candidateRecord.status === "under_review") && project.status === "published" && (
                       <button type="button" className="fb-button fb-button-small fb-button-primary" onClick={() => { setReviewTalentId(inv.talentId); setReviewError(""); }}>

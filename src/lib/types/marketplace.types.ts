@@ -283,6 +283,8 @@ export interface ProjectBrief {
   status: ProjectStatus;
   createdAt: string;
   publishedAt?: string;
+  demoApplicationsDueAt?: number;
+  demoApplicationsCompleted?: boolean;
   closedAt?: string;
   completedAt?: string;
   selectedTalentId?: string;
