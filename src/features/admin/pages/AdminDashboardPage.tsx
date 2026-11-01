@@ -71,7 +71,7 @@ export const AdminDashboardPage: React.FC = () => {
             <ArrowLeft size={16} /> Về Business Workspace
           </MuiLink>
           <Typography variant="body2" color="text.primary" sx={{ fontWeight: 600 }}>
-            Trung tâm quản trị & Giám sát hệ thống (ADM-001)
+            Trung tâm quản trị & Giám sát hệ thống
           </Typography>
         </Breadcrumbs>
       </Box>
@@ -85,7 +85,7 @@ export const AdminDashboardPage: React.FC = () => {
             color: "#1e293b",
           }}
         >
-          Bảng điều khiển Quản trị viên (ADM-001)
+          Bảng điều khiển Quản trị viên
         </Typography>
         <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5 }}>
           Giám sát tin tuyển dụng, xác thực hồ sơ sáng tạo và kiểm soát tuân thủ quy tắc sàn FREVO
@@ -127,7 +127,7 @@ export const AdminDashboardPage: React.FC = () => {
             {totalTalents}
           </Typography>
           <Typography variant="caption" sx={{ color: "#64748b" }}>
-            {verifiedTalents} hồ sơ đã xác thực (DEC-09)
+            {verifiedTalents} hồ sơ đã xác thực
           </Typography>
         </Paper>
 
@@ -177,9 +177,9 @@ export const AdminDashboardPage: React.FC = () => {
             "& .MuiTabs-indicator": { bgcolor: "#f4490b" },
           }}
         >
-          <Tab label="Kiểm duyệt Brief dự án (ADM-002)" />
-          <Tab label="Xác thực hồ sơ Freelancer & Team (ADM-003 / DEC-09)" />
-          <Tab label="Nhật ký kiểm toán sự kiện sàn (ADM-004)" />
+          <Tab label="Kiểm duyệt Brief dự án" />
+          <Tab label="Xác thực hồ sơ Freelancer & Team" />
+          <Tab label="Nhật ký kiểm toán sự kiện sàn" />
         </Tabs>
       </Box>
 
@@ -250,7 +250,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 700 }}>Hình thức</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Khu vực</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Dự án Portfolio</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Huy hiệu xác thực (DEC-09)</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Huy hiệu xác thực</TableCell>
                   <TableCell sx={{ fontWeight: 700, textAlign: "right" }}>Cập nhật</TableCell>
                 </TableRow>
               </TableHead>
@@ -327,7 +327,7 @@ export const AdminDashboardPage: React.FC = () => {
       {activeTab === 2 && (
         <Paper elevation={0} sx={{ p: 3, borderRadius: "14px", border: "1px solid #e2e8f0" }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>
-            Nhật ký kiểm toán sự kiện toàn sàn (ADM-004)
+            Nhật ký kiểm toán sự kiện toàn sàn
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
@@ -335,7 +335,7 @@ export const AdminDashboardPage: React.FC = () => {
                 18/10/2026 10:24
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "#1e293b" }}>
-                Nắng Studio đã phê duyệt hồ sơ ứng viên và mở kênh trao đổi với Khánh Linh (FR-031, BR-012)
+                Nắng Studio đã phê duyệt hồ sơ ứng viên và mở kênh trao đổi với Khánh Linh
               </Typography>
             </Box>
 
@@ -344,7 +344,7 @@ export const AdminDashboardPage: React.FC = () => {
                 16/10/2026 14:00
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "#1e293b" }}>
-                Hà Vy đã nộp sản phẩm bàn giao Mốc 1 cho dự án Thiết kế hệ bao bì Cỏ Mây (WORK-004)
+                Hà Vy đã nộp sản phẩm bàn giao Mốc 1 cho dự án Thiết kế hệ bao bì Cỏ Mây
               </Typography>
             </Box>
 
@@ -353,7 +353,7 @@ export const AdminDashboardPage: React.FC = () => {
                 03/10/2026 10:00
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "#1e293b" }}>
-                Hai bên đã xác nhận Thỏa thuận hợp tác Phiên bản 1 (Mã FV-2026-004) - Dự án đóng tuyển dụng (BR-023)
+                Hai bên đã xác nhận Thỏa thuận hợp tác Phiên bản 1 (Mã FV-2026-004) - Dự án đóng tuyển dụng
               </Typography>
             </Box>
           </Box>

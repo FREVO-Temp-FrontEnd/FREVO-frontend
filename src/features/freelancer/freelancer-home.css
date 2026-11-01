@@ -79,3 +79,28 @@
 .work-nav-group .job-nav-option{transition:background-color 160ms ease,color 160ms ease}
 .work-nav-group .job-nav-option:hover,.work-nav-group .job-nav-option:focus-visible{background:var(--peach);color:var(--orange-dark)}
 @media(prefers-reduced-motion:no-preference){.freelancer-header-navigation .work-nav-group .job-nav-options{transform-origin:top left;animation:work-nav-enter 160ms ease-out both}@keyframes work-nav-enter{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}}
+
+/* Reserve the detail column only after an explicit card selection. */
+.page-grid.freelancer-home.is-list-only{grid-template-columns:minmax(0,1fr)}
+.page-grid.freelancer-home.is-list-only>.main-column{padding:0}
+.page-grid.freelancer-home .detail-column{scroll-margin-top:92px}
+@media(max-width:899px){
+  .page-grid.freelancer-home.has-detail{display:grid;grid-template-columns:minmax(0,1fr)}
+  .page-grid.freelancer-home>.main-column,.page-grid.freelancer-home>.detail-column{padding:0}
+  .page-grid.freelancer-home>.detail-column{position:static;max-height:none;overflow:visible}
+}
+@media(prefers-reduced-motion:no-preference){
+  .page-grid.freelancer-home.has-detail>.detail-column{animation:job-detail-enter 180ms ease-out both}
+  @keyframes job-detail-enter{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+}
+
+/* My Work uses the same card, detail and filter borders as project exploration. */
+.frevo-work-surface .MuiPaper-outlined{border:2px solid var(--ink);border-radius:var(--radius);box-shadow:none}
+.frevo-work-surface .work-project-card{border:2px solid var(--muted);background:var(--card)}
+.frevo-work-surface .work-project-card:hover,.frevo-work-surface .work-project-card:focus-within{border-color:var(--ink);box-shadow:0 4px 14px #20201f0d}
+.frevo-work-surface .MuiAccordion-root{border:2px solid var(--ink);border-radius:var(--radius);box-shadow:none}
+.frevo-work-surface .MuiAccordion-root.Mui-expanded{border-color:var(--orange-dark)}
+.frevo-work-surface .MuiAccordionDetails-root{border-top:1px solid var(--line);padding-top:20px}
+.frevo-work-surface nav[aria-label="Chọn mốc công việc"] .MuiButtonBase-root{border:2px solid var(--line);border-radius:var(--radius)}
+.frevo-work-surface nav[aria-label="Chọn mốc công việc"] .MuiButtonBase-root[aria-current="step"]{border-color:var(--orange-dark)}
+.frevo-work-surface nav[aria-label="Chọn mốc công việc"] .MuiButtonBase-root:hover{border-color:var(--ink)}

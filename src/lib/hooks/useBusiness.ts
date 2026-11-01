@@ -72,6 +72,7 @@ export function useBusiness() {
     businessName: state.activeUser.companyName || "Nắng Studio",
     projects: state.projects,
     talents: state.talents,
+    teamPortfolios: state.teamPortfolios ?? {},
     candidates: state.candidates,
     invitations: state.invitations,
     agreements: state.agreements,

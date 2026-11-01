@@ -6,7 +6,7 @@ import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { usePortfolio } from "@/lib/hooks/usePortfolio";
 import { useTalentPortfolio } from "@/lib/hooks/useTalentPortfolio";
 import { useProfilePresentation } from "@/lib/hooks/useProfilePresentation";
-import { talentProfilePath, talentWorkPath } from "@/lib/utils/portfolioPaths";
+import { talentProfilePath, talentWorkPath, teamWorkPath } from "@/lib/utils/portfolioPaths";
 import type { PortfolioMedia } from "@/lib/types/portfolio.types";
 import { PortfolioCover } from "../components/PortfolioCover";
 import { PortfolioEditor } from "../components/PortfolioEditor";
@@ -36,11 +36,12 @@ export default function PortfolioDetailPage() {
   const { talent, works: publicWorks } = useTalentPortfolio(talentId ?? "minh-anh");
   const works = talentId ? (talent ? publicWorks : []) : personalWorks;
   const work = works.find(item => item.id === workId);
-  const { profile, setProfile } = useProfilePresentation(talentId ?? "minh-anh", {
+  const { profile: personalProfile, setProfile } = useProfilePresentation(talentId ?? "minh-anh", {
     name: talent?.name ?? "Minh Anh", role: talent?.role ?? "", location: talent?.location ?? "",
     availability: talent?.availability ?? "", about: talent?.about ?? "", skills: talent?.skills ?? [],
     featuredIds: publicWorks.slice(0, 3).map(item => item.id),
   });
+  const profile = talent?.kind === "Team" ? { ...personalProfile, name: talent.name, role: talent.role } : personalProfile;
   const [selectedMediaId, setSelectedMediaId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<PortfolioMedia | null>(null);
   const [editing, setEditing] = useState(false);
@@ -54,8 +55,9 @@ export default function PortfolioDetailPage() {
     setSelectedMediaId(next.id);
     if (fromExpanded) setExpanded(next);
   };
-  const profilePath = talentId ? talentProfilePath(talentId) : "/profile";
-  const workPath = (id: string) => talentId ? talentWorkPath(talentId, id) : `/profile/portfolio/${encodeURIComponent(id)}`;
+  const teamPreview = location.pathname.startsWith("/team/");
+  const profilePath = teamPreview ? "/team/profile" : talentId ? talentProfilePath(talentId) : "/profile";
+  const workPath = (id: string) => talentId ? teamPreview ? teamWorkPath(talentId, id) : talentWorkPath(talentId, id) : `/profile/portfolio/${encodeURIComponent(id)}`;
   const reviews = work?.id === "moc" ? partnerReviews : [];
   const related = works.filter(item => item.id !== workId && item.visibility === "public").slice(0, 2);
   const title = work ? clean(work.title) : "Không tìm thấy tác phẩm";
@@ -119,8 +121,9 @@ export default function PortfolioDetailPage() {
           {!work.media.length && <Alert severity="info" sx={{ mt: 2 }}>Dự án chưa có hình ảnh hoặc video.</Alert>}
         </Box>
       </Box>
+      {work.contributors?.length ? <Box component="section" sx={{ mt: 4, p: { xs: 2, sm: 3 }, border: '1px solid', borderColor: 'divider', borderRadius: '13px', bgcolor: 'background.paper' }}><Typography component="h2" sx={{ fontSize: 21, fontWeight: 700, mb: 2 }}>Thành viên đóng góp</Typography>{work.isSample && <Chip label="Dữ liệu mẫu" variant="outlined" size="small" sx={{ mb: 2 }} />}<Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2,minmax(0,1fr))' }, gap: 2 }}>{work.contributors.map(person => <Box key={person.memberId}><Typography sx={{ fontWeight: 700 }}>{person.name}</Typography><Typography color="text.secondary" sx={{ mt: .5, overflowWrap: 'anywhere' }}>{person.role}</Typography></Box>)}</Box></Box> : null}
       <Box component="section" id="work-story" aria-labelledby="story-heading" sx={{ ...sectionBorder, display: "grid", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) minmax(240px, 350px)" }, gap: { xs: 3, md: 7 }, mt: { xs: 6, md: 9 }, py: { xs: 4, md: 6 } }}>
-        <Box><Typography id="story-heading" component="h2" sx={{ fontFamily: "Archivo, sans-serif", fontSize: { xs: 27, md: 34 }, fontWeight: 800, mb: 2.5 }}>Phần đóng góp của tôi</Typography><Typography sx={{ fontSize: { xs: 16, md: 17 }, lineHeight: 1.75, whiteSpace: "pre-line", maxWidth: "65ch" }}>{clean(work.contribution) || "Chưa cập nhật phần đóng góp."}</Typography></Box>
+        <Box><Typography id="story-heading" component="h2" sx={{ fontFamily: "Archivo, sans-serif", fontSize: { xs: 27, md: 34 }, fontWeight: 800, mb: 2.5 }}>{talent?.kind === "Team" ? "Phần đóng góp của nhóm" : "Phần đóng góp của tôi"}</Typography><Typography sx={{ fontSize: { xs: 16, md: 17 }, lineHeight: 1.75, whiteSpace: "pre-line", maxWidth: "65ch" }}>{clean(work.contribution) || "Chưa cập nhật phần đóng góp."}</Typography></Box>
         <Box component="aside" sx={{ bgcolor: "#edf0ea", borderRadius: "13px", p: { xs: 2.5, md: 3 }, alignSelf: "start" }}><Typography component="h3" sx={{ fontSize: 16, fontWeight: 700, mb: 1.5 }}>Kỹ năng và công cụ</Typography>{work.tags.length ? <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>{work.tags.map(tag => <Chip key={tag} label={tag} variant="outlined" size="small" sx={{ bgcolor: "background.paper" }} />)}</Box> : <Typography sx={{ fontSize: 15 }}>Chưa cập nhật.</Typography>}</Box>
       </Box>
       <Box component="section" id="work-reviews" aria-labelledby="reviews-heading" sx={{ ...sectionBorder, py: { xs: 4, md: 5 } }}><Typography id="reviews-heading" component="h2" sx={{ fontFamily: "Archivo, sans-serif", fontSize: 26, fontWeight: 800, mb: 1 }}>Đánh giá đối tác</Typography><Typography sx={{ fontSize: 14, color: "#555d55", mb: reviews.length ? 3 : 0 }}>{reviews.length ? "Dữ liệu minh họa trong bản demo, chưa phải đánh giá từ giao dịch thực tế." : "Chưa có đánh giá cho tác phẩm này."}</Typography>{reviews.length > 0 && <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>{reviews.map(review => <Box key={review.id} sx={{ borderTop: "1px solid", borderColor: "divider", pt: 2 }}><Typography component="h3" sx={{ fontSize: 16, fontWeight: 700 }}>{review.name}</Typography><Typography sx={{ fontSize: 14, color: "#555d55", mt: .5 }}>{review.role}</Typography><Rating readOnly value={review.rating} size="small" sx={{ color: "primary.dark", my: 1 }} getLabelText={value => `${value} trên 5 sao`} /><Typography sx={{ lineHeight: 1.7 }}>{clean(review.text)}</Typography></Box>)}</Box>}</Box>

@@ -129,7 +129,7 @@ export const NotificationCenterPage: React.FC = () => {
             Thông báo của bạn
           </Typography>
           <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5 }}>
-            Cập nhật về lời mời, ứng tuyển, tiến độ thỏa thuận và tin nhắn dự án (FR-064)
+            Cập nhật về lời mời, ứng tuyển, tiến độ thỏa thuận và tin nhắn dự án
           </Typography>
         </Box>
 

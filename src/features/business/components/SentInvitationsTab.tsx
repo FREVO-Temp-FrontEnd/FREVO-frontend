@@ -72,7 +72,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
             Lời mời tham gia dự án đã gửi
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Theo dõi phản hồi và xem lại lời mời đã gửi.
+            Theo dõi phản hồi từ freelancer và xem lại lời mời đã gửi.
           </Typography>
         </Box>
 

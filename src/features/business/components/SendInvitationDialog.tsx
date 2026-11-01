@@ -92,6 +92,9 @@ export function SendInvitationDialog({
               <Typography variant="h6" sx={{ fontWeight: 700, fontSize: "1.1rem" }}>
                 Gửi lời mời tham gia dự án
               </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                Freelancer có 7 ngày để phản hồi
+              </Typography>
             </Box>
           </Box>
           <IconButton onClick={onClose} size="small" aria-label="Đóng dialog">

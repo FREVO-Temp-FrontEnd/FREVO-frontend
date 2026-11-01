@@ -43,8 +43,12 @@ export const SubmitDeliverableDialog: React.FC<SubmitDeliverableDialogProps> = (
       ? [{ name: fileName.trim(), url: fileLink.trim() || "#", size: "2.4 MB" }]
       : [];
 
-    onSubmit(notes.trim(), files);
-    onClose();
+    try {
+      onSubmit(notes.trim(), files);
+      onClose();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Chưa gửi được bàn giao. Vui lòng thử lại.');
+    }
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   Alert,
   Box,
@@ -32,15 +32,19 @@ export function PortfolioEditor({
   onClose,
   onSave,
   onDelete,
+  teamName,
+  extraFields,
 }: {
   work: Work | null;
   onClose: () => void;
   onSave: (work: Work) => void;
   onDelete: (id: string) => void;
+  teamName?: string;
+  extraFields?: ReactNode;
 }) {
   const [title, setTitle] = useState(work?.title ?? "");
   const [teamType, setTeamType] = useState(
-    work && work.team !== "Cá nhân" ? "team" : "personal"
+    teamName || (work && work.team !== "Cá nhân") ? "team" : "personal"
   );
   const [media, setMedia] = useState<PortfolioMedia[]>(work?.media ?? []);
   const [tags, setTags] = useState(work?.tags ?? []);
@@ -355,7 +359,7 @@ export function PortfolioEditor({
             <legend>Phân loại & cơ cấu thực hiện</legend>
             <Box
               sx={{
-                display: "flex",
+                display: teamName ? "none" : "flex",
                 gap: { xs: "12px", sm: "18px" },
                 flexWrap: "wrap",
                 pb: "15px",
@@ -411,7 +415,8 @@ export function PortfolioEditor({
                   <input
                     id="studio-team"
                     name="team"
-                    defaultValue={work?.team === "Cá nhân" ? "" : work?.team}
+                    defaultValue={teamName ?? (work?.team === "Cá nhân" ? "" : work?.team)}
+                    readOnly={!!teamName}
                     maxLength={100}
                     required
                     placeholder="Tên studio của bạn"
@@ -448,6 +453,7 @@ export function PortfolioEditor({
             </div>
           </Box>
 
+          {extraFields}
           <div className="studio-field">
             <label htmlFor="studio-description">
               Câu chuyện & giải pháp thiết kế <b>*</b>
@@ -785,7 +791,7 @@ export function PortfolioEditor({
                 defaultValue={work?.visibility ?? "public"}
               >
                 <option value="public">Công khai trên FREVO</option>
-                <option value="link">Chỉ người có liên kết</option>
+                {!teamName && <option value="link">Chỉ người có liên kết</option>}
                 <option value="private">Riêng tư</option>
               </select>
             </div>
@@ -801,7 +807,7 @@ export function PortfolioEditor({
               borderRadius: "9px",
             }}
           >
-            Bản xem thử: tệp và thay đổi chỉ giữ trong phiên hiện tại, mất khi tải lại. Chế độ hiển thị chưa áp dụng quyền truy cập thật.
+            {teamName ? 'Dữ liệu nhóm được lưu trên trình duyệt trong bản mô phỏng. Chỉ tác phẩm công khai xuất hiện với doanh nghiệp.' : 'Bản xem thử: tệp và thay đổi chỉ giữ trong phiên hiện tại, mất khi tải lại. Chế độ hiển thị chưa áp dụng quyền truy cập thật.'}
           </Typography>
 
         </Box>

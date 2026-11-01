@@ -61,7 +61,7 @@ export const AgreementExpiredState: React.FC<AgreementExpiredStateProps> = ({
       </Typography>
 
       <Typography variant="body2" sx={{ color: "#64748b", mb: 2, lineHeight: 1.6 }}>
-        Đề xuất chưa được xác nhận trong thời hạn <strong>3 ngày</strong>.
+        Thời hạn xác nhận <strong>3 ngày</strong> đã trôi qua mà không nhận được phản hồi xác nhận từ cả hai bên.
       </Typography>
 
       {hasEffectiveVersion ? (
@@ -76,7 +76,7 @@ export const AgreementExpiredState: React.FC<AgreementExpiredStateProps> = ({
           }}
         >
           <Typography variant="body2" sx={{ color: "#166534", fontWeight: 600 }}>
-            Phiên bản hiện hành được giữ nguyên
+            Thỏa thuận hiện tại vẫn có hiệu lực:
           </Typography>
           <Typography variant="caption" sx={{ color: "#15803d", display: "block", mt: 0.5 }}>
             <strong>Phiên bản {effectiveVersionNumber}</strong> đã xác nhận vẫn được áp dụng cho việc hợp tác.

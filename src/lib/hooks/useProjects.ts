@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { isDemoMode, projectsApi } from "@/lib/api/projectsApi";
+import { projectsApi } from "@/lib/api/projectsApi";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
@@ -153,6 +153,7 @@ export function useProjects() {
   }
 
   function openApplication(id: string) {
+    if (applied.has(id) || appliedProjectIds().has(id)) { setToast("Bạn đã gửi hồ sơ cho dự án này."); return; }
     setApplyingId(id);
     setSubmitError("");
   }
@@ -164,9 +165,8 @@ export function useProjects() {
   async function submitApplication(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!applyingId || !event.currentTarget.reportValidity()) return;
-    const reapplying = applied.has(applyingId);
-    if (reapplying && !isDemoMode) {
-      setSubmitError("Chưa thể ứng tuyển lại khi kết nối API: dịch vụ hiện chưa có luồng cập nhật đơn ứng tuyển.");
+    if (applied.has(applyingId) || appliedProjectIds().has(applyingId)) {
+      setSubmitError("Bạn đã ứng tuyển dự án này. Không thể gửi thêm hồ sơ.");
       return;
     }
     const formData = new FormData(event.currentTarget);
@@ -196,11 +196,7 @@ export function useProjects() {
       await applicationsApi.submit(request);
       setApplied(previous => new Set(previous).add(request.projectId));
       closeApplication();
-      setToast(
-        reapplying
-          ? "Đã cập nhật đơn ứng tuyển của bạn. Doanh nghiệp sẽ thấy nội dung mới trong cùng hồ sơ."
-          : "Ứng tuyển đã được gửi thành công. Doanh nghiệp sẽ xem xét hồ sơ của bạn (BR-002, BR-003)."
-      );
+      setToast("Ứng tuyển đã được gửi thành công. Doanh nghiệp sẽ xem xét hồ sơ của bạn.");
       if (toastTimer.current) clearTimeout(toastTimer.current);
       toastTimer.current = setTimeout(() => setToast(""), 4000);
       requestAnimationFrame(() =>

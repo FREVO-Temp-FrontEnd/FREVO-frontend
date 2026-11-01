@@ -55,21 +55,19 @@ export const LockedChatState: React.FC<LockedChatStateProps> = ({
           mb: 1,
         }}
       >
-        Kênh trao đổi dự án đang được khóa (BR-012)
+        Kênh trao đổi dự án đang được khóa
       </Typography>
 
       <Typography variant="body2" sx={{ color: "#64748b", mb: 3, lineHeight: 1.6 }}>
         {isBusiness ? (
           <>
-            Theo quy định bảo mật thông tin và kiểm soát chất lượng liên lạc của FREVO (
-            <strong>FR-031, BR-012</strong>), kênh chat dự án <strong>"{projectTitle}"</strong> với ứng viên{" "}
+            Kênh trao đổi của dự án <strong>"{projectTitle}"</strong> với ứng viên{" "}
             <strong>{talentName}</strong> chỉ được kích hoạt sau khi Doanh nghiệp xem xét hồ sơ và phê duyệt mở kênh.
           </>
         ) : (
           <>
             Hồ sơ ứng tuyển của bạn cho dự án <strong>"{projectTitle}"</strong> đang chờ Doanh nghiệp xem xét.
-            Kênh trao đổi trực tiếp sẽ tự động kích hoạt ngay khi Doanh nghiệp phê duyệt mở chat (
-            <strong>FR-031, BR-012</strong>).
+            Bạn có thể nhắn tin sau khi doanh nghiệp duyệt hồ sơ.
           </>
         )}
       </Typography>

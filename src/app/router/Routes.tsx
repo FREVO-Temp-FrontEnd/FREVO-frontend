@@ -142,6 +142,11 @@ export const router = createBrowserRouter([
         element: <PaymentRoute />,
       },
       {
+        path: "team/:talentId/portfolio/:workId",
+        element: <RoleGuard allowedRoles={["freelancer"]}><FreelancerLayout /></RoleGuard>,
+        children: [{ index: true, element: <PortfolioDetailPage /> }],
+      },
+      {
         path: "business/talent/:talentId",
         element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><TalentPublicProfilePage actions={<TalentProfileActions />} /></BusinessLayout></RoleGuard>,
       },
