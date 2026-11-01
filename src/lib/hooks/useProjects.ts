@@ -5,7 +5,6 @@ import { mergeProjectsWithStorage } from "@/lib/utils/projectAdapter";
 import type { Project, SortMode } from "@/lib/types/project.types";
 import { normalized, deadlineTime } from "@/lib/utils/formatters";
 import { moneyDigits } from "@/lib/utils/money";
-import { usePortfolio } from "@/lib/hooks/usePortfolio";
 import { applicationsApi } from "@/lib/api/applicationsApi";
 import type { SubmitApplicationRequest } from "@/lib/types/application.types";
 import { validateResumeFile } from "@/lib/utils/validateResumeFile";
@@ -33,7 +32,6 @@ function appliedProjectIds() {
 }
 
 export function useProjects() {
-  const { works: personalWorks } = usePortfolio();
   const [projects, setProjects] = useState<Project[]>(() =>
     mergeProjectsWithStorage([], mockStorage.getProjects())
   );
@@ -177,6 +175,8 @@ export function useProjects() {
     const identity = formData.get("applicantType") === "team" ? "team" : "individual";
     const teamId = String(formData.get("teamId") ?? "").trim();
     if (identity === "team" && !teamId) { setSubmitError("Vui lòng chọn nhóm bạn đại diện."); return; }
+    const proposal = String(formData.get("proposal") ?? "").trim();
+    if (!proposal) { setSubmitError("Vui lòng nhập lời giới thiệu ứng tuyển."); return; }
     const cvFile = formData.get("cvFile");
     if (!(cvFile instanceof File)) { setSubmitError("Vui lòng tải CV lên."); return; }
     const cvError = validateResumeFile(cvFile);
@@ -185,9 +185,7 @@ export function useProjects() {
       projectId: applyingId,
       applicantIdentity: identity,
       ...(identity === "team" ? { teamId } : {}),
-      proposal: "",
-      portfolioWorkIds: formData.getAll("portfolioWorkIds").map(String),
-      portfolioUrl: "",
+      proposal,
       resume: { mode: "upload", file: cvFile },
       proposedBudget: proposedBudget ? Number(proposedBudget) : null,
       deliveryEstimate,
@@ -195,7 +193,7 @@ export function useProjects() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      await applicationsApi.submit(request, personalWorks);
+      await applicationsApi.submit(request);
       setApplied(previous => new Set(previous).add(request.projectId));
       closeApplication();
       setToast(

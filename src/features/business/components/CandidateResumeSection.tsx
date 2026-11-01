@@ -13,7 +13,7 @@ interface CandidateResumeSectionProps {
 export function CandidateResumeSection({ candidate, talent, project, enabled }: CandidateResumeSectionProps) {
   const cv = useCandidateResume(candidate, talent, project, enabled);
   const isPdf = cv.selected?.mimeType === "application/pdf" || /\.pdf$/i.test(cv.selected?.name ?? "");
-  return <Box component="section" aria-labelledby="candidate-cv-heading" sx={{ p: 2.5, bgcolor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: 2.5 }}>
+  return <Box component="section" aria-labelledby="candidate-cv-heading" sx={{ p: 2.5, bgcolor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: "13px" }}>
     <div className="mb-4 flex items-center justify-between gap-2"><Typography id="candidate-cv-heading" component="h3" sx={{ fontSize: 15, fontWeight: 700 }}>CV đã gửi</Typography><FileText size={18} className="text-[#bd3d14]" aria-hidden="true" /></div>
     {!cv.canView ? <div className="flex items-start gap-2 text-xs leading-5 text-[#747773]"><LockKeyhole size={16} className="mt-0.5 shrink-0" /><p className="m-0">CV chỉ dành cho chủ dự án khi ứng viên đã ứng tuyển hoặc nhận lời mời.</p></div>
       : cv.selected ? <>

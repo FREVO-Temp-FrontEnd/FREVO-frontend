@@ -20,7 +20,6 @@ export const projectsApi = {
     body.set("applicantIdentity", payload.applicantIdentity);
     if (payload.teamId) body.set("teamId", payload.teamId);
     body.set("proposal", payload.proposal);
-    payload.portfolioWorkIds.forEach(id => body.append("portfolioWorkIds", id));
     if (payload.proposedBudget !== null) body.set("proposedBudget", String(payload.proposedBudget));
     body.set("deliveryEstimate", payload.deliveryEstimate);
     body.set("cv", payload.resume.file);

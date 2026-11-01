@@ -5,26 +5,14 @@ import { createApplicationSubmission } from "@/lib/storage/applicationSubmission
 import { readSubmittedResumeFile } from "@/lib/storage/resumeStorage";
 import { readRepresentedTeams } from "@/lib/storage/representedTeams";
 import { validateResumeFile } from "@/lib/utils/validateResumeFile";
-import type { ApplicantIdentity, ApplicationMaterials, SubmitApplicationRequest } from "@/lib/types/application.types";
+import type { SubmitApplicationRequest } from "@/lib/types/application.types";
 import type { Candidate, ProjectBrief } from "@/lib/types/marketplace.types";
-import type { Work } from "@/lib/types/portfolio.types";
 
 /** API boundary. Demo identifiers, IndexedDB and fixtures stay behind this module.
  * Remote paths define the client contract for future backend integration.
  */
 export const applicationsApi = {
-  async getMaterials(identity: ApplicantIdentity, personalWorks: Work[], signal?: AbortSignal): Promise<ApplicationMaterials> {
-    if (!isDemoMode) {
-      const works = await agent.get<Work[]>("/portfolio/works", { params: { identity }, signal });
-      return { resumes: [], portfolioWorks: works.data };
-    }
-    return {
-      resumes: [],
-      portfolioWorks: mockStorage.getApplicantWorks(identity, personalWorks),
-    };
-  },
-
-  async submit(request: SubmitApplicationRequest, personalWorks: Work[]): Promise<void> {
+  async submit(request: SubmitApplicationRequest): Promise<void> {
     if (request.resume.mode !== "upload") throw new Error("Vui lòng tải CV lên trước khi gửi ứng tuyển.");
     const fileError = validateResumeFile(request.resume.file);
     if (fileError) throw new Error(fileError);
@@ -41,7 +29,7 @@ export const applicationsApi = {
     if (prior && prior.talentId !== talentId) throw new Error("Bạn không thể đổi tư cách cá nhân/Team của đơn đã gửi cho dự án này.");
     const project = mockStorage.getProjectById(request.projectId);
     if (project && project.status !== "published") throw new Error("Dự án đã ngừng nhận hồ sơ ứng tuyển.");
-    const submission = await createApplicationSubmission({ ownerId: account.id, talentId, request, works: mockStorage.getApplicantWorks(request.applicantIdentity, personalWorks) });
+    const submission = await createApplicationSubmission({ ownerId: account.id, talentId, request });
     if (team) mockStorage.registerRepresentedTeam(account.id, team);
     mockStorage.submitApplication(request.projectId, talentId, request.proposal, submission, account.id);
   },

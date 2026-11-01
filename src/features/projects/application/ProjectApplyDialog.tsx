@@ -8,14 +8,13 @@ import {
   Button,
   IconButton,
   keyframes,
-  Alert, Avatar, Checkbox, MenuItem, TextField,
+  Alert, MenuItem, TextField,
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
 import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/utils/formatters";
 import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
-import { useApplicationMaterials } from "../hooks/useApplicationMaterials";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { readRepresentedTeams } from "@/lib/storage/representedTeams";
 import { validateResumeFile } from "@/lib/utils/validateResumeFile";
@@ -59,7 +58,6 @@ export function ProjectApplyDialog({
     try { return { teams: user ? readRepresentedTeams(user) : [], error: "" }; }
     catch (error) { return { teams: [], error: error instanceof Error ? error.message : "Không đọc được danh sách nhóm." }; }
   }, [user]);
-  const materials = useApplicationMaterials(applicantType, isOpen);
 
   const budgetDefault = project
     ? Math.round((project.min + project.max) / 2) * 1_000_000
@@ -235,7 +233,6 @@ export function ProjectApplyDialog({
             {/* ── 1. Tư cách ứng tuyển ── */}
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <input type="hidden" name="applicantType" value={applicantType} />
-              {materials.selectedWorkIds.map(id => <input key={id} type="hidden" name="portfolioWorkIds" value={id} />)}
 
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: "8px" }}>
                 <Typography component="label" sx={{ fontSize: 13, fontWeight: 700, color: "#1b1c1c" }}>
@@ -388,19 +385,9 @@ export function ProjectApplyDialog({
                 </TextField> : <Alert severity="info" action={<Button component={Link} to="/team/profile" size="small">Tạo nhóm</Button>}>Bạn chưa có nhóm. Hãy tạo nhóm trước khi ứng tuyển theo Team.</Alert>}
               </Box>}
 
-              {applicantType === "individual" && <>
-              <Typography sx={{ fontSize: 13, fontWeight: 700, mt: 3, mb: 1 }}>Tác phẩm gửi kèm ({materials.selectedWorkIds.length})</Typography>
-              <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 1.5 }}>Chọn tác phẩm bạn muốn doanh nghiệp xem trong đơn này (không bắt buộc).</Typography>
-              {materials.error && <Alert severity="warning" action={<Button onClick={materials.reload}>Thử lại</Button>}>{materials.error} Bạn vẫn có thể gửi CV.</Alert>}
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>
-                {materials.works.map(work => <Box key={work.id} component="label" sx={{ display: "flex", gap: 1, alignItems: "center", minWidth: 0, p: 1.25, border: "1px solid", borderColor: materials.selectedWorkIds.includes(work.id) ? "primary.main" : "divider", bgcolor: materials.selectedWorkIds.includes(work.id) ? "#fff0e9" : "background.paper", borderRadius: 2, cursor: "pointer" }}>
-                  <Checkbox size="small" checked={materials.selectedWorkIds.includes(work.id)} onChange={() => materials.toggleWork(work.id)} sx={{ p: 0.5 }} slotProps={{ input: { "aria-label": `Gửi kèm ${work.title}` } }} />
-                  <Avatar variant="rounded" src={work.media.find(media => media.kind === "image")?.src} alt="" sx={{ width: 36, height: 36, bgcolor: "background.default", fontSize: 12, color: "text.secondary" }}>{work.brand.slice(0, 2)}</Avatar>
-                  <div className="min-w-0"><Typography sx={{ fontSize: 12, fontWeight: 600, lineHeight: 1.5 }}>{work.title}</Typography><Typography sx={{ fontSize: 11, color: "text.secondary" }}>{work.category}</Typography></div>
-                </Box>)}
-              </Box>
-              {!materials.loading && !materials.error && !materials.works.length && <Alert severity="info" sx={{ mt: 1 }}>Chưa có tác phẩm công khai. Bạn vẫn có thể ứng tuyển bằng CV.</Alert>}
-              </>}
+              <TextField name="proposal" label="Lời giới thiệu ứng tuyển" required multiline minRows={3} fullWidth
+                helperText="Giới thiệu kinh nghiệm phù hợp và cách bạn dự định thực hiện dự án. Doanh nghiệp có thể xem portfolio công khai trong hồ sơ của bạn."
+                slotProps={{ htmlInput: { maxLength: 3000 } }} sx={{ mt: 3, "#apply-form & textarea": { border: 0, p: 0, bgcolor: "transparent", resize: "none" } }} />
               <Box sx={{ mt: 3, p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
                 <Typography component="label" htmlFor="apply-cv" sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />Tải CV lên *</Typography>
                 <Box component="input" id="apply-cv" name="cvFile" type="file" accept=".pdf,.doc,.docx" required onChange={(event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0] || null; const issue = file ? validateResumeFile(file) : ""; setCvError(issue || ""); setCvFile(issue ? null : file); if (issue) event.target.value = ""; }} sx={{ display: "block", width: "100%", fontSize: 13, "&::file-selector-button": { border: "1px solid", borderColor: "divider", bgcolor: "background.default", borderRadius: 999, px: 2, py: 1, mr: 1.5, font: "inherit", cursor: "pointer" } }} />
@@ -591,7 +578,7 @@ export function ProjectApplyDialog({
             </Button>
             <Button
               type="submit"
-              disabled={submitting || materials.loading}
+              disabled={submitting}
               sx={{
                 height: 42,
                 px: "22px",

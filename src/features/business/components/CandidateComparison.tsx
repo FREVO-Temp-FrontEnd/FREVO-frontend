@@ -46,7 +46,7 @@ export function CandidateComparison({ project, suggestions = false, ids, onRemov
                 ["Thời gian bàn giao đề xuất", submission?.deliveryEstimate || "Chưa cung cấp"],
                 ["Proposal", candidate?.proposal || "Chưa cung cấp"],
               ].map(([label, value]) => <Box key={label} sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}><Typography color="text.secondary" sx={{ fontSize: 12, mb: .75 }}>{label}</Typography><Typography sx={{ fontSize: 13, overflowWrap: "anywhere", whiteSpace: "pre-wrap" }}>{value}</Typography></Box>)}
-              <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}><Typography sx={{ fontSize: 12, mb: 1 }}>{submission ? "Portfolio gửi kèm" : "Portfolio công khai"}</Typography><TalentPortfolioPreview talentId={talent.id} talentName={talent.name} submittedWorks={submission?.portfolioWorks} /></Box>
+              <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}><Typography sx={{ fontSize: 12, mb: 1 }}>Portfolio công khai</Typography><TalentPortfolioPreview talentId={talent.id} talentName={talent.name} /></Box>
               {candidate && <Box sx={{ p: 1 }}><CandidateResumeSection candidate={candidate} project={project} talent={talent} enabled={open} /></Box>}
               <Button component={Link} to={`/business/talent/${encodeURIComponent(talent.id)}`} sx={{ m: 1 }}>Xem hồ sơ đầy đủ</Button>
             </Box>;
