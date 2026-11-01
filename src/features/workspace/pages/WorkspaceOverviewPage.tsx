@@ -24,7 +24,7 @@ export function WorkspaceOverviewPage() {
     "& .MuiButton-root": { minHeight: 44, fontSize: 14 },
     "& .MuiButton-contained": { bgcolor: "primary.dark", color: "primary.contrastText", "&:hover": { bgcolor: "primary.dark" } },
   };
-  if (!project || !agreement) return <Box sx={containerSx}><Paper variant="outlined" sx={{ p: { xs: 3, md: 6 }, borderRadius: "13px", textAlign: "center" }}>
+  if (!project || !agreement) return <Box className={isBusiness ? undefined : "frevo-work-surface"} sx={containerSx}><Paper variant="outlined" sx={{ p: { xs: 3, md: 6 }, borderRadius: "13px", textAlign: "center" }}>
     <Typography component="h1" variant="h5">Không tìm thấy không gian làm việc</Typography>
     <Typography color="text.secondary" sx={{ my: 2 }}>Dự án chưa có thỏa thuận hợp tác được xác nhận hoặc không còn trong dữ liệu hiện tại.</Typography>
     <Button component={Link} to={isBusiness ? "/business/projects" : "/freelancer/work"} variant="outlined">Về danh sách công việc</Button>
@@ -43,7 +43,7 @@ export function WorkspaceOverviewPage() {
     });
   }
 
-  return <Box component={isBusiness ? "div" : "main"} id={isBusiness ? "workspace-content" : "main"} sx={containerSx}>
+  return <Box className={isBusiness ? undefined : "frevo-work-surface"} component={isBusiness ? "div" : "main"} id={isBusiness ? "workspace-content" : "main"} sx={containerSx}>
     <ProjectBreadcrumbs items={[
       { label: isBusiness ? "Đang tiến hành" : "Công việc của tôi", to: listPath },
       { label: project.title, to: workspace.projectPath }, { label: "Tiến độ" },

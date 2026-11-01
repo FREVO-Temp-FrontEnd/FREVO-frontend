@@ -1,3 +1,4 @@
+import { TeamPortfolioTab } from "../components/TeamPortfolioTab";
 import { useState } from "react";
 import { Alert, Avatar, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputAdornment, Paper, Skeleton, Snackbar, Tab, Tabs, TextField, Typography } from "@mui/material";
 import { Info, Mail, MailPlus, Pencil, Plus, Search, Users } from "lucide-react";
@@ -13,7 +14,7 @@ const pressSx = { "@media (prefers-reduced-motion: no-preference)": { transition
 const primaryActionSx = { ...pressSx, bgcolor: "primary.dark", "&:hover": { bgcolor: "primary.dark" } };
 
 function TeamManagement({ user }: { user: UserSession }) {
-  const { teams, team, selectedId, selectTeam, loading, error, notice, clearNotice, retry, saveBasics, invite, updateInvitation, acceptInvitation } = useTeamManagement(user);
+  const { teams, team, selectedId, selectTeam, loading, error, syncWarning, notice, clearNotice, retry, saveBasics, invite, updateInvitation, acceptInvitation } = useTeamManagement(user);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState(0);
   const [dialog, setDialog] = useState<"create" | "edit" | "invite" | null>(null);
@@ -38,6 +39,7 @@ function TeamManagement({ user }: { user: UserSession }) {
       <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => setDialog("create")} sx={primaryActionSx}>Tạo nhóm</Button>
     </Box>
 
+    {syncWarning && !error && <Alert severity="warning" sx={{ mb: 3 }} action={<Button color="inherit" onClick={retry}>Thử lại</Button>}>{syncWarning}</Alert>}
     {loading ? <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "320px minmax(0, 1fr)" }, gap: 3 }} aria-busy="true" aria-label="Đang tải danh sách nhóm">
       <Skeleton variant="rounded" height={410} /><Skeleton variant="rounded" height={480} />
     </Box> : error ? <Alert severity="error" action={<Button color="inherit" onClick={retry}>Thử lại</Button>}>{error}</Alert> : !team ? <Paper variant="outlined" sx={{ py: { xs: 6, md: 9 }, px: 3, textAlign: "center" }}>
@@ -74,12 +76,13 @@ function TeamManagement({ user }: { user: UserSession }) {
           <Box sx={{ flex: 1, minWidth: 180 }}>
             <Typography component="h2" sx={{ fontFamily: "Archivo, sans-serif", fontSize: { xs: 21, sm: 24 }, fontWeight: 800, lineHeight: 1.2, overflowWrap: "anywhere" }}>{team.name}</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, overflowWrap: "anywhere" }}>{team.summary}</Typography>
-            <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap", mt: 1.4 }}><Chip label={team.discipline} size="small" variant="outlined" /><Chip label="Bạn là người đại diện" size="small" sx={{ bgcolor: "#fff0e9", color: "primary.dark" }} /></Box>
+            <Box sx={{ display: "flex", gap: 0.75, flexWrap: "wrap", mt: 1.4 }}><Chip label={team.discipline} size="small" variant="outlined" />{team.isSample && <Chip label="Nhóm mẫu" size="small" variant="outlined" />}<Chip label="Bạn là người đại diện" size="small" sx={{ bgcolor: "#fff0e9", color: "primary.dark" }} /></Box>
           </Box>
           <Box sx={{ display: "flex", gap: 0.75, ml: { xs: "auto", sm: 0 } }}><IconButton onClick={() => setDialog("edit")} aria-label={`Chỉnh sửa ${team.name}`} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 1.5 }}><Pencil size={17} /></IconButton><Button variant="contained" startIcon={<MailPlus size={17} />} onClick={() => { setActionError(""); setDialog("invite"); }} sx={primaryActionSx}>Mời thành viên</Button></Box>
         </Box>
-        <Tabs value={tab} onChange={(_, value: number) => setTab(value)} aria-label="Thông tin nhóm" sx={{ mx: { xs: 2, sm: 3 }, borderBottom: "1px solid", borderColor: "divider", "& .MuiTab-root": { px: 0, mr: 3, textTransform: "none", fontWeight: 600 }, "& .MuiTab-root.Mui-selected": { color: "primary.dark" } }}><Tab id="team-tab-members" aria-controls="team-panel-members" label={`Thành viên (${team.members.length})`} /><Tab id="team-tab-invites" aria-controls="team-panel-invites" label={`Lời mời (${pending})`} /></Tabs>
+        <Tabs variant="scrollable" scrollButtons="auto" value={tab} onChange={(_, value: number) => setTab(value)} aria-label="Thông tin nhóm" sx={{ mx: { xs: 2, sm: 3 }, borderBottom: "1px solid", borderColor: "divider", "& .MuiTab-root": { px: 0, mr: 3, textTransform: "none", fontWeight: 600 }, "& .MuiTab-root.Mui-selected": { color: "primary.dark" } }}><Tab id="team-tab-members" aria-controls="team-panel-members" label={`Thành viên (${team.members.length})`} /><Tab id="team-tab-invites" aria-controls="team-panel-invites" label={`Lời mời (${pending})`} /><Tab id="team-tab-portfolio" aria-controls="team-panel-portfolio" label="Portfolio" /></Tabs>
         <Box sx={{ px: { xs: 2, sm: 3 }, pb: 2 }}>
+          {tab === 2 && <Box id="team-panel-portfolio" role="tabpanel" aria-labelledby="team-tab-portfolio"><TeamPortfolioTab key={team.id} talentId={`managed-team:${user.id}:${team.id}`} /></Box>}
           {actionError && !revoking && <Alert severity="error" sx={{ mt: 2 }}>{actionError}</Alert>}
           <Box id="team-panel-members" role="tabpanel" aria-labelledby="team-tab-members" hidden={tab !== 0}><TeamRosterTab members={team.members} /></Box>
           <Box id="team-panel-invites" role="tabpanel" aria-labelledby="team-tab-invites" hidden={tab !== 1}><TeamInvitationsTab invitations={team.invitations} onResend={id => changeInvitation(id, "resend")} onRevoke={invitation => { setActionError(""); setRevoking(invitation); }} onAccept={invitation => { setActionError(""); setMemberName(""); setAccepting(invitation); }} /></Box>

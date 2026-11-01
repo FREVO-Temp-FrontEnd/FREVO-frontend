@@ -11,7 +11,7 @@ import {
   Alert, MenuItem, TextField,
 } from "@mui/material";
 import type { Project } from "@/lib/types/project.types";
-import { Send, RotateCcw, X, Info, Coffee, FileText, User, Users, Clock3 } from "lucide-react";
+import { Send, X, Info, Coffee, FileText, User, Users, Clock3 } from "lucide-react";
 import { formatBudget } from "@/lib/utils/formatters";
 import { formatMoneyInput, moneyDigits } from "@/lib/utils/money";
 import { isDemoMode } from "@/lib/api/projectsApi";
@@ -34,7 +34,6 @@ interface ProjectApplyDialogProps {
   isOpen: boolean;
   onClose: () => void;
   project?: Project;
-  reapplying: boolean;
   submitting: boolean;
   submitError: string;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
@@ -44,7 +43,6 @@ export function ProjectApplyDialog({
   isOpen,
   onClose,
   project,
-  reapplying,
   submitting,
   submitError,
   onSubmit,
@@ -125,7 +123,7 @@ export function ProjectApplyDialog({
                 flexShrink: 0,
               }}
             >
-              {reapplying ? <RotateCcw size={18} aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
+              <Send size={18} aria-hidden="true" />
             </Box>
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
@@ -140,7 +138,7 @@ export function ProjectApplyDialog({
                   m: 0,
                 }}
               >
-                {reapplying ? "Ứng tuyển lại dự án" : "Ứng tuyển dự án"}
+                Ứng tuyển dự án
                 <Typography component="span" sx={{ color: "#ab2e00", fontWeight: 900, fontSize: "inherit" }}>
                   .
                 </Typography>
@@ -221,12 +219,6 @@ export function ProjectApplyDialog({
               >
                 <Info size={13} aria-hidden="true" />
                 Thao tác ứng tuyển minh họa — dữ liệu không lưu thật.
-              </Typography>
-            )}
-
-            {reapplying && (
-              <Typography sx={{ mb: "16px", color: "#4c7651", fontSize: 12, fontWeight: 700 }}>
-                Bạn đã ứng tuyển dự án này. Gửi lại sẽ cập nhật hồ sơ hiện có.
               </Typography>
             )}
 
@@ -389,9 +381,9 @@ export function ProjectApplyDialog({
                 helperText="Giới thiệu kinh nghiệm phù hợp và cách bạn dự định thực hiện dự án. Doanh nghiệp có thể xem portfolio công khai trong hồ sơ của bạn."
                 slotProps={{ htmlInput: { maxLength: 3000 } }} sx={{ mt: 3, "#apply-form & textarea": { border: 0, p: 0, bgcolor: "transparent", resize: "none" } }} />
               <Box sx={{ mt: 3, p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
-                <Typography component="label" htmlFor="apply-cv" sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />Tải CV lên *</Typography>
+                <Typography component="label" htmlFor="apply-cv" sx={{ mb: 1.5, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}><FileText size={16} />{applicantType === "team" ? "Hồ sơ năng lực nhóm *" : "Tải CV lên *"}</Typography>
                 <Box component="input" id="apply-cv" name="cvFile" type="file" accept=".pdf,.doc,.docx" required onChange={(event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0] || null; const issue = file ? validateResumeFile(file) : ""; setCvError(issue || ""); setCvFile(issue ? null : file); if (issue) event.target.value = ""; }} sx={{ display: "block", width: "100%", fontSize: 13, "&::file-selector-button": { border: "1px solid", borderColor: "divider", bgcolor: "background.default", borderRadius: 999, px: 2, py: 1, mr: 1.5, font: "inherit", cursor: "pointer" } }} />
-                <Typography sx={{ mt: 1, fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>{cvFile ? `Đã chọn: ${cvFile.name}` : "PDF, DOC hoặc DOCX, tối đa 5 MB. CV chỉ đính kèm vào đơn này."}</Typography>
+                <Typography sx={{ mt: 1, fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>{cvFile ? `Đã chọn: ${cvFile.name}` : applicantType === "team" ? "Hồ sơ năng lực nhóm dạng PDF, DOC hoặc DOCX, tối đa 5 MB." : "PDF, DOC hoặc DOCX, tối đa 5 MB. CV chỉ đính kèm vào đơn này."}</Typography>
                 {cvError && <Alert severity="error" sx={{ mt: 1 }}>{cvError}</Alert>}
               </Box>
 
@@ -598,8 +590,8 @@ export function ProjectApplyDialog({
                 },
               }}
             >
-              {reapplying ? <RotateCcw size={15} aria-hidden="true" /> : <Send size={15} aria-hidden="true" />}
-              {submitting ? "Đang gửi..." : reapplying ? "Gửi lại đơn ứng tuyển" : "Gửi đơn ứng tuyển"}
+              <Send size={15} aria-hidden="true" />
+              {submitting ? "Đang gửi..." : "Gửi đơn ứng tuyển"}
             </Button>
           </Box>
         </Box>

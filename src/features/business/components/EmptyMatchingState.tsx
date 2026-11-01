@@ -43,7 +43,7 @@ export function EmptyMatchingState({
       </Box>
 
       <Typography variant="h6" sx={{ fontWeight: 700, color: "#292524", fontSize: "1.1rem" }}>
-        Không có ứng viên phù hợp (BUS-014)
+        Không có ứng viên phù hợp
       </Typography>
 
       <Typography variant="body2" sx={{ color: "text.secondary", maxWidth: 440, mb: 1 }}>

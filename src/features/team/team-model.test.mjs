@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { acceptTeamInvitation, parseTeam, parseTeams, validateTeam, validateInvitation } from "./team-model.ts";
+import { acceptTeamInvitation, ensureSampleTeam, parseTeam, parseTeams, restoreTeamRepresentative, syncTeamProfiles, validateTeam, validateInvitation } from "./team-model.ts";
 
 const profile = {
   name: "Mây Creative", summary: "Thiết kế thương hiệu", discipline: "Thiết kế thương hiệu",
@@ -52,4 +52,38 @@ test("multiple stored groups keep separate identities and reject duplicate IDs",
   assert.deepEqual(parseTeams(JSON.stringify(groups)), groups);
   assert.throws(() => parseTeams(JSON.stringify([{ ...groups[0], id: "may" }, { ...groups[1], id: "may" }])));
   assert.throws(() => parseTeams(JSON.stringify([{ ...groups[0], members: [] }])));
+});
+
+test('same-email representative recovers an older mock ID without changing other members or input', () => {
+  const teams = [{ ...JSON.parse(JSON.stringify(profile)), id: 'team-1' }];
+  const restored = restoreTeamRepresentative(teams, {id: 'current-account', email: ' MINHANH@EXAMPLE.COM '});
+  assert.equal(restored[0].members[0].id, 'current-account');
+  assert.equal(teams[0].members[0].id, 'leader');
+  assert.equal(restoreTeamRepresentative(teams, {id: 'stranger', email: 'other@example.com'})[0].members[0].id, 'leader');
+});
+
+test('a failed public profile sync does not prevent other teams loading or change saved data', () => {
+  const teams = [{ ...JSON.parse(JSON.stringify(profile)), id: 'first' }, { ...JSON.parse(JSON.stringify(profile)), id: 'second' }];
+  const before = JSON.stringify(teams);
+  const seen = [];
+  const warning = syncTeamProfiles(teams, team => {seen.push(team.id); if (team.id === 'first') throw new Error('Storage full');});
+  assert.deepEqual(seen, ['first', 'second']);
+  assert.match(warning, /Storage full/);
+  assert.equal(JSON.stringify(teams), before);
+  assert.equal(syncTeamProfiles(teams, () => {}), '');
+});
+
+test('sample team is added to empty and existing lists once without replacing user data', () => {
+ const user = { id: 'current-user', name: 'Test User', email: 'test@example.com' };
+ const empty = ensureSampleTeam(parseTeams('[]'), user);
+ assert.equal(empty[0].name, 'Mây Creative');
+ assert.equal(empty[0].members[0].id, user.id);
+ assert.equal(empty[0].members.length, 3);
+ const own = { ...profile, id: 'own', name: 'My Studio' };
+ const seeded = ensureSampleTeam([own], user);
+ assert.equal(seeded.length, 2);
+ assert.equal(seeded[0], own);
+ assert.equal(ensureSampleTeam(seeded, user), seeded);
+ assert.deepEqual(parseTeams(JSON.stringify(seeded)), seeded);
+ assert.equal(ensureSampleTeam([{...own, name: 'Mây Creative'}], user).length, 1);
 });

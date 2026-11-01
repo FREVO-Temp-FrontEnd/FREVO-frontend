@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Box, Pagination } from "@mui/material";
+import { DetailCloseButton } from "./components/DetailCloseButton";
 import { useProjectPagination } from "./hooks/useProjectPagination";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useProjects } from "@/lib/hooks/useProjects";
@@ -66,32 +68,26 @@ export default function FreelancerHomePage() {
   const { page, pageCount, pageProjects, firstResult, lastResult, changePage } = useProjectPagination(displayed, filterKey, projectId);
   const selected = pageProjects.find((project) => project.id === projectId);
   const applyingProject = projects.find((project) => project.id === applyingId);
+  const selectedProjectId = selected?.id;
+  useEffect(() => {
+    if (!selectedProjectId || !window.matchMedia('(max-width:899px)').matches) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('detail-region')?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth' });
+      document.getElementById('detail-title')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedProjectId]);
 
   function selectProject(id: string) {
     document.getElementById("detail-region")?.scrollTo({ top: 0 });
     navigate(`/projects/${id}${view === "discover" ? "" : `?view=${view}`}`, { preventScrollReset: true });
-    if (window.matchMedia("(max-width: 720px)").matches) {
-      requestAnimationFrame(() => {
-        document
-          .getElementById("detail-region")
-          ?.scrollIntoView({
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-              .matches
-              ? "instant"
-              : "smooth",
-            block: "start",
-          });
-        document
-          .getElementById("detail-title")
-          ?.focus({ preventScroll: true });
-      });
-    }
+
   }
 
 
   return (
     <>
-      <div className="page-grid grid freelancer-home">
+      <div className={`page-grid grid freelancer-home ${selected ? "has-detail" : "is-list-only"}`}>
 
         <main id="main" className="main-column min-w-0">
           <h1>{view === "saved" ? "Việc làm đã lưu" : view === "recommended" ? "Việc làm phù hợp với bạn" : "Dự án đang mở"}<span>.</span></h1>
@@ -169,27 +165,14 @@ export default function FreelancerHomePage() {
           )}
         </main>
 
-        <aside
-          id="detail-region"
-          className="detail-column"
-          aria-label="Chi tiết dự án"
-        >
-          {selected ? (
-            <ProjectDetail
-              project={selected}
-              saved={saved.has(selected.id)}
-              applied={applied.has(selected.id)}
-              onSave={toggleSaved}
-              onApply={handleApply}
-            />
-          ) : !loading && !loadError ? (
-            <p className="detail-empty">
-              {displayed.length > 0
-                ? "Chọn một dự án trong danh sách để xem chi tiết."
-                : "Chưa có dự án phù hợp. Hãy thử thay đổi từ khóa hoặc bộ lọc."}
-            </p>
-          ) : null}
-        </aside>
+        {selected && <aside id="detail-region" className="detail-column" aria-label="Chi tiết dự án">
+          <DetailCloseButton onClose={() => {
+            const selectedId = selected.id;
+            navigate(view === 'discover' ? '/projects' : '/projects?view=' + view, { preventScrollReset: true });
+            requestAnimationFrame(() => { const card = document.getElementById('project-select-' + selectedId); card?.focus({ preventScroll: true }); card?.scrollIntoView({ block: 'nearest', behavior: 'instant' }); });
+          }} />
+          <ProjectDetail project={selected} saved={saved.has(selected.id)} applied={applied.has(selected.id)} onSave={toggleSaved} onApply={handleApply} />
+        </aside>}
       </div>
 
       <ProjectApplyDialog
@@ -197,7 +180,6 @@ export default function FreelancerHomePage() {
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={applyingProject}
-        reapplying={applyingId !== null && applied.has(applyingId)}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

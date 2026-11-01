@@ -193,7 +193,6 @@ export default function ProjectDashboard() {
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={applyingProject}
-        reapplying={applyingId !== null && applied.has(applyingId)}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

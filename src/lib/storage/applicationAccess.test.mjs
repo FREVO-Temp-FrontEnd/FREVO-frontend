@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applicationTeamIds, canManageApplication } from "./applicationAccess.ts";
+import { applicationTeamIds, canManageApplication, canManageWorkspace } from "./applicationAccess.ts";
 
 test("team applications are visible to members, but only the submitting account manages them", () => {
   const user = { id: "member", email: " Member@example.com ", role: "freelancer" };
@@ -19,4 +19,18 @@ test("team applications are visible to members, but only the submitting account 
   team.members.pop();
   values.set("frevo_team_management_v2:leader", JSON.stringify([team]));
   assert.equal(applicationTeamIds(user, storage).size, 0);
+});
+
+test('team representative can open and submit workspace regardless of current acting identity', () => {
+ const agreement = {projectId:'project',talentId:'managed-team:leader:team-1'};
+ const candidates = [{...agreement,applicantAccountId:'leader',status:'selected'}];
+ const owner = {id:'leader',role:'freelancer',actingIdentity:{type:'individual'}};
+ assert.equal(canManageWorkspace(agreement,candidates,owner),true);
+ assert.equal(canManageWorkspace(agreement,candidates,{...owner,actingIdentity:{type:'team',teamId:'another-team'}}),true);
+ assert.equal(canManageWorkspace(agreement,candidates,{...owner,id:'member'}),false);
+ assert.equal(canManageWorkspace(agreement,candidates,{...owner,role:'client'}),false);
+ assert.equal(canManageWorkspace({...agreement,projectId:'other'},candidates,owner),false);
+ assert.equal(canManageWorkspace({...agreement,talentId:'other'},candidates,owner),false);
+ assert.equal(canManageWorkspace(agreement,[{...candidates[0],status:'discussing'}],owner),false);
+ assert.equal(canManageWorkspace(agreement,[],owner),false);
 });

@@ -1,3 +1,4 @@
+import { DetailCloseButton } from "../components/DetailCloseButton";
 import { useMemo, useState } from "react";
 import { Box, Pagination, Snackbar, Typography } from "@mui/material";
 import { useFreelancer } from "@/lib/hooks/useFreelancer";
@@ -16,7 +17,7 @@ export function InvitationsHubPage() {
   const currentPage = Math.min(page, pageCount);
   const pageInvitations = pending.slice((currentPage - 1) * 10, currentPage * 10);
   const selectedProject = selection ? getProjectForInvitation(selection.invitation.projectId) : undefined;
-  const activeInvitation = pageInvitations.find((invitation) => invitation.id === selectedId) ?? pageInvitations[0];
+  const activeInvitation = pageInvitations.find((invitation) => invitation.id === selectedId);
   const activeProject = activeInvitation ? getProjectForInvitation(activeInvitation.projectId) : undefined;
 
   function selectCard(id: string) {
@@ -30,7 +31,7 @@ export function InvitationsHubPage() {
   }
 
   return (
-    <Box className="page-grid grid freelancer-home" sx={{
+    <Box className={`page-grid grid freelancer-home ${activeInvitation && activeProject ? "has-detail" : "is-list-only"}`} sx={{
       "& .intro": { mt: 2 },
       "& .result-line": { mt: 3, mb: 3 },
     }}>
@@ -48,7 +49,7 @@ export function InvitationsHubPage() {
         </Box>
         {pending.length > 0 && <Pagination count={pageCount} page={currentPage} color="primary" size="large" siblingCount={0} aria-label="Phân trang lời mời" getItemAriaLabel={(type, itemPage, selected) => type === "page" ? `${selected ? "Trang hiện tại, trang" : "Đến trang"} ${itemPage}` : type === "previous" ? "Trang trước" : type === "next" ? "Trang sau" : type === "first" ? "Trang đầu" : "Trang cuối"} onChange={(_, nextPage) => { setPage(nextPage); setSelectedId(null); document.getElementById("main")?.scrollIntoView({ block: "start", behavior: "instant" }); }} sx={{ mt: 3, "& .MuiPagination-ul": { justifyContent: "center", flexWrap: "wrap" } }} />}
       </Box>
-      {activeInvitation && activeProject && <Box className="detail-column" component="aside" id="invitation-detail-region" aria-label="Chi tiết lời mời"><InvitationProjectDetail invitation={activeInvitation} project={activeProject} /></Box>}
+      {activeInvitation && activeProject && <Box className="detail-column" component="aside" id="invitation-detail-region" aria-label="Chi tiết lời mời"><DetailCloseButton onClose={() => { const selectedId = activeInvitation.id; setSelectedId(null); requestAnimationFrame(() => { const card = document.getElementById("invitation-select-" + selectedId); card?.focus({ preventScroll: true }); card?.scrollIntoView({ block: "nearest", behavior: "instant" }); }); }} /><InvitationProjectDetail invitation={activeInvitation} project={activeProject} /></Box>}
       <InvitationDetailDialog open={!!selection} onClose={() => setSelection(null)} invitation={selection?.invitation ?? null} project={selectedProject} action={selection?.action ?? "accept"} onAccept={acceptInvitation} onDecline={declineInvitation} />
       <Snackbar open={!!toast} autoHideDuration={5000} onClose={() => setToast("")} message={toast} />
     </Box>

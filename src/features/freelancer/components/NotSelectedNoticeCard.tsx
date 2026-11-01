@@ -64,7 +64,7 @@ export const NotSelectedNoticeCard: React.FC<NotSelectedNoticeCardProps> = ({
               />
             )}
             <Chip
-              label="Không được chọn (BR-023)"
+              label="Không được chọn"
               size="small"
               sx={{ bgcolor: "#f1f5f9", color: "#64748b", fontSize: "11px", height: 20 }}
             />

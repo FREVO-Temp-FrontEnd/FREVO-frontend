@@ -1,3 +1,4 @@
+import { AppliedBadge } from "@/app/shared/components/AppliedBadge";
 import type { Project } from "@/lib/types/project.types";
 import { Box, Button } from "@mui/material";
 import { ArrowUpRight } from "lucide-react";
@@ -52,15 +53,17 @@ export function ProjectCard({
         </Button>
       </Box>
       <button
+        id={`project-select-${project.id}`}
         className="card-main"
         type="button"
         aria-pressed={selected}
+        aria-controls={selected ? "detail-region" : undefined}
         aria-label={project.title}
         onClick={() => onSelect(project.id)}
       >
         <span className="card-top flex items-center">
           <span className={`category-pill ${project.type}`}>{project.category}</span>
-          {applied && <span className="applied-pill">✓ Đã ứng tuyển</span>}
+          {applied && <AppliedBadge />}
           <span className="age">{project.age} ngày trước</span>
         </span>
         <h3>{project.title}</h3>

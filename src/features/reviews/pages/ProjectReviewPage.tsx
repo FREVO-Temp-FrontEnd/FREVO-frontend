@@ -130,7 +130,7 @@ export const ProjectReviewPage: React.FC = () => {
             Đánh giá dự án {project.title}
           </Typography>
           <Typography variant="body2" sx={{ color: "#64748b", mt: 0.5 }}>
-            Ghi nhận đóng góp và sự hài lòng sau khi hoàn thành dự án hợp tác (FR-054, FR-055)
+            Ghi nhận đóng góp và sự hài lòng sau khi hoàn thành dự án hợp tác
           </Typography>
         </Box>
 

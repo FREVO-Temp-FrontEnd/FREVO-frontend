@@ -1,6 +1,7 @@
+import { mockStorage } from "@/lib/storage/mockStorage";
 import { useCallback, useEffect, useState } from "react";
 import type { UserSession } from "@/lib/types/marketplace.types";
-import { acceptTeamInvitation, parseTeam, parseTeams, validateInvitation, validateTeam, type InvitationDraft, type ManagedTeam, type TeamBasics } from "../team-model";
+import { acceptTeamInvitation, ensureSampleTeam, parseTeam, parseTeams, restoreTeamRepresentative, syncTeamProfiles, validateInvitation, validateTeam, type InvitationDraft, type ManagedTeam, type TeamBasics } from "../team-model";
 
 // TEAM-001/002, FR-063, FLOW-05. Invitations are local simulations, not linked member accounts.
 export function useTeamManagement(user: UserSession) {
@@ -12,7 +13,11 @@ export function useTeamManagement(user: UserSession) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [syncWarning, setSyncWarning] = useState("");
   const team = teams.find(item => item.id === selectedId) || teams[0] || null;
+  const syncPublicProfile = useCallback((item: ManagedTeam) => {
+    mockStorage.registerRepresentedTeam(user.id, { ...item, memberCount: item.members.length, members: item.members.map(member => ({ id: member.id, name: member.name, role: member.role, isLeader: member.isLeader, ...(member.id === user.id ? { talentId: mockStorage.getApplicantTalentId('individual') } : {}) })) });
+  }, [user.id]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -31,25 +36,31 @@ export function useTeamManagement(user: UserSession) {
           invitations: [],
         } : null);
         stored = fallback ? [{ ...fallback, id: crypto.randomUUID() }] : [];
-        if (stored.length) localStorage.setItem(storageKey, JSON.stringify(stored));
       }
+      const seeded = ensureSampleTeam(stored, { id: user.id, name: user.name, email: user.email });
+      if (raw === null || seeded !== stored) localStorage.setItem(storageKey, JSON.stringify(seeded));
+      stored = seeded;
+      stored = restoreTeamRepresentative(stored, { id: user.id, email: user.email });
       setTeams(stored);
       setSelectedId(current => stored.some(item => item.id === current) ? current : stored[0]?.id || "");
       setError("");
+      setSyncWarning(syncTeamProfiles(stored, syncPublicProfile));
     } catch {
       setError("Chưa đọc được dữ liệu nhóm đã lưu. Vui lòng thử lại; dữ liệu hiện tại được giữ nguyên.");
     } finally {
       setLoading(false);
     }
-  }, [storageKey, legacyKey, user.id, user.email, user.name, user.actingIdentity?.type, user.actingIdentity?.teamName]);
+  }, [storageKey, legacyKey, user.id, user.email, user.name, user.actingIdentity?.type, user.actingIdentity?.teamName, syncPublicProfile]);
 
   useEffect(() => { load(); }, [load]);
 
   function save(next: ManagedTeam[], message: string) {
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
+      next.forEach(item => syncPublicProfile(item));
       setTeams(next);
       setError("");
+      setSyncWarning("");
       setNotice(message);
       return "";
     } catch {
@@ -101,5 +112,5 @@ export function useTeamManagement(user: UserSession) {
     }
   }
 
-  return { teams, team, selectedId, selectTeam: setSelectedId, loading, error, notice, clearNotice: () => setNotice(""), retry: load, saveBasics, invite, updateInvitation, acceptInvitation };
+  return { teams, team, selectedId, selectTeam: setSelectedId, loading, error, syncWarning, notice, clearNotice: () => setNotice(""), retry: load, saveBasics, invite, updateInvitation, acceptInvitation };
 }

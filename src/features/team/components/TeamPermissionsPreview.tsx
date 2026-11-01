@@ -36,16 +36,16 @@ export const TeamPermissionsPreview: React.FC = () => {
       <Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
-            Quản trị & Phân quyền thành viên nhiều tài khoản (TEAM-005)
+            Quản trị & Phân quyền thành viên nhiều tài khoản
           </Typography>
           <Chip
-            label="Tính năng nâng cao (P2 Preview)"
+            label="Sắp ra mắt"
             size="small"
             sx={{ bgcolor: "#f3e8ff", color: "#7e22ce", fontWeight: 700, fontSize: "10px", height: 20 }}
           />
         </Box>
         <Typography variant="caption" sx={{ color: "#64748b", lineHeight: 1.5, display: "block" }}>
-          Trong phiên bản MVP hiện tại, Nhóm sáng tạo hoạt động thông qua <strong>một tài khoản Đại diện duy nhất</strong> (Team Leader) để ứng tuyển, trao đổi và ký thỏa thuận hợp tác (theo <strong>FR-026, BR-003</strong>). Tính năng mời thành viên đăng nhập riêng biệt và phân quyền đa tài khoản đang trong lộ trình phát triển P2.
+          Nhóm sử dụng <strong>tài khoản người đại diện</strong> để ứng tuyển, trao đổi và xác nhận thỏa thuận. Tính năng đăng nhập và phân quyền riêng cho từng thành viên chưa khả dụng.
         </Typography>
       </Box>
     </Paper>

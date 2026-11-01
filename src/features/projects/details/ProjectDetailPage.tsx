@@ -192,7 +192,6 @@ export default function ProjectDetailPage() {
         isOpen={applyingId !== null}
         onClose={closeApplication}
         project={project}
-        reapplying={applyingId !== null && applied.has(applyingId)}
         submitting={submitting}
         submitError={submitError}
         onSubmit={submitApplication}

@@ -44,7 +44,7 @@ export const ScopeChangeRequestModal: React.FC<ScopeChangeRequestModalProps> = (
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 1 }}>
         <Box>
           <Typography variant="caption" sx={{ color: "#f4490b", fontWeight: 700, textTransform: "uppercase" }}>
-            Thay đổi phạm vi công việc (WORK-007) · {projectTitle}
+            Thay đổi phạm vi công việc · {projectTitle}
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: "Space Grotesk, sans-serif" }}>
             Đề xuất phụ lục / Điều chỉnh thỏa thuận
@@ -60,7 +60,7 @@ export const ScopeChangeRequestModal: React.FC<ScopeChangeRequestModalProps> = (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
             <ShieldAlert size={18} color="#f4490b" />
             <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#9a3412" }}>
-              Nguyên tắc bảo toàn hiệu lực thỏa thuận (FR-048)
+              Nguyên tắc bảo toàn hiệu lực thỏa thuận
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: "#7c2d12", lineHeight: 1.5, display: "block" }}>

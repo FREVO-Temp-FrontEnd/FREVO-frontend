@@ -113,6 +113,33 @@ export const theme = createTheme({
         },
       },
     },
+    MuiSnackbarContent: {
+      styleOverrides: {
+        root: {
+          backgroundColor: surfaces.paper, color: '#20201f',
+          border: `1px solid ${surfaces.border}`, borderLeft: '4px solid #f4490b',
+          borderRadius: 13, boxShadow: '0 6px 24px rgba(32,32,31,0.12)',
+          padding: '8px 16px', maxWidth: 'min(480px, calc(100vw - 32px))',
+          overflowWrap: 'anywhere',
+        },
+        message: { fontSize: 14, lineHeight: 1.6, padding: '6px 0' },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: { borderRadius: 13, fontSize: 14, lineHeight: 1.6 },
+        message: { minWidth: 0, overflowWrap: 'anywhere' },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: { root: { padding: '20px 24px', fontFamily: 'Archivo, Arial, sans-serif', fontWeight: 700, lineHeight: 1.4 } },
+    },
+    MuiDialogContent: {
+      styleOverrides: { root: { padding: '20px 24px', overflowWrap: 'anywhere' } },
+    },
+    MuiDialogActions: {
+      styleOverrides: { root: { padding: '16px 24px', gap: 8, flexWrap: 'wrap' } },
+    },
     MuiDialog: {
       styleOverrides: {
         paper: {

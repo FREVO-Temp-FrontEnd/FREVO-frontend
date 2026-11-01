@@ -17,6 +17,7 @@ export interface TeamInvitation {
 }
 
 export interface TeamProfile {
+  isSample?: boolean;
   name: string;
   summary: string;
   discipline: string;
@@ -93,4 +94,35 @@ export function parseTeams(raw: string): ManagedTeam[] {
 
 export function initials(name: string) {
   return name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase();
+}
+
+// Older mock logins used a different ID for the same email-owned team record.
+export function restoreTeamRepresentative(teams: ManagedTeam[], user: { id: string; email: string }): ManagedTeam[] {
+  const email = user.email.trim().toLowerCase();
+  return teams.map(team => ({ ...team, members: team.members.map(member =>
+    member.isLeader && email && member.email.trim().toLowerCase() === email
+      ? { ...member, id: user.id } : member) }));
+}
+
+export function syncTeamProfiles(teams: ManagedTeam[], sync: (team: ManagedTeam) => void): string {
+  const failures: string[] = [];
+  for (const team of teams) {
+    try { sync(team); } catch (cause) {
+      failures.push(team.name + ': ' + (cause instanceof Error ? cause.message : 'Vui lòng thử lại.'));
+    }
+  }
+  return failures.length ? 'Đã tải nhóm, nhưng chưa đồng bộ được hồ sơ công khai. ' + failures.join(' ') : '';
+}
+
+export function ensureSampleTeam(teams: ManagedTeam[], user: { id: string; name: string; email: string }): ManagedTeam[] {
+  if (teams.some(team => team.isSample || team.name.trim().toLocaleLowerCase('vi') === 'mây creative')) return teams;
+  return [...teams, {
+    id: 'may-creative-demo', name: 'Mây Creative', isSample: true,
+    summary: 'Nhóm mẫu thiết kế nhận diện thương hiệu và bao bì cho doanh nghiệp nhỏ.', discipline: 'Thiết kế thương hiệu',
+    members: [
+      { id: user.id, name: user.name, email: user.email, role: 'Định hướng sáng tạo', isLeader: true },
+      { id: 'quoc-huy-demo', name: 'Quốc Huy', email: 'quochuy@example.com', role: 'Thiết kế nhận diện', isLeader: false },
+      { id: 'thuy-trang-demo', name: 'Thùy Trang', email: 'thuytrang@example.com', role: 'Minh họa & hình ảnh', isLeader: false },
+    ], invitations: [],
+  }];
 }

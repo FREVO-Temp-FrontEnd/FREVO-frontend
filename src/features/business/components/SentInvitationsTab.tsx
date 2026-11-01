@@ -68,13 +68,13 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
       >
         <Box>
           <Typography variant="overline" sx={{ color: "#f4490b", fontWeight: 700, letterSpacing: 1 }}>
-            QUẢN LÝ LỜI MỜI (BUS-010)
+            QUẢN LÝ LỜI MỜI
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
             Lời mời tham gia dự án đã gửi
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            Theo dõi tình trạng phản hồi. Tất cả lời mời tuân thủ thời hạn 7 ngày theo FR-019 và BR-024.
+            Theo dõi phản hồi từ freelancer. Lời mời có hiệu lực trong 7 ngày.
           </Typography>
         </Box>
 
@@ -96,7 +96,7 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
         }}
       >
         <Typography variant="caption" sx={{ display: "block", lineHeight: 1.5 }}>
-          <strong>Quy tắc thời hạn lời mời (FR-019, BR-024):</strong> Lời mời tự động hết hạn sau <strong>7 ngày</strong> kể từ thời điểm gửi. Khi Freelancer chấp nhận, hệ thống ghi nhận ứng tuyển ở trạng thái <em>Chờ xem xét</em> (BR-005) và chưa mở chat cho đến khi bạn phê duyệt.
+          <strong>Quy tắc thời hạn lời mời:</strong> Lời mời tự động hết hạn sau <strong>7 ngày</strong> kể từ thời điểm gửi. Khi Freelancer chấp nhận, hệ thống ghi nhận ứng tuyển ở trạng thái <em>Chờ xem xét</em>  và chưa mở chat cho đến khi bạn phê duyệt.
         </Typography>
       </Alert>
 
@@ -231,8 +231,8 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
                     {isAccepted && (
                       <Typography variant="caption" sx={{ color: "#15803d", display: "block" }}>
                         {candidateRecord?.chatUnlocked
-                          ? "Đã duyệt và mở chat (FR-031)"
-                          : "Đang chờ xem xét mở chat (BR-005)"}
+                          ? "Đã duyệt và mở chat"
+                          : "Đang chờ xem xét mở chat"}
                       </Typography>
                     )}
                   </Box>

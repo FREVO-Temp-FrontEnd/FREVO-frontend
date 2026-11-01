@@ -57,11 +57,11 @@ export const AgreementExpiredState: React.FC<AgreementExpiredStateProps> = ({
           mb: 1,
         }}
       >
-        Đề xuất thỏa thuận (Phiên bản {version}) đã hết hạn (BR-024)
+        Đề xuất thỏa thuận (Phiên bản {version}) đã hết hạn
       </Typography>
 
       <Typography variant="body2" sx={{ color: "#64748b", mb: 2, lineHeight: 1.6 }}>
-        Thời hạn xác nhận <strong>3 ngày</strong> (theo quy tắc <strong>FR-032, BR-024</strong>) đã trôi qua mà không nhận được phản hồi xác nhận từ cả hai bên.
+        Thời hạn xác nhận <strong>3 ngày</strong> đã trôi qua mà không nhận được phản hồi xác nhận từ cả hai bên.
       </Typography>
 
       {hasEffectiveVersion ? (
@@ -76,7 +76,7 @@ export const AgreementExpiredState: React.FC<AgreementExpiredStateProps> = ({
           }}
         >
           <Typography variant="body2" sx={{ color: "#166534", fontWeight: 600 }}>
-            Tự động bảo toàn hiệu lực (FR-048):
+            Thỏa thuận hiện tại vẫn có hiệu lực:
           </Typography>
           <Typography variant="caption" sx={{ color: "#15803d", display: "block", mt: 0.5 }}>
             Do đề xuất Phiên bản {version} đã hết hạn, hệ thống tự động duy trì <strong>Phiên bản {effectiveVersionNumber}</strong> đã xác nhận trước đó làm cơ sở pháp lý và tiến độ hợp tác hiện hành.
