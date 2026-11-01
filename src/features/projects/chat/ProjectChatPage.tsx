@@ -28,7 +28,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
   const [sendError, setSendError] = React.useState("");
 
   const { user, role } = useAuthSession();
-  const { projects, candidates, talents, unlockChat } = useBusiness();
+  const { projects, candidates, talents, agreements, unlockChat } = useBusiness();
 
   // Find project
   const project = projects.find((p) => p.id === projectId) || mockStorage.getProjectById(projectId || "");
@@ -120,6 +120,7 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
 
   const chatRoom = (
     <>{sendError && <Alert severity="error" sx={{ m: 1 }}>{sendError}</Alert>}<ProjectChatRoom
+      agreement={agreements.filter(item => item.projectId === project.id && item.talentId === targetTalent.id).sort((a, b) => b.version - a.version)[0]}
       project={project}
       candidate={targetCandidate}
       talent={targetTalent}

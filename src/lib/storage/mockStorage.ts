@@ -1094,6 +1094,7 @@ class MockStorageAdapter {
       ...this.memoryState,
       agreements: nextAgreements,
       notifications: nextNotifications,
+      candidates: this.memoryState.candidates.map(item => item.id === candidateRecord.id && item.status !== "selected" ? { ...item, status: "offer" as const } : item),
     }, true);
 
     return newProposal;
@@ -1293,7 +1294,11 @@ class MockStorageAdapter {
 
   // --- Notification Operations ---
   public getNotifications(): NotificationItem[] {
-    return this.memoryState.notifications;
+    const user = this.memoryState.activeUser;
+    return this.memoryState.notifications.filter(item => {
+      if (item.recipientCompany) return user.role === "client" && item.recipientCompany === user.companyName;
+      return !item.userId || item.userId === user.id || (user.role === "freelancer" && this.memoryState.candidates.some(candidate => candidate.talentId === item.userId && canManageApplication(candidate, user)));
+    });
   }
 
   public markNotificationRead(id: string): void {
@@ -1304,9 +1309,10 @@ class MockStorageAdapter {
   }
 
   public markAllNotificationsRead(): void {
+    const visibleIds = new Set(this.getNotifications().map(item => item.id));
     const nextNotifications = this.memoryState.notifications.map((n) => ({
       ...n,
-      read: true,
+      read: visibleIds.has(n.id) ? true : n.read,
     }));
     this.saveToStorage({ ...this.memoryState, notifications: nextNotifications });
   }

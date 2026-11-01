@@ -1,9 +1,10 @@
-import { Alert, Box, Button, Chip, IconButton, Paper, Snackbar, Typography } from "@mui/material";
-import { ArrowLeft, CalendarDays, CheckCircle2, ClipboardCheck, Eye, FileText, Handshake, History, Info, MessageCircle, RotateCcw, UploadCloud, Wallet } from "lucide-react";
+import { useState } from "react";
+import { Alert, Box, Button, Chip, Paper, Snackbar, Stack, Typography } from "@mui/material";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, Eye, History, Info, RotateCcw, UploadCloud } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useWorkspace } from "../hooks/useWorkspace";
-import { workspaceDate } from "../utils/workspace";
+import { milestoneTitle, workspaceDate } from "../utils/workspace";
 import { WorkspaceProgressOverview } from "../components/WorkspaceProgressOverview";
 import { WorkspaceContextSidebar } from "../components/WorkspaceContextSidebar";
 import { MilestoneTimeline } from "../components/MilestoneTimeline";
@@ -15,216 +16,96 @@ import { OverdueWarningBanner } from "../components/OverdueWarningBanner";
 
 export function WorkspaceOverviewPage() {
   const workspace = useWorkspace();
+  const [expandedId, setExpandedId] = useState<string | null | undefined>(undefined);
   const { project, agreement, talent, isBusiness, milestones, pendingMilestone } = workspace;
-  if (!project || !agreement) return <Paper elevation={0} sx={{ p: 5, borderRadius: "16px", textAlign: "center" }}>
+  const containerSx = {
+    maxWidth: 1440, mx: "auto", minWidth: 0,
+    px: isBusiness ? 0 : { xs: 2, md: 4 }, py: isBusiness ? 0 : 3, pb: isBusiness ? 0 : 6,
+    "& .MuiButton-root": { minHeight: 44, fontSize: 14 },
+    "& .MuiButton-contained": { bgcolor: "primary.dark", color: "primary.contrastText", "&:hover": { bgcolor: "primary.dark" } },
+  };
+  if (!project || !agreement) return <Box sx={containerSx}><Paper variant="outlined" sx={{ p: { xs: 3, md: 6 }, borderRadius: "13px", textAlign: "center" }}>
     <Typography component="h1" variant="h5">Không tìm thấy không gian làm việc</Typography>
-    <Typography sx={{ my: 2, fontSize: 13, color: "text.secondary" }}>Dự án chưa có thỏa thuận hợp tác được xác nhận hoặc không còn trong dữ liệu hiện tại.</Typography>
-    <Button
-      component={Link}
-      to={isBusiness ? "/business/projects" : "/freelancer/applications"}
-      startIcon={<ArrowLeft size={16} />}>Về danh sách dự án</Button>
-  </Paper>;
+    <Typography color="text.secondary" sx={{ my: 2 }}>Dự án chưa có thỏa thuận hợp tác được xác nhận hoặc không còn trong dữ liệu hiện tại.</Typography>
+    <Button component={Link} to={isBusiness ? "/business/projects" : "/freelancer/work"} variant="outlined">Về danh sách công việc</Button>
+  </Paper></Box>;
   if (!workspace.canAccess) return <Navigate to="/forbidden" replace />;
-  const pendingIndex = milestones.findIndex(item => item.id === pendingMilestone?.id);
+
+  const nextMilestone = pendingMilestone ?? milestones.find(item => item.status === "in_progress") ?? milestones.find(item => item.status === "upcoming");
+  const activeId = expandedId === undefined ? nextMilestone?.id ?? milestones[0]?.id ?? null : expandedId;
+  const listPath = isBusiness ? "/business/ongoing" : "/freelancer/work";
+  const paymentPath = isBusiness ? `/payments/${project.id}` : `/freelancer/payments/${project.id}`;
   function selectMilestone(id: string) {
-    document.getElementById(`milestone-${id}`)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+    setExpandedId(id);
+    requestAnimationFrame(() => {
+      document.getElementById(`milestone-${id}`)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+      document.getElementById(`milestone-${id}-heading`)?.focus({ preventScroll: true });
+    });
   }
-  return <Box
-    sx={{
-      minWidth: 0,
-      "&& .MuiButton-root": { fontFamily: "inherit", fontSize: 12, fontWeight: 600, minHeight: 36 },
-      "&& .MuiButton-contained": { color: "primary.contrastText" },
-      "& h1, & h2, & h3": { letterSpacing: "-.015em" }
-    }}>
-    {agreement.confirmationSource === "demo" && <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>Dự án bắt đầu từ xác nhận mô phỏng của Provider. Không phải phản hồi thật hoặc giao dịch thanh toán.</Alert>}
-    <ProjectBreadcrumbs
-      items={isBusiness ? [
-        { label: "Dự án của tôi", to: "/business/projects" },
-        { label: project.title, to: workspace.projectPath },
-        { label: "Tiến độ" },
-      ] : [
-        { label: "Việc làm đã ứng tuyển", to: "/freelancer/applications" },
-        { label: project.title, to: workspace.projectPath },
-        { label: "Tiến độ" },
-      ]} />
-    <Box component="section" aria-labelledby="workspace-title" sx={{ mb: 3.5 }}>
-      <Box className="flex flex-wrap items-center gap-3">
-        <Typography
-          component="h1"
-          id="workspace-title"
-          sx={{ fontFamily: "h1.fontFamily", fontSize: { xs: 25, md: 32 }, fontWeight: 800, lineHeight: 1.25 }}>{project.title}
-          <Box component="span" sx={{ color: "primary.main" }}>.</Box>
-        </Typography>
-        <Chip
-          size="small"
-          icon={<Box sx={{ width: "6px !important", height: 6, bgcolor: "currentColor", borderRadius: "50%", ml: "10px !important" }} />}
-          label={project.status === "completed" ? "Đã hoàn thành" : "Đang tiến hành"}
-          sx={{ height: 25, fontSize: 10, bgcolor: "#e8f7ef", color: "#16805b", fontWeight: 600 }} />
-      </Box>
-      <Box className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2" sx={{ color: "text.secondary" }}>
-        <Typography className="flex items-center gap-1.5" sx={{ fontSize: 12, fontWeight: 600, color: "text.primary" }}>
-          <Handshake size={15} />{project.company}
-          <Box component="span" sx={{ mx: .5, color: "text.secondary" }}>↔</Box>{talent?.name ?? "Bên thực hiện"} ({talent?.kind ?? "Freelancer"})
-        </Typography>
-        <Typography className="flex items-center gap-1" sx={{ fontSize: 12 }}>
-          <CalendarDays size={14} />Hạn hoàn thành:
-          <Box component="strong" sx={{ color: "text.primary" }}>{agreement.deadline}</Box>
-        </Typography>
-        <Typography sx={{ fontSize: 11 }}>{agreement.reference}</Typography>
-      </Box>
-      <Box className="mt-5 flex flex-wrap items-center gap-2">
-        <Button
-          component={Link}
-          to={workspace.projectPath}
-          startIcon={<FileText size={14} />}
-          sx={{ bgcolor: "#efefec", color: "text.primary", fontSize: 11, px: 1.75 }}>Về dự án</Button>
-        <Button
-          component={Link}
-          to={workspace.agreementPath}
-          startIcon={<Handshake size={14} />}
-          sx={{ bgcolor: "#efefec", color: "text.primary", fontSize: 11, px: 1.75 }}>Thỏa thuận</Button>
-        <Button
-          component={Link}
-          to={workspace.chatPath}
-          startIcon={<MessageCircle size={14} />}
-          sx={{ bgcolor: "#efefec", color: "text.primary", fontSize: 11, px: 1.75 }}>Tin nhắn</Button>
-        <Button
-          component={Link}
-          to={isBusiness ? `/payments/${project.id}` : `/freelancer/payments/${project.id}`}
-          startIcon={<Wallet size={14} />}
-          sx={{ bgcolor: "#efefec", color: "text.primary", fontSize: 11, px: 1.75 }}>Sổ thanh toán (Mô phỏng)</Button>
-      </Box>
-    </Box>
-    <Box className="flex flex-col">
-      <Box sx={{ mb: 3, order: { xs: 2, md: 1 } }}>
-        <WorkspaceProgressOverview
-          milestones={milestones}
-          budget={agreement.budgetValue != null ? `${agreement.budgetValue.toLocaleString("vi-VN")} đ` : agreement.budget}
-          onSelect={selectMilestone} />
-      </Box>
-      {pendingMilestone && <Paper
-        elevation={0}
-        sx={{ p: { xs: 2.5, md: 3 }, bgcolor: "#fff0e9", borderRadius: "16px", mb: 4, order: { xs: 1, md: 2 } }}>
-        <Box
-          className="flex flex-col justify-between gap-5"
-          sx={{ flexDirection: { xs: "column", xl: "row" }, alignItems: { xl: "center" } }}>
-          <Box className="flex items-start gap-3">
-            <Box
-              sx={{
-                width: 42,
-                height: 42,
-                borderRadius: "50%",
-                display: "grid",
-                placeItems: "center",
-                flexShrink: 0,
-                bgcolor: "primary.dark",
-                color: "primary.contrastText"
-              }}>
-              <ClipboardCheck size={21} />
-            </Box>
-            <Box>
-              <Box className="flex flex-wrap items-center gap-2">
-                <Typography component="h2" sx={{ fontFamily: "h3.fontFamily", fontSize: 17, fontWeight: 700, lineHeight: 1.5 }}>{isBusiness ? `Bàn giao Mốc ${pendingIndex + 1} đã được gửi, đang chờ bạn nghiệm thu` : `Mốc ${pendingIndex + 1} đang chờ doanh nghiệp nghiệm thu`}</Typography>{isBusiness && <Chip
-                  size="small"
-                  label="Cần hành động"
-                  sx={{ height: 21, bgcolor: "#ffdbcb", color: "primary.dark", fontSize: 9, fontWeight: 700 }} />}
-              </Box>
-              <Typography sx={{ fontSize: 12, lineHeight: 1.85, color: "text.secondary", mt: .75 }}>{talent?.name ?? "Bên thực hiện"} đã gửi bàn giao ngày
-                <Box component="strong" sx={{ color: "text.primary" }}>{workspaceDate(pendingMilestone.submittedAt)}</Box>. Kiểm tra sản phẩm và đối chiếu các tiêu chí trước khi phản hồi.
-              </Typography>
-            </Box>
-          </Box>
-          <Box className="flex flex-wrap items-center gap-2" sx={{ flexShrink: 0, pl: { xs: 0, sm: "54px", xl: 0 } }}>{isBusiness && <Button
-            variant="contained"
-            startIcon={<CheckCircle2 size={15} />}
-            onClick={() => workspace.openReview(pendingMilestone)}
-            sx={{ fontSize: 11, px: 2.5, bgcolor: "primary.dark", "&:hover": { bgcolor: "primary.main" } }}>Nghiệm thu mốc {pendingIndex + 1}</Button>}
-            <Button
-              onClick={() => workspace.openReview(pendingMilestone)}
-              startIcon={<Eye size={15} />}
-              sx={{ bgcolor: "background.paper", color: "text.primary", fontSize: 11, px: 2 }}>Kiểm tra bàn giao</Button>
-            <IconButton
-              component={Link}
-              to={workspace.chatPath}
-              aria-label="Nhắn tin trao đổi"
-              size="small"
-              sx={{ bgcolor: "background.paper", p: 1.1 }}>
-              <MessageCircle size={16} />
-            </IconButton>
-          </Box>
-        </Box>
-      </Paper>}
-    </Box>
-    {workspace.overdueMilestone && <OverdueWarningBanner
-      milestoneName={workspace.overdueMilestone.name}
-      deadline={workspace.overdueMilestone.deadline}
-      projectId={project.id}
-      chatPath={workspace.chatPath} />}
-    <Box
-      className="grid items-start gap-6"
-      sx={{ gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 2.2fr) minmax(270px, 1fr)" } }}>
-      <Box className="flex min-w-0 flex-col gap-6">
-        <MilestoneTimeline
-          milestones={milestones}
-          isBusiness={isBusiness}
-          onSubmitDeliverable={workspace.openSubmit}
-          onReviewDeliverable={workspace.openReview} />
-        <Paper elevation={0} sx={{ p: { xs: 2.5, md: 3 }, border: "1px solid", borderColor: "divider", borderRadius: "16px" }}>
-          <Typography
-            component="h2"
-            className="flex items-center gap-2"
-            sx={{ fontFamily: "h3.fontFamily", fontSize: 16, fontWeight: 700, mb: 2.5 }}>
-            <History size={19} color="currentColor" />Nhật ký hoạt động dự án
+
+  return <Box component={isBusiness ? "div" : "main"} id={isBusiness ? "workspace-content" : "main"} sx={containerSx}>
+    <ProjectBreadcrumbs items={[
+      { label: isBusiness ? "Đang tiến hành" : "Công việc của tôi", to: listPath },
+      { label: project.title, to: workspace.projectPath }, { label: "Tiến độ" },
+    ]} />
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 2, flexWrap: "wrap", mb: 3 }}>
+      <Box sx={{ minWidth: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+          <Typography component="h1" id="workspace-title" sx={{ fontFamily: "h1.fontFamily", fontSize: { xs: 27, md: 32 }, fontWeight: 800, lineHeight: 1.25 }}>
+            Tiến độ dự án<Box component="span" color="primary.main">.</Box>
           </Typography>
-          {!workspace.activities.length && <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Chưa có cập nhật. Các lần bàn giao và nghiệm thu sẽ xuất hiện tại đây.</Typography>}
-          <Box component="ol" sx={{ p: 0, m: 0, listStyle: "none" }}>{workspace.activities.map((activity, index) => {
-            const Icon = activity.type === "submitted" ? UploadCloud : activity.type === "revision" ? RotateCcw : CheckCircle2;
-            return <Box
-              component="li"
-              key={activity.id}
-              sx={{
-                ml: 1.5,
-                pl: 3.5,
-                pb: index === workspace.activities.length - 1 ? 0 : 3,
-                position: "relative",
-                borderLeft: index === workspace.activities.length - 1 ? "1px solid transparent" : "1px solid",
-                borderColor: index === workspace.activities.length - 1 ? "transparent" : "divider"
-              }}>
-              <Box
-                sx={{
-                  position: "absolute",
-                  left: -12,
-                  top: 0,
-                  width: 24,
-                  height: 24,
-                  display: "grid",
-                  placeItems: "center",
-                  borderRadius: "50%",
-                  bgcolor: activity.type === "completed" ? "#e8f7ef" : "#fff0e9",
-                  color: activity.type === "completed" ? "#16805b" : "primary.dark",
-                  outline: "4px solid white"
-                }}>
-                <Icon size={13} />
-              </Box>
-              <Box className="flex flex-wrap items-baseline justify-between gap-2">
-                <Typography sx={{ fontSize: 12, fontWeight: 600 }}>{activity.title}</Typography>
-                <Typography component="time" sx={{ fontSize: 10, color: "text.secondary" }}>{workspaceDate(activity.date)}</Typography>
-              </Box>
-              <Typography sx={{ fontSize: 11, lineHeight: 1.8, color: "text.secondary", mt: .75, whiteSpace: "pre-line" }}>{activity.description}</Typography>
-            </Box>;
-          })}</Box>
-        </Paper>
+          <Chip label={project.status === "completed" ? "Đã hoàn thành" : "Đang thực hiện"} size="small" sx={{ bgcolor: "#fff0e9", color: "primary.dark", fontWeight: 600 }} />
+        </Box>
+        <Typography color="text.secondary" sx={{ mt: 1, overflowWrap: "anywhere" }}>{project.title}</Typography>
       </Box>
-      <WorkspaceContextSidebar
-        agreement={agreement}
-        talent={talent}
-        payments={workspace.projectPayments}
-        chatPath={workspace.chatPath}
-        onScopeChange={() => workspace.setScopeOpen(true)} />
+      <Button component={Link} to={listPath} variant="outlined" color="secondary" startIcon={<ArrowLeft size={17} aria-hidden="true" />}>Về công việc</Button>
     </Box>
-    <Box className="mt-6 flex items-start gap-2" sx={{ color: "text.secondary" }}>
-      <Info size={13} className="shrink-0" />
-      <Typography sx={{ fontSize: 10 }}>Không gian làm việc mô phỏng. Bàn giao, nghiệm thu và thanh toán minh họa giúp hai bên thử luồng hợp tác.</Typography>
+
+    <Alert severity="info" icon={<Info size={19} aria-hidden="true" />} sx={{ mb: 3, borderRadius: "13px", bgcolor: "background.paper", color: "text.secondary", border: "1px solid", borderColor: "divider", "& .MuiAlert-icon": { color: "primary.dark" } }}>
+      Không gian làm việc mô phỏng. Bàn giao, nghiệm thu và thanh toán tại đây giúp hai bên thử luồng hợp tác; không có tiền thật được chuyển.
+      {agreement.confirmationSource === "demo" && " Dự án bắt đầu từ xác nhận mô phỏng của bên thực hiện."}
+    </Alert>
+    <WorkspaceProgressOverview milestones={milestones} activeId={activeId} onSelect={selectMilestone} />
+
+    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "minmax(0, 1fr) 340px" }, gap: 3, alignItems: "start", mt: 3 }}>
+      <Stack spacing={3} sx={{ minWidth: 0 }}>
+        {nextMilestone && <Paper component="section" aria-label="Mốc cần theo dõi" variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, bgcolor: pendingMilestone ? "#fff0e9" : "background.paper", borderRadius: "13px" }}>
+          <Typography sx={{ fontSize: 13, color: "primary.dark", fontWeight: 700, mb: 1 }}>
+            {pendingMilestone ? isBusiness ? "Cần phản hồi" : "Đang chờ nghiệm thu" : isBusiness ? "Mốc tiếp theo" : "Việc cần làm"}
+          </Typography>
+          <Typography component="h2" sx={{ fontFamily: "h2.fontFamily", fontSize: 20, fontWeight: 700, overflowWrap: "anywhere" }}>{milestoneTitle(nextMilestone.name)}</Typography>
+          <Typography sx={{ mt: 1, fontSize: 15, color: "text.secondary", lineHeight: 1.7 }}>
+            {pendingMilestone
+              ? isBusiness ? "Bên thực hiện đã gửi bàn giao. Kiểm tra sản phẩm và đối chiếu tiêu chí trước khi phản hồi." : "Bàn giao đã được gửi. Doanh nghiệp sẽ kiểm tra và phản hồi theo các tiêu chí đã thống nhất."
+              : nextMilestone.deliverable}
+          </Typography>
+          <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+            {pendingMilestone
+              ? <Button variant={isBusiness ? "contained" : "outlined"} startIcon={isBusiness ? <ClipboardCheck size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />} onClick={() => workspace.openReview(pendingMilestone)}>{isBusiness ? "Kiểm tra & nghiệm thu" : "Xem bàn giao"}</Button>
+              : !isBusiness ? <Button variant="contained" startIcon={<UploadCloud size={17} aria-hidden="true" />} onClick={() => workspace.openSubmit(nextMilestone)}>Nộp bàn giao</Button>
+              : <Button variant="outlined" onClick={() => selectMilestone(nextMilestone.id)}>Xem mốc công việc</Button>}
+            <Typography variant="body2" color="text.secondary">Hạn bàn giao: {nextMilestone.deadline}</Typography>
+          </Box>
+        </Paper>}
+        {workspace.overdueMilestone && <OverdueWarningBanner milestoneName={workspace.overdueMilestone.name} deadline={workspace.overdueMilestone.deadline} projectId={project.id} chatPath={workspace.chatPath} />}
+        <MilestoneTimeline milestones={milestones} expandedId={activeId} onToggle={setExpandedId} isBusiness={isBusiness} onSubmitDeliverable={workspace.openSubmit} onReviewDeliverable={workspace.openReview} />
+        <Paper component="section" aria-labelledby="workspace-activity-title" variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: "13px" }}>
+          <Typography component="h2" id="workspace-activity-title" sx={{ fontFamily: "h2.fontFamily", fontSize: 20, fontWeight: 700, display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}><History size={20} aria-hidden="true" />Nhật ký hoạt động</Typography>
+          {!workspace.activities.length && <Typography color="text.secondary">Chưa có cập nhật. Các lần bàn giao và nghiệm thu sẽ xuất hiện tại đây.</Typography>}
+          <Stack component="ol" spacing={2.5} sx={{ m: 0, p: 0, listStyle: "none" }}>{workspace.activities.map(activity => {
+            const Icon = activity.type === "submitted" ? UploadCloud : activity.type === "revision" ? RotateCcw : CheckCircle2;
+            return <Box component="li" key={activity.id} sx={{ display: "flex", gap: 1.5, alignItems: "start" }}>
+              <Box sx={{ display: "flex", p: 1, borderRadius: "50%", bgcolor: "background.default", color: "primary.dark", flexShrink: 0 }}><Icon size={17} aria-hidden="true" /></Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontSize: 15, fontWeight: 600, overflowWrap: "anywhere" }}>{activity.title}</Typography>
+                <Typography component="time" sx={{ fontSize: 13, color: "text.secondary", display: "block", mt: 0.5 }}>{workspaceDate(activity.date)}</Typography>
+                <Typography sx={{ mt: 0.75, color: "text.secondary", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-line", overflowWrap: "anywhere" }}>{activity.description}</Typography>
+              </Box>
+            </Box>;
+          })}</Stack>
+        </Paper>
+      </Stack>
+      <WorkspaceContextSidebar agreement={agreement} talent={talent} company={project.company} isBusiness={isBusiness} payments={workspace.projectPayments} agreementPath={workspace.agreementPath} paymentPath={paymentPath} chatPath={workspace.chatPath} onScopeChange={() => workspace.setScopeOpen(true)} />
     </Box>
     {workspace.reviewMilestone && <AcceptanceReviewDialog
       key={workspace.reviewMilestone.id}

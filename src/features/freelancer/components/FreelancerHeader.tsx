@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
-import { NotificationsBell } from "./NotificationsBell";
+import { NotificationsBell } from "@/features/notifications/components/NotificationsBell";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { Box, Button, Divider, ListItemIcon, Menu as AccountMenu, MenuItem, Typography } from "@mui/material";
 import { ChevronDown, FolderOpen, Settings, LogOut, Menu, UserRound } from "lucide-react";

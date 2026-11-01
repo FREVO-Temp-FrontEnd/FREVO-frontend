@@ -26,7 +26,7 @@ export function resolveAgreement(state: MarketplaceState, agreementId: string, a
   const notify = (userId: string, title: string, href: string) => notices.push({ id: crypto.randomUUID(), userId: userId.startsWith("business:") ? undefined : userId, recipientCompany: userId.startsWith("business:") ? project.company : undefined, title, detail: project.title, type: "agreement", time: "Vừa xong", timestamp: now, read: false, href });
   if (!accept) {
     owners.forEach(id => notify(id, "Provider đã từ chối đề xuất thỏa thuận", `/business/projects/${project.id}/agreement?talent=${agreement.talentId}`));
-    return { ...state, agreements: state.agreements.map(item => item.id === agreement.id ? { ...item, status: "rejected", rejectedAt: timestamp, isEffective: false } : item), notifications: [...notices, ...state.notifications] };
+    return { ...state, candidates: state.candidates.map(item => item.id === candidate.id && item.status === "offer" ? { ...item, status: "discussing" } : item), agreements: state.agreements.map(item => item.id === agreement.id ? { ...item, status: "rejected", rejectedAt: timestamp, isEffective: false } : item), notifications: [...notices, ...state.notifications] };
   }
   const firstSelection = !project.selectedTalentId;
   const losingIds = new Set([

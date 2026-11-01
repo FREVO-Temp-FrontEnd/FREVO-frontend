@@ -1,73 +1,39 @@
-import { Box, ButtonBase, Chip, Paper, Typography } from "@mui/material";
-import { Check, Clock3, ClipboardCheck } from "lucide-react";
+import { Box, ButtonBase, LinearProgress, Paper, Typography } from "@mui/material";
+import { Check, ClipboardCheck, Clock3 } from "lucide-react";
 import type { Milestone } from "@/lib/types/marketplace.types";
-import { milestoneMoney, milestoneStatuses, milestoneTitle } from "../utils/workspace";
+import { milestoneStatuses, milestoneTitle } from "../utils/workspace";
 
 interface WorkspaceProgressOverviewProps {
   milestones: Milestone[];
-  budget: string;
+  activeId: string | null;
   onSelect: (id: string) => void;
 }
 
-export function WorkspaceProgressOverview({ milestones, budget, onSelect }: WorkspaceProgressOverviewProps) {
-  const pending = milestones.findIndex(item => item.status === "submitted");
-  return <Paper elevation={0} sx={{ p: { xs: 2.5, md: 3 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
-    <Box
-      className="grid items-center gap-6"
-      sx={{ gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) 220px" } }}>
-      <Box
-        className="grid gap-3"
-        sx={{ gridTemplateColumns: { xs: "1fr", sm: `repeat(${Math.min(milestones.length || 1, 3)}, minmax(0,1fr))` } }}>
-        {milestones.map((milestone, index) => {
-          const config = milestoneStatuses[milestone.status];
-          const Icon = milestone.status === "completed" ? Check : milestone.status === "submitted" ? ClipboardCheck : Clock3;
-          return <ButtonBase
-            key={milestone.id}
-            onClick={() => onSelect(milestone.id)}
-            sx={{
-              display: "block",
-              textAlign: "left",
-              borderRadius: "12px",
-              p: 1.75,
-              bgcolor: config.background,
-              minWidth: 0,
-              "&:focus-visible": { outline: "2px solid", outlineColor: "primary.main", outlineOffset: 3 }
-            }}>
-            <Box className="flex items-center justify-between gap-2">
-              <Typography className="flex items-center gap-1" sx={{ fontSize: 11, fontWeight: 700, color: config.color }}>
-                <Icon size={14} />Mốc {index + 1}
-              </Typography>
-              <Typography sx={{ fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>{milestoneMoney(milestone)}</Typography>
-            </Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, mt: .6 }}>{milestoneTitle(milestone.name)}</Typography>
-            <Typography sx={{ fontSize: 10, color: config.color, mt: .5 }}>{config.label}</Typography>
-            <Box sx={{ mt: 1.25, height: 3, bgcolor: "divider", borderRadius: 2 }}>
-              <Box
-                sx={{ height: "100%", borderRadius: "inherit", width: milestone.status === "completed" ? "100%" : 0, bgcolor: config.color }} />
-            </Box>
-          </ButtonBase>;
-        })}
+export function WorkspaceProgressOverview({ milestones, activeId, onSelect }: WorkspaceProgressOverviewProps) {
+  const completed = milestones.filter(item => item.status === "completed").length;
+  const pending = milestones.filter(item => item.status === "submitted").length;
+  const progress = milestones.length ? Math.round(completed / milestones.length * 100) : 0;
+  return <Paper component="section" aria-labelledby="workspace-progress-title" variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: "13px" }}>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 1.5 }}>
+      <Box>
+        <Typography component="h2" id="workspace-progress-title" sx={{ fontFamily: "h2.fontFamily", fontSize: 20, fontWeight: 700 }}>Tổng quan tiến độ</Typography>
+        <Typography color="text.secondary" sx={{ fontSize: 14, mt: 0.75 }}>{completed}/{milestones.length} mốc đã nghiệm thu{pending > 0 && ` · ${pending} mốc đang chờ phản hồi`}</Typography>
       </Box>
-      <Box
-        sx={{
-          display: "block",
-          borderLeft: { lg: "1px solid" },
-          borderColor: { lg: "divider" },
-          pl: { lg: 2 }
-        }}>
-        <Box className="flex items-center justify-between gap-3">
-          <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Tổng ngân sách</Typography>
-          <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{budget}</Typography>
-        </Box>
-        <Box className="mt-2 flex items-center justify-between gap-3">
-          <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Đang chờ duyệt</Typography>
-          <Typography sx={{ fontWeight: 600, fontSize: 12, color: "primary.dark" }}>{pending >= 0 ? `Mốc ${pending + 1}` : "Không có"}</Typography>
-        </Box>
-        <Chip
-          label="Không gian làm việc mô phỏng"
-          size="small"
-          sx={{ mt: 1.5, height: 22, fontSize: 10, bgcolor: "background.default", color: "text.secondary" }} />
-      </Box>
+      <Typography sx={{ fontFamily: "h2.fontFamily", fontSize: 26, fontWeight: 800, color: "primary.dark", fontVariantNumeric: "tabular-nums" }}>{progress}%</Typography>
     </Box>
+    <LinearProgress variant="determinate" value={progress} aria-label="Tỷ lệ mốc đã nghiệm thu" aria-valuetext={`${completed} trên ${milestones.length} mốc đã nghiệm thu`} sx={{ mt: 2, height: 6, borderRadius: 999, bgcolor: "action.hover", "& .MuiLinearProgress-bar": { bgcolor: "primary.dark", borderRadius: 999 }, "@media (prefers-reduced-motion: reduce)": { "& .MuiLinearProgress-bar": { transition: "none" } } }} />
+    {milestones.length > 0 && <Box component="nav" aria-label="Chọn mốc công việc" sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: `repeat(${Math.min(milestones.length, 3)}, minmax(0, 1fr))` }, gap: 1.5, mt: 2.5 }}>
+      {milestones.map((milestone, index) => {
+        const config = milestoneStatuses[milestone.status];
+        const Icon = milestone.status === "completed" ? Check : milestone.status === "submitted" ? ClipboardCheck : Clock3;
+        return <ButtonBase key={milestone.id} onClick={() => onSelect(milestone.id)} aria-controls={`milestone-${milestone.id}`} aria-current={activeId === milestone.id ? "step" : undefined} sx={{ p: 1.5, display: "flex", alignItems: "start", justifyContent: "flex-start", gap: 1.25, textAlign: "left", border: "1px solid", borderColor: activeId === milestone.id ? "primary.dark" : "divider", bgcolor: activeId === milestone.id ? "#fff0e9" : "background.paper", borderRadius: "10px", minWidth: 0, "&:focus-visible": { outline: "2px solid", outlineColor: "primary.dark", outlineOffset: 3 } }}>
+          <Box sx={{ display: "flex", p: 0.75, borderRadius: "50%", bgcolor: config.background, color: config.color, flexShrink: 0 }}><Icon size={16} aria-hidden="true" /></Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, overflowWrap: "anywhere" }}>{index + 1}. {milestoneTitle(milestone.name)}</Typography>
+            <Typography sx={{ fontSize: 13, mt: 0.5, color: config.color }}>{config.label}</Typography>
+          </Box>
+        </ButtonBase>;
+      })}
+    </Box>}
   </Paper>;
 }

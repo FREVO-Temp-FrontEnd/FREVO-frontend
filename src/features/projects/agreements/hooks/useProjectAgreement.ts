@@ -1,6 +1,6 @@
 import { isDemoMode } from "@/lib/api/agent";
 import { canManageApplication } from "@/lib/storage/applicationAccess";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -10,6 +10,11 @@ import type { AgreementProposal } from "@/lib/types/marketplace.types";
 type ProposalData = Pick<AgreementProposal, "scope" | "deliverables" | "deadline" | "budget" | "budgetValue" | "reference" | "milestones">;
 
 export function useProjectAgreement() {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,7 +40,7 @@ export function useProjectAgreement() {
   const canPropose = isBusiness && canAccess && !!providerCandidate?.chatUnlocked && ["discussing", "offer", "selected"].includes(providerCandidate.status) && (project?.status === "published" || (project?.status === "ongoing" && project.selectedTalentId === talentId));
   const projectPath = isBusiness ? `/business/projects/${projectId}` : `/projects/${projectId}/details`;
   const progressPath = isBusiness ? `/business/projects/${projectId}/progress` : `/workspace/${projectId}`;
-  const chatPath = isBusiness ? `/business/messages?view=project&scope=${projectId}` : `/projects/${projectId}/chat`;
+  const chatPath = `${isBusiness ? "/business/messages" : "/freelancer/messages"}?${new URLSearchParams({ project: projectId ?? "", talent: talentId ?? "" })}`;
   const canDemoAccept = isDemoMode && canPropose && !!current?.id && current.id === versions[0]?.id && current.status === "pending" && Date.parse(current.expiresAt) > Date.now();
   function demoAccept() {
     if (!canDemoAccept || !current?.id) return;
@@ -52,9 +57,12 @@ export function useProjectAgreement() {
     } catch (issue) { setError(issue instanceof Error ? issue.message : "Chưa gửi được đề xuất. Nội dung bạn nhập vẫn được giữ lại để thử lại."); }
   }
   function respond(accept: boolean) {
-    if (!canAccess || isBusiness || !current?.id || current.id !== versions[0]?.id || current.status !== "pending" || Date.parse(current.expiresAt) <= Date.now()) return;
+    if (!canAccess || isBusiness || !current?.id) return;
+    if (current.id !== versions[0]?.id || current.status !== "pending" || Date.parse(current.expiresAt) <= Date.now()) {
+      setError("Đề xuất đã hết hạn hoặc có phiên bản mới. Vui lòng kiểm tra lại trước khi phản hồi."); return;
+    }
     try { mockStorage.respondToAgreement(current.id, accept); setNotice(accept ? "Đã xác nhận thỏa thuận hợp tác." : "Đã từ chối đề xuất. Bạn có thể tiếp tục trao đổi trong chat."); }
     catch (issue) { setError(issue instanceof Error ? issue.message : "Không ghi nhận được phản hồi. Vui lòng thử lại."); }
   }
-  return { project, talent, versions, current, effective, isBusiness, canAccess, canPropose, canDemoAccept, demoAccept, isDemoMode, isDrafting, setIsDrafting, select, createProposal, respond, projectPath, progressPath, chatPath, notice, setNotice, error };
+  return { project, talent, versions, current, effective, now, isBusiness, canAccess, canPropose, canDemoAccept, demoAccept, isDemoMode, isDrafting, setIsDrafting, select, createProposal, respond, projectPath, progressPath, chatPath, notice, setNotice, error };
 }
