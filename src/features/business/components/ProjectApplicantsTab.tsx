@@ -38,7 +38,7 @@ function CandidateCard({ candidate, talent, project, priority, onReview, onDecis
       </div>
     </div>
 
-    <TalentPortfolioPreview talentId={talent.id} talentName={talent.name} submittedWorks={candidate.submission?.portfolioWorks ?? (candidate.source === "Lời mời" ? undefined : [])} />
+    <TalentPortfolioPreview talentId={talent.id} talentName={talent.name} />
 
     <div className="min-w-0 border-t border-[#eeefeb] pt-4 xl:min-w-[290px] xl:border-0 xl:pt-0">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
