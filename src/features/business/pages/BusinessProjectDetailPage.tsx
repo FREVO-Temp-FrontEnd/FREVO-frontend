@@ -450,7 +450,7 @@ export function BusinessProjectDetailPage() {
                   {project.deadline || "Chưa đặt"}
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: "text.secondary", mt: 0.25 }}>
-                  Thời lượng: {project.duration || "5 tuần"}
+                  Thời lượng: {project.duration || "Chưa đặt"}
                 </Typography>
               </div>
             </Paper>

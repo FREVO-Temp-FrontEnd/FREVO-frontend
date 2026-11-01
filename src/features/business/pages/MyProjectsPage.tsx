@@ -104,7 +104,8 @@ function ProjectCard({ project, candidateCount, pendingCount, executorName }: Pr
               width: 52,
               height: 52,
               borderRadius: "12px",
-              bgcolor: status.background,
+              bgcolor: "var(--surface-inset)",
+              "& img": { objectFit: "contain", p: 0.5 },
               color: status.color,
               flexShrink: 0,
             }}

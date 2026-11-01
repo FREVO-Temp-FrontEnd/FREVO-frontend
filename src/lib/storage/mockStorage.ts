@@ -1,4 +1,5 @@
 import { agreementChanges } from "@/lib/utils/agreementVersions";
+import { demoApplicants, DEMO_APPLICATION_DELAY } from "./demoApplicants";
 import { isDemoMode } from "@/lib/api/agent";
 import { resolveAgreement } from "./agreementSelection";
 import { canManageApplication } from "./applicationAccess";
@@ -482,17 +483,20 @@ function getInitialState(): MarketplaceState {
 }
 
 class MockStorageAdapter {
+  private demoTimer?: ReturnType<typeof setTimeout>;
   private memoryState: MarketplaceState;
   private listeners: Set<() => void> = new Set();
 
   constructor() {
     this.memoryState = this.loadFromStorage();
+    this.scheduleDemoApplications();
 
     // Listen to storage events across tabs
     if (typeof window !== "undefined") {
       window.addEventListener("storage", (e) => {
         if (e.key === STORAGE_KEY) {
           this.memoryState = this.loadFromStorage();
+          this.scheduleDemoApplications();
           this.notify();
         }
       });
@@ -598,6 +602,7 @@ class MockStorageAdapter {
       catch { throw new Error("Không đủ dung lượng lưu brief trên trình duyệt. Chọn ảnh nhỏ hơn hoặc dùng liên kết ảnh; nội dung đang nhập được giữ lại."); }
     }
     this.memoryState = state;
+    this.scheduleDemoApplications();
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -618,6 +623,35 @@ class MockStorageAdapter {
         console.error("Error in mockStorage listener:", err);
       }
     });
+  }
+
+  private scheduleDemoApplications(): void {
+    if (this.demoTimer) clearTimeout(this.demoTimer);
+    if (typeof window === "undefined" || !isDemoMode) return;
+    const pending = this.memoryState.projects.filter(project => project.status === "published" && project.demoApplicationsDueAt && !project.demoApplicationsCompleted);
+    if (!pending.length) return;
+    const due = Math.min(...pending.map(project => project.demoApplicationsDueAt!));
+    this.demoTimer = setTimeout(() => {
+      // Reload persisted state so another tab's batch/decisions are retained.
+      this.memoryState = this.loadFromStorage();
+      const now = Date.now();
+      let state = this.memoryState;
+      for (const project of state.projects) {
+        if (project.status !== "published" || !project.demoApplicationsDueAt || project.demoApplicationsCompleted || project.demoApplicationsDueAt > now) continue;
+        const candidates = demoApplicants(project, state, now).map(candidate => ({ ...candidate, briefAtSubmission: briefSnapshot(project) }));
+        state = {
+          ...state,
+          projects: state.projects.map(item => item.id === project.id ? { ...item, demoApplicationsCompleted: true } : item),
+          candidates: [...candidates, ...state.candidates],
+          notifications: [...candidates.map(candidate => ({
+            id: `notif-${candidate.id}`, title: `${this.getTalentById(candidate.talentId)?.name || "Ứng viên"} vừa nộp hồ sơ ứng tuyển`,
+            detail: `Dự án: ${project.title}`, type: "application" as const, time: "Vừa xong", timestamp: now, read: false,
+            href: `/business/projects/${project.id}/applicants`,
+          })), ...state.notifications],
+        };
+      }
+      this.saveToStorage(state);
+    }, Math.max(0, Math.min(due - Date.now(), 2147483647)));
   }
 
   public subscribe(listener: () => void): () => void {
@@ -702,6 +736,12 @@ class MockStorageAdapter {
     const versioned = !!previous && previous.status === "published" && changed.length > 0;
     const version = (previous?.briefVersion ?? 1) + (versioned ? 1 : 0);
     const now = new Date().toISOString();
+    // Only the first publication schedules a demo batch; edits never restart it.
+    if (isDemoMode && project.status === "published" && (!previous || previous.status === "draft") && !previous?.publishedAt) {
+      project = { ...project, demoApplicationsDueAt: Date.now() + DEMO_APPLICATION_DELAY, demoApplicationsCompleted: false };
+    } else if (previous) {
+      project = { ...project, demoApplicationsDueAt: previous.demoApplicationsDueAt, demoApplicationsCompleted: previous.demoApplicationsCompleted };
+    }
     const revision = versioned ? { version, changedAt: now, changedBy: { id: this.memoryState.activeUser.id, name: this.memoryState.activeUser.name }, fields: changed, before: briefSnapshot(previous!), after: briefSnapshot({ ...project, briefVersion: version }) } : undefined;
     project = { ...project, briefVersion: version, briefHistory: [...(previous?.briefHistory ?? []), ...(revision ? [revision] : [])] };
     const recipients = versioned && material.length ? [...new Set(this.memoryState.candidates.filter(candidate => candidate.projectId === project.id && candidate.status !== "not_selected").map(candidate => candidate.applicantAccountId || this.getTalentById(candidate.talentId)?.teamLeaderId || candidate.talentId))] : [];

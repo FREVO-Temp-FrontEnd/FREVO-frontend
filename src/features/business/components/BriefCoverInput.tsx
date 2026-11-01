@@ -64,8 +64,8 @@ export function BriefCoverInput({ value, onChange, error }: Props) {
     >
       <Box
         sx={{
-          height: { xs: 150, sm: 190 },
-          bgcolor: "#f1f5f9",
+          height: { xs: 220, sm: 280 },
+          bgcolor: "var(--surface-inset)",
           position: "relative",
           display: "grid",
           placeItems: "center",
@@ -78,7 +78,7 @@ export function BriefCoverInput({ value, onChange, error }: Props) {
             alt="Xem trước ảnh bìa dự án"
             onLoad={() => setIssue("")}
             onError={() => setIssue("Không tải được ảnh bìa. Vui lòng chọn ảnh khác.")}
-            sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+            sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", p: 1.5, objectFit: "contain" }}
           />
         ) : (
           <Box sx={{ textAlign: "center", color: "text.secondary", px: 2 }}>
@@ -103,7 +103,7 @@ export function BriefCoverInput({ value, onChange, error }: Props) {
               Tải lên ảnh bìa cho dự án
             </Typography>
             <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }}>
-              Ảnh bìa giúp dự án nổi bật và thu hút ứng viên tài năng
+              Ảnh vuông hoặc chữ nhật đều được hiển thị trọn vẹn
             </Typography>
           </Box>
         )}
@@ -160,7 +160,7 @@ export function BriefCoverInput({ value, onChange, error }: Props) {
             )}
           </div>
           <Typography sx={{ fontSize: 11, color: "text.secondary" }}>
-            JPG, PNG, WebP · Tối đa 1 MB
+            Ảnh vuông / chữ nhật · JPG, PNG, WebP · Tối đa 1 MB
           </Typography>
         </div>
         {(issue || error) && (

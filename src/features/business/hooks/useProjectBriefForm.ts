@@ -1,4 +1,5 @@
 import type { GuidedBrief } from "@/lib/types/guidedBrief.types";
+import { briefDuration } from "@/lib/utils/briefDuration";
 import { creativeServices, creativeTemplateVersion } from "../data/creativeBriefTemplates";
 import { useState } from "react";
 import type { ProjectBrief } from "@/lib/types/marketplace.types";
@@ -52,7 +53,7 @@ function initialFields(project?: ProjectBrief): BriefFields {
     description: project?.description ?? "",
     skills: [...(project?.skills ?? [])],
     deliverables: project?.deliverables.length ? [...project.deliverables] : [""],
-    duration: project?.duration ?? "4 tuần",
+    duration: project?.duration ?? "",
     budgetMin: project?.budgetMin ? String(project.budgetMin) : "",
     budgetMax: project?.budgetMax ? String(project.budgetMax) : "",
     deadline: toInputDate(project?.deadline),
@@ -100,7 +101,8 @@ function validate(fields: BriefFields, original?: ProjectBrief): BriefErrors {
 }
 
 export function useProjectBriefForm(existingProject?: ProjectBrief) {
-  const [fields, setFields] = useState<BriefFields>(() => initialFields(existingProject));
+  const [storedFields, setFields] = useState<BriefFields>(() => initialFields(existingProject));
+  const fields = { ...storedFields, duration: briefDuration(storedFields.deadline, new Date(existingProject?.publishedAt ?? Date.now())) };
   const [errors, setErrors] = useState<BriefErrors>({});
   const [skillInput, setSkillInput] = useState("");
   const [isPreview, setIsPreview] = useState(false);

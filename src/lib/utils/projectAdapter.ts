@@ -105,7 +105,7 @@ export function projectBriefToProject(brief: ProjectBrief): Project {
     remote: brief.remote ?? true,
     min,
     max,
-    duration: brief.duration || "4 tuần",
+    duration: brief.duration || "Chưa đặt",
     deadline: brief.deadline,
     skills: brief.skills,
     description: brief.description,

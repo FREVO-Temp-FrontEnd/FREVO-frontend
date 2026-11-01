@@ -38,9 +38,9 @@ export function BusinessProjectBrief({ project, candidateCount, executorName, in
           <p className="whitespace-pre-line text-[15px] leading-7 text-[#62665f]">{project.description || "Chưa có mô tả. Hoàn thiện brief để freelancer hiểu rõ nhu cầu của bạn."}</p>
       {project.heroImage && <figure className="m-0 min-w-0 overflow-hidden rounded-2xl border border-[#e4e6e2] bg-[#f7f8f6]">
         {imageFailed ? <Box sx={{ p: 3 }}><Alert severity="warning" action={<Button onClick={() => { setImageFailed(false); setImageLoaded(false); }}>Thử lại</Button>}>Chưa tải được ảnh tham chiếu.</Alert></Box>
-          : <Box sx={{ position: "relative", height: { xs: 160, md: 148 }, bgcolor: "background.default", overflow: "hidden" }}>
+          : <Box sx={{ position: "relative", height: { xs: 220, md: 200 }, bgcolor: "background.default", overflow: "hidden" }}>
             {!imageLoaded && <Skeleton variant="rectangular" animation="wave" role="status" aria-label="Đang tải ảnh tham chiếu" sx={{ position: "absolute", inset: 0, height: "100%" }} />}
-            <Box component="img" src={project.heroImage} alt={`Ảnh minh họa định hướng cho ${project.title}`} onLoad={() => setImageLoaded(true)} onError={() => setImageFailed(true)} sx={{ display: "block", width: "100%", height: "100%", objectFit: "cover", visibility: imageLoaded ? "visible" : "hidden" }} />
+            <Box component="img" src={project.heroImage} alt={`Ảnh minh họa định hướng cho ${project.title}`} onLoad={() => setImageLoaded(true)} onError={() => setImageFailed(true)} sx={{ display: "block", width: "100%", height: "100%", objectFit: "contain", p: 1, visibility: imageLoaded ? "visible" : "hidden" }} />
           </Box>}
         <figcaption className="flex items-center justify-between gap-1 px-3 py-2 text-xs text-[#747773]">
           <span>Ảnh định hướng</span>

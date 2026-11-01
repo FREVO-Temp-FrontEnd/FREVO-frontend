@@ -35,7 +35,7 @@ export function OngoingProjectCard({ item }: OngoingProjectCardProps) {
   return <Paper component="article" elevation={0} sx={{ overflow: "hidden", border: "1px solid", borderColor: needsReview ? "#f2c4b0" : "divider", borderRadius: "16px", bgcolor: "background.paper" }}>
     <Box className="grid gap-5" sx={{ p: { xs: 2.25, md: 3 }, gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 175px 160px" }, alignItems: "center" }}>
       <Box className="flex min-w-0 items-start gap-4">
-        <Avatar variant="rounded" src={project.heroImage} alt={project.title} sx={{ width: { xs: 74, sm: 92 }, height: { xs: 74, sm: 92 }, flexShrink: 0, borderRadius: "12px", bgcolor: "#e8dfd2", color: "primary.dark" }}><Package2 size={31} /></Avatar>
+        <Avatar variant="rounded" src={project.heroImage} alt={project.title} sx={{ width: { xs: 74, sm: 92 }, height: { xs: 74, sm: 92 }, flexShrink: 0, borderRadius: "12px", bgcolor: "var(--surface-inset)", "& img": { objectFit: "contain", p: 0.5 }, color: "primary.dark" }}><Package2 size={31} /></Avatar>
         <Box sx={{ minWidth: 0 }}>
           <Box className="mb-2 flex flex-wrap items-center gap-2">
             <Typography sx={{ fontSize: 11, color: "text.secondary" }}>{project.category}</Typography>
