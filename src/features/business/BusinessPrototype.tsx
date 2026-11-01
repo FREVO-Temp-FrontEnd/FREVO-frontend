@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { initialBusinessState, talents, type BusinessState, type Talent } from "./business-data";
 import { BusinessLayout } from "./layout/BusinessLayout";
+import { BusinessProfilePage } from "./pages/BusinessProfilePage";
+import { BusinessSettingsPage } from "./pages/BusinessSettingsPage";
 import { BusinessDashboardPage } from "./pages/BusinessDashboardPage";
 import { MyProjectsPage } from "./pages/MyProjectsPage";
 import { CreateBriefPage } from "./pages/CreateBriefPage";
@@ -107,8 +109,8 @@ export default function BusinessPrototype() {
   else if (parts[1] === "messages") content = <BusinessInboxPage />;
   else if (parts[1] === "agreements") content = <Navigate to="/business/projects" replace />;
   else if (parts[1] === "notifications") content = <NotificationsPage />;
-  else if (parts[1] === "profile") content = <BusinessProfilePage name={state.businessName} projectCount={state.projects.length} />;
-  else if (parts[1] === "settings") content = <SettingsPage name={state.businessName} onSave={name => { setState(previous => ({ ...previous, businessName: name })); setToast("Đã lưu thông tin Business trong phiên xem này."); }} />;
+  else if (parts[1] === "profile") content = <BusinessProfilePage />;
+  else if (parts[1] === "settings") content = <BusinessSettingsPage />;
   else content = <Empty title="Không tìm thấy trang" text="Trang này chưa có trong prototype Business." action={<Link className="fb-button fb-button-primary" to="/business">Về tổng quan</Link>} />;
 
   return <BusinessLayout>{content}{toast && <div className="fb-toast" role="status"><Check size={18} />{toast}<button type="button" aria-label="Đóng thông báo" onClick={() => setToast("")}>✕</button></div>}</BusinessLayout>;
@@ -129,11 +131,3 @@ function NotificationsPage() {
   return <><PageHeading eyebrow="CẬP NHẬT" title="Thông báo" description="Những thay đổi mới trong các dự án và cuộc trao đổi của bạn." action={<button type="button" className="fb-button fb-button-secondary" onClick={markAllRead}><CheckCheck size={18} /> Đánh dấu đã đọc</button>} /><section className="fb-panel fb-notices">{notifications.length ? notifications.map(notice => <Link key={notice.id} className={notice.read ? "" : "unread"} to={notice.href} onClick={() => markRead(notice.id)}><span className="fb-notice-icon"><Bell size={18} /></span><span><strong>{notice.title}</strong><small>{notice.detail}</small></span><time>{notice.time}</time></Link>) : <p className="py-10 text-center text-sm text-[#747773]">Chưa có thông báo nào.</p>}</section></>;
 }
 
-function BusinessProfilePage({ name, projectCount }: { name: string; projectCount: number }) {
-  return <><PageHeading eyebrow="TÀI KHOẢN" title="Hồ sơ Business" description="Thông tin đại diện cho bạn trong không gian làm việc FREVO." /><section className="fb-panel fb-business-profile"><span className="fb-business-profile-avatar" aria-hidden="true">{name.charAt(0).toLocaleUpperCase("vi")}</span><div className="fb-business-profile-details"><span className="fb-eyebrow">TÀI KHOẢN BUSINESS</span><h2>{name}</h2><p>hello@nangstudio.vn</p><small>{projectCount} dự án trong không gian làm việc</small></div><Link className="fb-button fb-button-secondary" to="/business/settings">Chỉnh sửa hồ sơ <ArrowRight size={16} /></Link></section></>;
-}
-
-function SettingsPage({ name, onSave }: { name: string; onSave: (name: string) => void }) {
-  const [value, setValue] = useState(name);
-  return <><PageHeading eyebrow="TÀI KHOẢN" title="Cài đặt" description="Thông tin Business hiển thị trong bản xem trước." /><form className="fb-panel fb-settings" onSubmit={event => { event.preventDefault(); if (value.trim()) onSave(value.trim()); }}><div className="fb-section-head"><div><h2>Thông tin Business</h2><p>Thông tin này xuất hiện trong không gian làm việc của bạn.</p></div></div><label>Tên doanh nghiệp hoặc cá nhân<input value={value} onChange={event => setValue(event.target.value)} maxLength={80} required /></label><label>Email đăng nhập<input value="hello@nangstudio.vn" readOnly aria-describedby="fb-demo-email" /></label><small id="fb-demo-email">Email minh họa cho prototype.</small><button className="fb-button fb-button-primary" type="submit">Lưu thay đổi</button></form></>;
-}

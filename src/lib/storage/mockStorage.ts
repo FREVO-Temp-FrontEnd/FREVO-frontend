@@ -1,4 +1,5 @@
 import { agreementChanges } from "@/lib/utils/agreementVersions";
+import { applyBusinessAccountUpdate, type BusinessAccountFields } from "@/lib/utils/businessAccount";
 import { demoApplicants, DEMO_APPLICATION_DELAY } from "./demoApplicants";
 import { isDemoMode } from "@/lib/api/agent";
 import { resolveAgreement } from "./agreementSelection";
@@ -596,10 +597,10 @@ class MockStorageAdapter {
     return fresh;
   }
 
-  private saveToStorage(state: MarketplaceState, requirePersistence = false): void {
+  private saveToStorage(state: MarketplaceState, requirePersistence = false, persistenceError = "Không đủ dung lượng lưu brief trên trình duyệt. Chọn ảnh nhỏ hơn hoặc dùng liên kết ảnh; nội dung đang nhập được giữ lại."): void {
     if (requirePersistence && typeof window !== "undefined") {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-      catch { throw new Error("Không đủ dung lượng lưu brief trên trình duyệt. Chọn ảnh nhỏ hơn hoặc dùng liên kết ảnh; nội dung đang nhập được giữ lại."); }
+      catch { throw new Error(persistenceError); }
     }
     this.memoryState = state;
     this.scheduleDemoApplications();
@@ -697,6 +698,10 @@ class MockStorageAdapter {
   public setActiveUser(user: UserSession): void {
     const next = { ...this.memoryState, activeUser: user };
     this.saveToStorage(next);
+  }
+
+  public saveBusinessAccount(fields: BusinessAccountFields, expected: UserSession): void {
+    this.saveToStorage(applyBusinessAccountUpdate(this.memoryState, fields, expected), true, "Không thể lưu thông tin tài khoản. Kiểm tra bộ nhớ trình duyệt rồi thử lại.");
   }
 
   public switchRole(role: UserSession["role"]): void {

@@ -32,9 +32,6 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
   const projectInvitations = invitations.filter((i) => i.projectId === project.id);
   const reviewTalent = talents.find((talent) => talent.id === reviewTalentId);
 
-  const handleSimulateAccept = (invitationId: string) => {
-    mockStorage.respondToInvitation(invitationId, true);
-  };
 
   const handleApprove = () => {
     if (!reviewTalentId) return;
@@ -225,11 +222,6 @@ export function SentInvitationsTab({ project }: SentInvitationsTabProps) {
 
                   {/* Actions */}
                   <Box sx={{ display: "flex", gap: 1 }}>
-                    {isPending && project.status === "published" && (
-                      <button type="button" className="fb-button fb-button-small fb-button-secondary" onClick={() => handleSimulateAccept(inv.id)}>
-                        Mô phỏng chấp nhận
-                      </button>
-                    )}
 
                     {isAccepted && candidateRecord && !candidateRecord.chatUnlocked && (candidateRecord.status === "new" || candidateRecord.status === "under_review") && project.status === "published" && (
                       <button type="button" className="fb-button fb-button-small fb-button-primary" onClick={() => { setReviewTalentId(inv.talentId); setReviewError(""); }}>
