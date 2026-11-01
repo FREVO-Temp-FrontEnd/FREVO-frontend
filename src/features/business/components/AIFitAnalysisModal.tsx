@@ -11,7 +11,7 @@ import {
   IconButton,
   Divider,
 } from "@mui/material";
-import { Sparkles, Check, X, Briefcase, Info, ArrowRight } from "lucide-react";
+import { Sparkles, Check, X, Briefcase, ArrowRight } from "lucide-react";
 import type { ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { calculateMatchingScore } from "@/lib/utils/matchingScore";
 
@@ -80,7 +80,7 @@ export function AIFitAnalysisModal({
               Đối chiếu hồ sơ với brief
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Đối chiếu hồ sơ ứng viên với yêu cầu dự án theo FR-034 và FR-035
+              Đối chiếu kỹ năng và portfolio với yêu cầu dự án
             </Typography>
           </Box>
         </Box>
@@ -124,7 +124,7 @@ export function AIFitAnalysisModal({
                 {talent.name}
               </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                {talent.role} · <Chip label={talent.kind} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
+                {talent.role} · <Chip component="span" label={talent.kind} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
               </Typography>
             </Box>
           </Box>
@@ -180,7 +180,7 @@ export function AIFitAnalysisModal({
         {/* Skill Overlap Breakdown */}
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-            Đối sánh kỹ năng yêu cầu (FR-035)
+            Đối sánh kỹ năng yêu cầu
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {brief.skills.map((skill) => {
@@ -253,22 +253,7 @@ export function AIFitAnalysisModal({
           </Box>
         </Box>
 
-        {/* Advisory Disclaimer Notice (FR-036) */}
-        <Alert
-          severity="info"
-          icon={<Info size={18} />}
-          sx={{
-            borderRadius: 2,
-            bgcolor: "#f0f9ff",
-            borderColor: "#bae6fd",
-            color: "#0369a1",
-            "& .MuiAlert-icon": { color: "#0284c7" },
-          }}
-        >
-          <Typography variant="caption" sx={{ display: "block", lineHeight: 1.4 }}>
-            <strong>Khuyến cáo quy định (FR-036):</strong> Đánh giá mức độ phù hợp mang tính chất tham khảo dựa trên đối sánh kỹ năng và portfolio minh họa trong bản mẫu thử nghiệm. Doanh nghiệp chủ động thẩm định trước khi quyết định hợp tác.
-          </Typography>
-        </Alert>
+        <Typography sx={{ fontSize: 13, color: "text.secondary", lineHeight: 1.6 }}>Gợi ý từ kỹ năng và portfolio mẫu, dùng để tham khảo khi chọn cộng sự.</Typography>
       </DialogContent>
 
       <DialogActions sx={{ p: 2, pt: 1, justifyContent: "space-between" }}>
@@ -290,7 +275,7 @@ export function AIFitAnalysisModal({
             fontWeight: 600,
           }}
         >
-          {isInvited ? "Đã gửi lời mời" : "Gửi lời mời tham gia dự án (FR-019)"}
+          {isInvited ? "Đã gửi lời mời" : "Gửi lời mời tham gia dự án"}
         </Button>
       </DialogActions>
     </Dialog>

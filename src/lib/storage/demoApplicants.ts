@@ -11,6 +11,8 @@ export function demoApplicants(project: ProjectBrief, state: MarketplaceState, n
   const accounts = new Set(existing.map(candidate => candidate.applicantAccountId || state.talents.find(talent => talent.id === candidate.talentId)?.teamLeaderId || candidate.talentId));
   return state.talents.filter(talent => {
     const account = talent.teamLeaderId || talent.id;
+    // Reserve Minh Anh (including any represented team) for the invitation demo.
+    if (talent.id === "minh-anh" || account === "minh-anh") return false;
     if (existing.some(candidate => candidate.talentId === talent.id) || accounts.has(account)) return false;
     if (project.preference === "individual" && talent.kind !== "Cá nhân") return false;
     if (project.preference === "team" && talent.kind !== "Team") return false;

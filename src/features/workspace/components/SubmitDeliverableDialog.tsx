@@ -52,7 +52,7 @@ export const SubmitDeliverableDialog: React.FC<SubmitDeliverableDialogProps> = (
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pb: 1 }}>
         <Box>
           <Typography variant="caption" sx={{ color: "#f4490b", fontWeight: 700, textTransform: "uppercase" }}>
-            Bàn giao sản phẩm (WORK-004)
+            Bàn giao sản phẩm
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: "Space Grotesk, sans-serif" }}>
             {milestone.name}

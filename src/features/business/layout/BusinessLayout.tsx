@@ -33,7 +33,7 @@ export function BusinessLayout({ children }: { children?: ReactNode }) {
     <Box
       className="fb-app"
       sx={{
-        "&&": { display: "block", ...(currentPath === "/business" ? { "--fb-bg": "#f7f8f6" } : {}) },
+        "&&": { display: "block" },
         "&& .fb-button": {
           fontFamily: '"Be Vietnam Pro", sans-serif',
           fontSize: "13px",

@@ -57,7 +57,7 @@ export const ProjectCompletedModal: React.FC<ProjectCompletedModalProps> = ({
         </Typography>
 
         <Typography variant="body2" sx={{ color: "#64748b", mb: 3, lineHeight: 1.6 }}>
-          Tất cả các mốc bàn giao của dự án <strong>"{projectTitle}"</strong> giữa bạn và đối tác <strong>{partnerName}</strong> đã được nghiệm thu đầy đủ (theo quy định <strong>FR-040, FR-053</strong>).
+          Tất cả các mốc bàn giao của dự án <strong>"{projectTitle}"</strong> giữa bạn và đối tác <strong>{partnerName}</strong> đã được nghiệm thu đầy đủ.
         </Typography>
 
         <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0", mb: 1 }}>

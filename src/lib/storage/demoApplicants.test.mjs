@@ -47,3 +47,16 @@ test('duration follows the completion date across month and DST boundaries', () 
   assert.equal(briefDuration('2026-12-02', new Date(2026, 10, 1)), '31 ngày');
   assert.equal(briefDuration('2026-03-09', new Date(2026, 2, 7)), '2 ngày');
 });
+
+test('automatic applicants leave Minh Anh and represented teams available for invitation demos', () => {
+  const withReservedTalent = { ...state, talents: [
+    { id: 'minh-anh', kind: 'Cá nhân' },
+    { id: 'minh-anh-team', kind: 'Team', teamLeaderId: 'minh-anh' },
+    ...state.talents,
+  ] };
+  for (const preference of ['both', 'individual', 'team']) {
+    const result = demoApplicants({ ...project, preference }, withReservedTalent, now + 5000);
+    assert.equal(result.length, 2);
+    assert.ok(result.every(candidate => candidate.talentId !== 'minh-anh' && candidate.applicantAccountId !== 'minh-anh'));
+  }
+});

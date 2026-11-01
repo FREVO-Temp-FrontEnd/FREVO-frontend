@@ -20,7 +20,7 @@ export function useBusiness() {
 
   const closeProject = useCallback((projectId: string) => {
     mockStorage.updateProjectStatus(projectId, "closed");
-    setToast("Đã đóng tuyển dự án. Các ứng viên đang chờ xét duyệt sẽ không được chọn (BR-019).");
+    setToast("Đã đóng tuyển dự án. Các ứng viên đang chờ xét duyệt sẽ không được chọn.");
   }, []);
 
   const sendInvitation = useCallback((projectId: string, talentId: string, note?: string) => {
@@ -32,12 +32,12 @@ export function useBusiness() {
       return;
     }
     mockStorage.createInvitation(projectId, talentId, note);
-    setToast("Đã gửi lời mời thành công. Freelancer có 7 ngày để phản hồi (FR-019).");
+    setToast("Đã gửi lời mời thành công. Freelancer có 7 ngày để phản hồi.");
   }, [state.invitations]);
 
   const unlockChat = useCallback((projectId: string, talentId: string) => {
     mockStorage.unlockCandidateChat(projectId, talentId);
-    setToast("Đã duyệt hồ sơ và mở đoạn chat cho ứng viên (FR-031).");
+    setToast("Đã duyệt hồ sơ và mở đoạn chat cho ứng viên.");
   }, []);
 
   const approveMilestone = useCallback((projectId: string, milestoneId: string) => {
@@ -48,7 +48,7 @@ export function useBusiness() {
   const requestRevision = useCallback((projectId: string, milestoneId: string, reason: string) => {
     try {
       mockStorage.requestMilestoneRevision(projectId, milestoneId, reason);
-      setToast("Đã gửi yêu cầu chỉnh sửa mốc bàn giao kèm lý do (BR-014).");
+      setToast("Đã gửi yêu cầu chỉnh sửa mốc bàn giao kèm lý do.");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setToast(err.message);
@@ -65,7 +65,7 @@ export function useBusiness() {
 
   const confirmAgreement = useCallback((agreementId: string) => {
     mockStorage.respondToAgreement(agreementId, true);
-    setToast("Đã xác nhận thỏa thuận hợp tác. Dự án đóng tuyển và chuyển sang tiến hành (BR-023).");
+    setToast("Đã xác nhận thỏa thuận hợp tác. Dự án đóng tuyển và chuyển sang tiến hành.");
   }, []);
 
   return {

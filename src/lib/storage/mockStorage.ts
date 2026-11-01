@@ -1192,7 +1192,7 @@ class MockStorageAdapter {
 
   public requestMilestoneRevision(projectId: string, milestoneId: string, reason: string): void {
     if (!reason || reason.trim().length === 0) {
-      throw new Error("Lý do yêu cầu chỉnh sửa là bắt buộc theo quy tắc BR-014.");
+      throw new Error("Vui lòng nhập lý do yêu cầu chỉnh sửa.");
     }
 
     const nextAgreements = this.memoryState.agreements.map((a) => {
