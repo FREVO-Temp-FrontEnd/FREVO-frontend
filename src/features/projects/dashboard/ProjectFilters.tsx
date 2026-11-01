@@ -19,7 +19,7 @@ const FilterPill = styled(Button)(({ theme }) => ({
   fontWeight: 500,
   whiteSpace: "nowrap",
   lineHeight: 1.4,
-  transition: theme.transitions.create(["background-color", "color"], { duration: 150 }),
+  transition: theme.transitions.create(["background-color", "border-color", "color", "box-shadow"], { duration: 150 }),
   "&:hover": { backgroundColor: theme.palette.action.focus },
   '&[aria-pressed="true"]': {
     backgroundColor: theme.palette.primary.dark,

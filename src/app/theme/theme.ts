@@ -2,12 +2,12 @@ import { createTheme } from "@mui/material/styles";
 
 // Keep page, panel and inset surfaces distinct across MUI and legacy CSS.
 const surfaces = {
-  canvas: "#f2f4f7",
+  canvas: "#f0f2f5",
   paper: "#ffffff",
-  inset: "#f8f9fb",
-  border: "#dfe3e8",
+  inset: "#f8fafc",
+  border: "#d0d5dd",
   muted: "#667085",
-  shadow: "0 1px 2px rgba(32,32,31,0.025)",
+  shadow: "0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04)",
 };
 
 export const theme = createTheme({
@@ -29,7 +29,7 @@ export const theme = createTheme({
       primary: "#20201f",
       secondary: surfaces.muted,
     },
-    divider: "#e7eaee",
+    divider: surfaces.border,
   },
   typography: {
     fontFamily: '"Space Grotesk", Arial, sans-serif',

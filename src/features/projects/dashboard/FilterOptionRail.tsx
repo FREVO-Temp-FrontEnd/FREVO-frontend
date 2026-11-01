@@ -66,13 +66,13 @@ export function FilterOptionRail({ label, children, splitControls = false, reset
 }
 
 const arrowStyles = {
-  width: 44,
-  height: 44,
+  width: 42,
+  height: 42,
   flexShrink: 0,
   border: "1px solid",
-  borderColor: "primary.dark",
-  color: "primary.dark",
-  "&:hover": { bgcolor: "action.hover" },
-  "&.Mui-disabled": { borderColor: "divider", color: "action.disabled" },
+  borderColor: "#d0d5dd",
+  color: "#344054", bgcolor: "#f4f6f8",
+  "&:hover": { bgcolor: "#e8ecf2", borderColor: "#b8c0cc", color: "#1e293b" },
+  "&.Mui-disabled": { borderColor: "#e4e7ec", bgcolor: "transparent", color: "action.disabled" },
   "&.Mui-focusVisible": { outline: "2px solid", outlineColor: "primary.dark", outlineOffset: 2 },
 };
