@@ -13,12 +13,12 @@ export default function FreelancerLayout() {
   const { role } = useAuthSession();
   const [navNotice, setNavNotice] = useState("");
   const [mobileNavRoute, setMobileNavRoute] = useState<string | null>(null);
-  const isMobileNav = useMediaQuery("(max-width:780px)");
+  const isMobileNav = useMediaQuery("(max-width:960px)");
   const mobileNavOpen = mobileNavRoute === location.key;
   const currentPath = location.pathname.replace(/\/+$/, "") || "/";
   const selectedView = new URLSearchParams(location.search).get("view");
   const projectView: ProjectView = selectedView === "saved" || selectedView === "recommended" ? selectedView : "discover";
-  const secondaryPaths = ["/freelancer/invitations", "/freelancer/applications", "/team/profile"];
+  const secondaryPaths = ["/freelancer/invitations", "/freelancer/applications", "/freelancer/work", "/team/profile"];
   const hasPageSidebar = currentPath === "/" || currentPath === "/explore" || currentPath === "/projects" || /^\/projects\/[^/]+$/.test(currentPath);
   const skipTarget = currentPath === "/profile"
     ? "#profile-content"
@@ -56,7 +56,7 @@ export default function FreelancerLayout() {
 
   return (
     <ThemeProvider theme={freelancerTheme}>
-      <Box sx={{ display: "contents", "--line": freelancerTheme.palette.divider }}>
+      <Box sx={{ minHeight: "100dvh", bgcolor: "background.default", "--line": freelancerTheme.palette.divider }}>
       <a className="skip-link" href={skipTarget}>
         Đi đến nội dung chính
       </a>

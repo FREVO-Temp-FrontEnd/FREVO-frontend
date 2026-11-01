@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Briefcase,
   FileText,
+  Pin,
   AlertCircle,
   File,
   Lock,
@@ -24,6 +25,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import type {
+  AgreementProposal,
   Candidate,
   ChatMessage,
   ProjectBrief,
@@ -33,6 +35,7 @@ import type {
 import { LockedChatState } from "./LockedChatState";
 
 interface ProjectChatRoomProps {
+  agreement?: AgreementProposal;
   project: ProjectBrief;
   candidate: Candidate;
   talent: TalentProfile;
@@ -50,6 +53,7 @@ interface ProjectChatRoomProps {
 }
 
 export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
+  agreement,
   project,
   candidate,
   talent,
@@ -244,6 +248,25 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
         </Box>
       )}
 
+      {agreement && <Box component="section" aria-label="Thỏa thuận được ghim" sx={{
+        flexShrink: 0, px: { xs: 2, sm: 2.5 }, py: 1.5, bgcolor: "#fff0e9",
+        borderBottom: "1px solid", borderColor: "divider", display: "flex", alignItems: "center",
+        justifyContent: "space-between", gap: 1.5,
+      }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ display: "flex", alignItems: "center", gap: 0.75, fontSize: 14, fontWeight: 700 }}>
+            <Pin size={15} aria-hidden="true" />Thỏa thuận được ghim
+          </Typography>
+          <Typography sx={{ mt: 0.5, fontSize: 13, color: "text.secondary", overflowWrap: "anywhere" }}>
+            Phiên bản {agreement.version} · {agreement.budget}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+            {agreement.isEffective ? "Đang có hiệu lực" : agreement.status === "rejected" ? "Đã từ chối" : agreement.status === "confirmed" ? "Đã xác nhận" : agreement.status === "superseded" ? "Đã được thay thế" : agreement.status === "expired" || Date.parse(agreement.expiresAt) <= Date.now() ? "Đã hết hạn" : `Phản hồi trước ${new Date(agreement.expiresAt).toLocaleString("vi-VN")}`}
+          </Typography>
+        </Box>
+        <Button component={Link} to={`${isBusiness ? "/business/projects" : "/projects"}/${encodeURIComponent(project.id)}/agreement?${new URLSearchParams({ talent: talent.id })}`} variant="outlined" sx={{ flexShrink: 0, minHeight: 44, whiteSpace: "nowrap", borderColor: "primary.dark", color: "primary.dark", fontSize: 13 }}>Xem thỏa thuận</Button>
+      </Box>}
+
       {/* Conversation Stream */}
       <Box
         ref={streamRef}
@@ -272,6 +295,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
             </Box>
           ) : <Typography variant="caption" sx={{ color: "#747773", fontSize: 10 }}>Chỉ bạn và người được duyệt trong dự án này mới xem được cuộc trao đổi.</Typography>}
         </Box>
+
 
         {messages.length === 0 ? (
           <Box sx={{ textAlign: "center", my: "auto", color: "#747773" }}>

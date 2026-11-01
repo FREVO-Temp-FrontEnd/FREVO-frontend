@@ -9,23 +9,21 @@ const categories = ["Brand identity", "UI/UX", "Nội dung", "Motion"];
 const budgetOptions = [{ value: 0, label: "Tất cả" }, { value: 5, label: "Từ 5 triệu" }, { value: 10, label: "Từ 10 triệu" }, { value: 20, label: "Từ 20 triệu" }];
 
 const FilterPill = styled(Button)(({ theme }) => ({
-  minHeight: 42,
+  minHeight: 44,
   padding: theme.spacing(1, 2),
-  border: "1px solid #d0d5dd",
+  border: "1px solid transparent",
   borderRadius: 999,
-  backgroundColor: "#f4f6f8",
-  color: "#344054",
-  fontSize: 13.5,
-  fontWeight: 600,
+  backgroundColor: theme.palette.action.selected,
+  color: theme.palette.text.primary,
+  fontSize: 14,
+  fontWeight: 500,
   whiteSpace: "nowrap",
   lineHeight: 1.4,
   transition: theme.transitions.create(["background-color", "border-color", "color", "box-shadow"], { duration: 150 }),
-  "&:hover": { backgroundColor: "#e8ecf2", borderColor: "#b8c0cc", color: "#1e293b" },
+  "&:hover": { backgroundColor: theme.palette.action.focus },
   '&[aria-pressed="true"]': {
-    backgroundColor: "#fff0e9",
-    borderColor: "#f4490b",
-    boxShadow: "0 1px 2px rgba(244, 73, 11, 0.15)",
-    color: theme.palette.primary.dark,
+    backgroundColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText,
     fontWeight: 700,
   },
   "&.Mui-focusVisible": {
@@ -53,9 +51,9 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
   ].filter(Boolean).join(", ");
 
   return (
-    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, p: { xs: 2, sm: 2.5 }, bgcolor: "background.paper", border: "1px solid", borderColor: "divider", borderRadius: "14px", boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)", display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
+    <Box component="section" aria-label="Bộ lọc dự án" sx={{ mt: 3, display: "grid", gap: 1.5, minWidth: 0, containerType: "inline-size" }}>
       <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 0.5, "@container (min-width: 500px)": { gridTemplateColumns: "90px minmax(0, 1fr)", gap: 1.5 } }}>
-        <Typography component="h2" sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary", whiteSpace: "nowrap" }}>Lĩnh vực</Typography>
+        <Typography component="h2" sx={{ fontSize: 20, fontWeight: 700, color: "primary.dark", whiteSpace: "nowrap" }}>Lĩnh vực</Typography>
         <FilterOptionRail label="Lĩnh vực" resetScroll={selectedCategories.length === 0}>
           <FilterPill aria-pressed={selectedCategories.length === 0} onClick={() => selectedCategories.forEach(toggleCategory)}>Tất cả</FilterPill>
           {categories.map((category) => (
@@ -64,7 +62,7 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
         </FilterOptionRail>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 1, "@container (min-width: 500px)": { gridTemplateColumns: "270px minmax(0, 1fr)", gap: 1.5 } }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", alignItems: "center", gap: 1, "@container (min-width: 500px)": { gridTemplateColumns: "250px minmax(0, 1fr)", gap: 1.5 } }}>
         <ProjectSortSelect value={sortMode} onChange={setSortMode} />
         <FilterOptionRail label="Ngân sách" resetScroll={minimumBudget === 0} splitControls>
           {budgetOptions.map((option) => (
@@ -74,8 +72,8 @@ export function ProjectFilters({ sortMode, setSortMode, selectedCategories, togg
       </Box>
 
       {hasFilters && <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5 }}>
-        <Typography sx={{ fontSize: 14, color: "text.primary", minWidth: 0 }}>Đang lọc: {filterSummary}</Typography>
-        <Button onClick={clearFilters} startIcon={<RotateCcw size={14} strokeWidth={1.5} aria-hidden="true" />} sx={{ flexShrink: 0, minHeight: 44, fontSize: 14, color: "primary.dark", whiteSpace: "nowrap" }}>Xóa bộ lọc</Button>
+        <Typography sx={{ fontSize: 12, color: "text.primary", minWidth: 0 }}>Đang lọc: {filterSummary}</Typography>
+        <Button onClick={clearFilters} startIcon={<RotateCcw size={14} strokeWidth={1.5} aria-hidden="true" />} sx={{ flexShrink: 0, minHeight: 44, fontSize: 12, color: "primary.dark", whiteSpace: "nowrap" }}>Xóa bộ lọc</Button>
       </Box>}
     </Box>
   );

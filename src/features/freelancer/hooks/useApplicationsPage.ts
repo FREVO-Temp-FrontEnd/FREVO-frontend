@@ -1,22 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFreelancer } from '@/lib/hooks/useFreelancer';
 import type { Candidate } from '@/lib/types/marketplace.types';
 export const applicationLabels: Record<Candidate['status'], string> = { new: 'Chờ xét duyệt', under_review: 'Chờ xét duyệt', discussing: 'Đang trao đổi', offer: 'Chờ xác nhận', selected: 'Đã được chọn', not_selected: 'Đã đóng / Đã rút' };
 const PAGE_SIZE = 10;
-export function useApplicationsPage() {
+export function useApplicationsPage(initialFilter: "new" | "selected" = "new") {
     const data = useFreelancer();
+    const [now, setNow] = useState(Date.now);
+    useEffect(() => {
+        const timer = window.setInterval(() => setNow(Date.now()), 30000);
+        return () => window.clearInterval(timer);
+    }, []);
     const [query, setQuery] = useState('');
-    const [filter, setFilter] = useState('new');
+    const [filter, setFilter] = useState<string>(initialFilter);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [withdrawId, setWithdrawId] = useState<string | null>(null);
     const filterKey = `${filter}:${query.trim().toLocaleLowerCase('vi')}`;
     const [pagination, setPagination] = useState({ filterKey, page: 1 });
-    const rows = data.myApplications.map(candidate => ({ candidate, readOnly: !data.canManage(candidate), project: data.projects.find(p => p.id === candidate.projectId) }));
+    const rows = data.myApplications.map(candidate => {
+        const agreement = data.agreements.filter(item => item.projectId === candidate.projectId && item.talentId === candidate.talentId).sort((a, b) => b.version - a.version)[0];
+        const pendingAgreement = data.canManage(candidate) && agreement?.status === 'pending' && Date.parse(agreement.expiresAt) > now;
+        const effectiveAgreement = data.agreements.find(item => item.projectId === candidate.projectId && item.talentId === candidate.talentId && item.isEffective);
+        return { candidate, agreement, effectiveAgreement, pendingAgreement, readOnly: !data.canManage(candidate), project: data.projects.find(p => p.id === candidate.projectId) };
+    });
     const visible = rows.filter(({ candidate, project }) => {
         const matchesStatus = filter === 'new'
             ? ['new', 'under_review'].includes(candidate.status)
-            : filter === 'discussing'
-                ? ['discussing', 'offer'].includes(candidate.status)
+            : filter === 'discussing' ? ['discussing', 'offer'].includes(candidate.status)
                 : candidate.status === 'selected';
         return matchesStatus && `${project?.title ?? ''} ${project?.company ?? ''}`.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi'));
     }).sort((a, b) => Date.parse(b.candidate.receivedAt) - Date.parse(a.candidate.receivedAt));

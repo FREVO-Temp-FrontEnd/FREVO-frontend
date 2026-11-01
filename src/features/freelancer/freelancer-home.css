@@ -55,3 +55,27 @@
 .freelancer-header .account[aria-expanded="true"]{background:var(--peach)}
 .job-nav-trigger:focus-visible,.job-nav-option:focus-visible{outline:2px solid var(--orange-dark);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.account-chevron{transition:none}}
+
+/* Keep the expanded freelancer navigation on one line; use the drawer on smaller screens. */
+@media(max-width:960px){
+  .freelancer-header-navigation{display:none}
+  .freelancer-mobile-menu{display:grid;place-items:center;flex:none;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--ink);cursor:pointer}
+  .freelancer-mobile-menu:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+  .freelancer-header .header-left{gap:10px;min-width:0}
+  .freelancer-mobile-drawer .MuiDrawer-paper{width:min(300px,85vw);max-width:100%;background:#fff}
+  .freelancer-mobile-drawer .freelancer-nav{position:static;display:flex;flex-direction:column;width:100%;height:100%;min-height:0;padding:24px 14px;border-right:0}
+  .freelancer-mobile-drawer .freelancer-nav nav{display:block}
+  .freelancer-mobile-drawer .freelancer-nav .nav-caption{display:block}
+  .freelancer-mobile-drawer .freelancer-nav .nav-item{width:100%;min-height:47px;padding:0 15px;justify-content:flex-start;font-size:13px}
+  .freelancer-mobile-drawer .job-nav-group{margin-top:4px}
+  .freelancer-mobile-drawer .job-nav-options{margin-left:25px}
+  .freelancer-mobile-drawer .freelancer-nav-brand{display:flex;align-items:center;gap:11px;width:max-content;min-height:46px;margin:2px 8px 38px;color:var(--orange-dark);text-decoration:none;font-size:12px;font-weight:800}
+  .freelancer-mobile-drawer .freelancer-nav-brand img{width:100px;height:auto;max-height:36px;object-fit:contain}
+  .freelancer-mobile-drawer .freelancer-nav-brand span{padding:5px 8px;border-left:1px solid var(--line)}
+}
+
+/* Keep hover feedback local to the work navigation. */
+.work-nav-group .job-nav-trigger:hover,.work-nav-group .job-nav-trigger[aria-expanded="true"]{background:var(--peach);color:var(--orange-dark)}
+.work-nav-group .job-nav-option{transition:background-color 160ms ease,color 160ms ease}
+.work-nav-group .job-nav-option:hover,.work-nav-group .job-nav-option:focus-visible{background:var(--peach);color:var(--orange-dark)}
+@media(prefers-reduced-motion:no-preference){.freelancer-header-navigation .work-nav-group .job-nav-options{transform-origin:top left;animation:work-nav-enter 160ms ease-out both}@keyframes work-nav-enter{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}}

@@ -121,6 +121,7 @@ export function useFreelancer() {
     myApplications,
     canManage,
     projects: state.projects,
+    agreements: state.agreements,
     getProjectForInvitation,
     acceptInvitation,
     declineInvitation,

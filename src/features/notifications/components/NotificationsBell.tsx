@@ -6,7 +6,7 @@ import {
   Box,
   Typography,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   ListItemIcon,
   Button,
@@ -180,7 +180,7 @@ export const NotificationsBell: React.FC = () => {
             </Box>
           ) : (
             notifications.slice(0, 10).map((n) => (
-              <ListItem
+              <ListItemButton
                 key={n.id}
                 onClick={() => handleItemClick(n)}
                 sx={{
@@ -221,7 +221,7 @@ export const NotificationsBell: React.FC = () => {
                     </Box>
                   }
                 />
-              </ListItem>
+              </ListItemButton>
             ))
           )}
         </List>

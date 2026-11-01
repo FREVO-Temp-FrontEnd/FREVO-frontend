@@ -20,6 +20,7 @@ import ForbiddenPage from "@/app/shared/components/ForbiddenPage";
 import GuestProjectExplorerPage from "@/features/public/pages/GuestProjectExplorerPage";
 
 import InvitationsHubPage from "@/features/freelancer/pages/InvitationsHubPage";
+import MyWorkPage from "@/features/freelancer/pages/MyWorkPage";
 import MyApplicationsPage from "@/features/freelancer/pages/MyApplicationsPage";
 import ProjectChatPage from "@/features/projects/chat/ProjectChatPage";
 import ProjectAgreementPage from "@/features/projects/agreements/ProjectAgreementPage";
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
           {
             path: "freelancer/applications",
             element: <MyApplicationsPage />,
+          },
+          {
+            path: "freelancer/work",
+            element: <RoleGuard allowedRoles={["freelancer"]}><MyWorkPage /></RoleGuard>,
           },
           {
             path: "workspace/:projectId",

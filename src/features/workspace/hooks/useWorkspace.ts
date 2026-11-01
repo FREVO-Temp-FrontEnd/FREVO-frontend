@@ -35,8 +35,8 @@ export function useWorkspace() {
   const overdueMilestone = milestones.find(item => item.status !== "completed" && item.status !== "submitted"
     && (parseWorkspaceDate(item.deadline)?.getTime() ?? Infinity) < Date.now());
   const projectPath = isBusiness ? `/business/projects/${projectId}` : `/projects/${projectId}/details`;
-  const agreementPath = isBusiness ? `/business/projects/${projectId}/agreement` : `/projects/${projectId}/agreement`;
-  const chatPath = isBusiness ? `/business/messages?view=project&scope=${projectId}` : `/projects/${projectId}/chat`;
+  const agreementPath = `${isBusiness ? "/business/projects" : "/projects"}/${projectId}/agreement?${new URLSearchParams({ talent: agreement?.talentId ?? "" })}`;
+  const chatPath = `${isBusiness ? "/business/messages" : "/freelancer/messages"}?${new URLSearchParams({ project: projectId ?? "", talent: agreement?.talentId ?? "" })}`;
   const [reviewId, setReviewId] = useState<string | null>(null);
   const [reviewMode, setReviewMode] = useState<"approve" | "revision">("approve");
   const [submitId, setSubmitId] = useState<string | null>(null);
@@ -148,6 +148,6 @@ export function useWorkspace() {
     setToast,
     actionError,
     openProjectReview: () => navigate(`/reviews/${projectId}`),
-    proceedToScope: (note: string) => navigate(`${agreementPath}?talent=${agreement?.talentId}&scopeNote=${encodeURIComponent(note)}`),
+    proceedToScope: (note: string) => navigate(`${agreementPath}&scopeNote=${encodeURIComponent(note)}`),
   };
 }

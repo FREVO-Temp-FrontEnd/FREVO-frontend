@@ -58,7 +58,7 @@ export const SubmitDeliverableDialog: React.FC<SubmitDeliverableDialogProps> = (
             {milestone.name}
           </Typography>
         </Box>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} aria-label="Đóng bàn giao" size="small">
           <X size={20} />
         </IconButton>
       </DialogTitle>
