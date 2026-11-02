@@ -1,7 +1,7 @@
 import { canManageApplication } from "@/lib/storage/applicationAccess";
 import React from "react";
 import { Navigate, useParams, useSearchParams, useNavigate } from "react-router";
-import { Alert, Container, Typography, Button } from "@mui/material";
+import { Alert, Container, Typography, Button, Box } from "@mui/material";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useAuthSession } from "@/lib/hooks/useAuthSession";
 import { useBusiness } from "@/lib/hooks/useBusiness";
@@ -59,13 +59,19 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
 
   if (!project) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="h6" color="text.secondary">
+      <Container maxWidth="lg" sx={{ py: 8, textAlign: "center" }}>
+        <Typography variant="h6" sx={{ fontFamily: "Archivo, sans-serif", fontWeight: 700, color: "#1e293b" }}>
           Không tìm thấy dự án tương ứng.
         </Typography>
         <Button
           onClick={() => navigate(role === "client" ? "/business/projects" : "/freelancer/applications")}
-          sx={{ mt: 2, color: "#f4490b" }}
+          sx={{
+            mt: 2,
+            color: "#f4490b",
+            fontFamily: "Space Grotesk, sans-serif",
+            fontWeight: 700,
+            borderRadius: 999,
+          }}
         >
           Quay lại danh sách
         </Button>
@@ -75,13 +81,19 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
 
   if (!targetCandidate || !targetTalent) {
     return (
-      <Container maxWidth="lg" sx={{ py: 6, textAlign: "center" }}>
-        <Typography variant="h6" color="text.secondary">
+      <Container maxWidth="lg" sx={{ py: 8, textAlign: "center" }}>
+        <Typography variant="h6" sx={{ fontFamily: "Archivo, sans-serif", fontWeight: 700, color: "#1e293b" }}>
           Chưa có ứng viên nào để mở đoạn hội thoại cho dự án này.
         </Typography>
         <Button
           onClick={() => navigate(`/business/projects/${project.id}`)}
-          sx={{ mt: 2, color: "#f4490b" }}
+          sx={{
+            mt: 2,
+            color: "#f4490b",
+            fontFamily: "Space Grotesk, sans-serif",
+            fontWeight: 700,
+            borderRadius: 999,
+          }}
         >
           Quay lại quản lý dự án
         </Button>
@@ -89,7 +101,9 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
     );
   }
 
-  if (!(role === "admin" || (role === "client" && user?.companyName === project.company) || (!!user && canManageApplication(targetCandidate, user)))) return <Navigate to="/forbidden" replace />;
+  if (!(role === "admin" || (role === "client" && user?.companyName === project.company) || (!!user && canManageApplication(targetCandidate, user)))) {
+    return <Navigate to="/forbidden" replace />;
+  }
 
   const handleSendMessage = (body: string, attachment?: { name: string; url: string }) => {
     const isBusiness = role === "client" || role === "admin";
@@ -97,17 +111,21 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
     const senderName = user?.name || (isBusiness ? project.company : targetTalent.name);
 
     try {
-    const newMsg = mockStorage.sendMessage(
-      project.id,
-      targetTalent.id,
-      senderRole,
-      senderName,
-      body,
-      attachment
-    );
-    setMessages((prev) => [...prev, newMsg]);
-    setSendError(""); return true;
-    } catch (issue) { setSendError(issue instanceof Error ? issue.message : "Chưa gửi được tin nhắn. Vui lòng thử lại."); return false; }
+      const newMsg = mockStorage.sendMessage(
+        project.id,
+        targetTalent.id,
+        senderRole,
+        senderName,
+        body,
+        attachment
+      );
+      setMessages((prev) => [...prev, newMsg]);
+      setSendError("");
+      return true;
+    } catch (issue) {
+      setSendError(issue instanceof Error ? issue.message : "Chưa gửi được tin nhắn. Vui lòng thử lại.");
+      return false;
+    }
   };
 
   const handleApproveChat = () => {
@@ -119,26 +137,37 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
   };
 
   const chatRoom = (
-    <>{sendError && <Alert severity="error" sx={{ m: 1 }}>{sendError}</Alert>}<ProjectChatRoom
-      agreement={agreements.filter(item => item.projectId === project.id && item.talentId === targetTalent.id).sort((a, b) => b.version - a.version)[0]}
-      project={project}
-      candidate={targetCandidate}
-      talent={targetTalent}
-      currentUserRole={role}
-      currentUserName={user?.name || "Người dùng"}
-      messages={messages}
-      onSendMessage={handleSendMessage}
-      onApproveChat={handleApproveChat}
-      onNavigateToAgreement={handleNavigateToAgreement}
-      inboxMode={embedded}
-      onBackToList={onBackToList}
-    /></>
+    <>
+      {sendError && (
+        <Alert severity="error" sx={{ mb: 2, borderRadius: "10px" }}>
+          {sendError}
+        </Alert>
+      )}
+      <ProjectChatRoom
+        agreement={
+          agreements
+            .filter((item) => item.projectId === project.id && item.talentId === targetTalent.id)
+            .sort((a, b) => b.version - a.version)[0]
+        }
+        project={project}
+        candidate={targetCandidate}
+        talent={targetTalent}
+        currentUserRole={role}
+        currentUserName={user?.name || "Người dùng"}
+        messages={messages}
+        onSendMessage={handleSendMessage}
+        onApproveChat={handleApproveChat}
+        onNavigateToAgreement={handleNavigateToAgreement}
+        inboxMode={embedded}
+        onBackToList={onBackToList}
+      />
+    </>
   );
 
   if (embedded) return chatRoom;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 3.5 }}>
       <ProjectBreadcrumbs
         items={
           role === "client" || role === "admin"
@@ -155,7 +184,9 @@ export const ProjectChatPage: React.FC<ProjectChatPageProps> = ({
         }
       />
 
-      {chatRoom}
+      <Box sx={{ mt: 2.5 }}>
+        {chatRoom}
+      </Box>
     </Container>
   );
 };

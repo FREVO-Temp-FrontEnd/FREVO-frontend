@@ -15,7 +15,6 @@ import {
   Send,
   Paperclip,
   ArrowRight,
-  Briefcase,
   FileText,
   Pin,
   AlertCircle,
@@ -23,6 +22,10 @@ import {
   Lock,
   LockKeyhole,
   ArrowLeft,
+  MessageSquare,
+  CheckCircle2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import type {
   AgreementProposal,
@@ -52,6 +55,9 @@ interface ProjectChatRoomProps {
   onBackToList?: () => void;
 }
 
+const chatFont = '"Space Grotesk", Arial, sans-serif';
+const headingFont = '"Archivo", Arial, sans-serif';
+
 export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
   agreement,
   project,
@@ -77,8 +83,8 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
   const isChatUnlocked = candidate.chatUnlocked;
   const isReadOnly =
     candidate.status === "not_selected" ||
-    (["ongoing", "closed", "completed"].includes(project.status) && project.selectedTalentId !== talent.id);
-  const chatFont = inboxMode ? '"Space Grotesk", Arial, sans-serif' : '"Be Vietnam Pro", sans-serif';
+    (["ongoing", "closed", "completed"].includes(project.status) &&
+      project.selectedTalentId !== talent.id);
 
   useEffect(() => {
     const stream = streamRef.current;
@@ -116,16 +122,55 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
     );
   }
 
+  // Helper for agreement status badge
+  const renderAgreementStatus = () => {
+    if (!agreement) return null;
+    if (agreement.isEffective || agreement.status === "confirmed") {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#ecfdf5] px-2 py-0.5 text-[11px] font-semibold text-[#047857]">
+          <CheckCircle2 size={12} /> Đang có hiệu lực
+        </span>
+      );
+    }
+    if (agreement.status === "rejected") {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#fef2f2] px-2 py-0.5 text-[11px] font-semibold text-[#b91c1c]">
+          <XCircle size={12} /> Đã từ chối
+        </span>
+      );
+    }
+    if (agreement.status === "superseded") {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[11px] font-semibold text-[#475569]">
+          Đã thay thế
+        </span>
+      );
+    }
+    if (agreement.status === "expired" || Date.parse(agreement.expiresAt) <= Date.now()) {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[11px] font-semibold text-[#64748b]">
+          Đã hết hạn
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#fff7ed] px-2 py-0.5 text-[11px] font-semibold text-[#c2410c]">
+        <Clock size={12} /> Phản hồi trước {new Date(agreement.expiresAt).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+      </span>
+    );
+  };
+
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: inboxMode ? "100%" : { xs: "min(72dvh, 620px)", md: "calc(100dvh - 220px)" },
-        minHeight: inboxMode ? 0 : "480px",
+        height: inboxMode ? "100%" : { xs: "min(76dvh, 640px)", md: "calc(100dvh - 200px)" },
+        minHeight: inboxMode ? 0 : "520px",
         bgcolor: "#ffffff",
-        borderRadius: inboxMode ? 0 : "18px",
-        border: inboxMode ? "none" : "1px solid #a8b0a2",
+        borderRadius: inboxMode ? 0 : "16px",
+        border: inboxMode ? "none" : "1.5px solid #cbd5e1",
+        boxShadow: inboxMode ? "none" : "0 4px 20px rgba(16, 24, 40, 0.08), 0 1px 3px rgba(16, 24, 40, 0.05)",
         overflow: "hidden",
         "& .MuiTypography-root": { fontFamily: chatFont },
       }}
@@ -133,16 +178,17 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
       {/* Header */}
       <Box
         sx={{
-          p: { xs: 1.5, sm: inboxMode ? 1.5 : 2 },
+          p: { xs: 1.5, sm: 2 },
           px: { xs: 2, sm: 2.5 },
-          minHeight: inboxMode ? 70 : undefined,
-          borderBottom: "1px solid #a8b0a2",
+          minHeight: 68,
+          borderBottom: "1.5px solid #cbd5e1",
           bgcolor: "#ffffff",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: inboxMode ? 1.5 : 2,
+          gap: 1.5,
+          zIndex: 2,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
@@ -154,50 +200,72 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               sx={{
                 display: { xs: "inline-flex", lg: "none" },
                 mr: 0.5,
-                color: "#62645e",
-                bgcolor: "#f2f3f0",
-                "&:hover": { bgcolor: "#e4e6e2" },
+                color: "#64748b",
+                bgcolor: "#f1f5f9",
+                "&:hover": { bgcolor: "#e2e8f0", color: "#0f172a" },
               }}
             >
               <ArrowLeft size={16} />
             </IconButton>
           )}
+
           <Avatar
             sx={{
-              bgcolor: talent.color || "#f4490b",
-              color: "#20201f",
-              fontWeight: 700,
-              width: inboxMode ? 38 : 40,
-              height: inboxMode ? 38 : 40,
+              bgcolor: talent.color || "#fff0e9",
+              color: "#f4490b",
+              fontWeight: 800,
+              width: 42,
+              height: 42,
               fontFamily: chatFont,
-              fontSize: inboxMode ? 13 : undefined,
+              fontSize: 14,
+              border: "1px solid rgba(244, 73, 11, 0.2)",
+              boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
             }}
           >
             {isBusiness ? talent.initials : project.company.slice(0, 2).toUpperCase()}
           </Avatar>
+
           <Box sx={{ minWidth: 0 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700, fontSize: inboxMode ? 14 : 14, color: "#20201f" }}>
+              <Typography
+                component="h2"
+                noWrap
+                sx={{
+                  fontFamily: headingFont,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  color: "#0f172a",
+                  lineHeight: 1.3,
+                }}
+              >
                 {isBusiness ? talent.name : project.title}
               </Typography>
               <Chip
-                label={inboxMode ? (isReadOnly ? "Chỉ xem" : "Đã duyệt trao đổi") : talent.kind}
+                label={isReadOnly ? "Chỉ xem" : "Đã duyệt trao đổi"}
                 size="small"
                 sx={{
-                  bgcolor: inboxMode && !isReadOnly ? "#eaf6ef" : "#f2f3f0",
-                  color: inboxMode && !isReadOnly ? "#27704c" : "#62645e",
+                  bgcolor: !isReadOnly ? "#ecfdf5" : "#f1f5f9",
+                  color: !isReadOnly ? "#047857" : "#64748b",
+                  border: !isReadOnly ? "1px solid #a7f3d0" : "1px solid #e2e8f0",
                   fontWeight: 600,
-                  fontSize: inboxMode ? "10px" : "11px",
-                  height: 20,
+                  fontSize: "11px",
+                  height: 22,
                   fontFamily: chatFont,
                 }}
               />
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
-              <Typography variant="caption" noWrap sx={{ color: "#747773", fontSize: inboxMode ? 12 : 10 }}>
-                {!isBusiness ? project.company : inboxMode ? `Dự án: ${project.title}` : `${project.title} · ${project.category}`}
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0, mt: 0.25 }}>
+              <Typography variant="caption" noWrap sx={{ color: "#64748b", fontSize: 12 }}>
+                {!isBusiness ? project.company : `Dự án: ${project.title}`}
               </Typography>
-              {inboxMode && <Link to={isBusiness ? `/business/projects/${project.id}` : `/projects/${project.id}/details`} className="shrink-0 text-[11px] font-semibold text-[#bd3d14] hover:underline">Xem dự án</Link>}
+              <span className="text-[#cbd5e1]">·</span>
+              <Link
+                to={isBusiness ? `/business/projects/${project.id}` : `/projects/${project.id}/details`}
+                className="shrink-0 text-[11.5px] font-semibold text-[#f4490b] transition-colors hover:text-[#bd3d14] hover:underline"
+              >
+                Xem chi tiết dự án
+              </Link>
             </Box>
           </Box>
         </Box>
@@ -207,7 +275,7 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
             variant="contained"
             size="small"
             onClick={onNavigateToAgreement}
-            startIcon={<FileText size={16} />}
+            startIcon={<FileText size={15} />}
             endIcon={<ArrowRight size={14} />}
             sx={{
               bgcolor: "#f4490b",
@@ -218,7 +286,9 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               textTransform: "none",
               fontFamily: chatFont,
               fontWeight: 700,
-              fontSize: inboxMode ? "12px" : "11px",
+              fontSize: "12px",
+              px: 2,
+              py: 0.75,
             }}
           >
             Tạo đề xuất thỏa thuận
@@ -233,39 +303,97 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
             bgcolor: "#fffbeb",
             color: "#92400e",
             p: 1.5,
-            px: 3,
+            px: 2.5,
             borderBottom: "1px solid #fef3c7",
             display: "flex",
             alignItems: "center",
-            gap: 1,
+            gap: 1.25,
             fontSize: "13px",
           }}
         >
-          <AlertCircle size={16} />
-          <Typography variant="caption" sx={{ fontWeight: 500 }}>
+          <AlertCircle size={16} className="shrink-0 text-[#b45309]" />
+          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 12.5, color: "#92400e" }}>
             Hội thoại này hiện ở chế độ chỉ xem vì dự án đã chọn người thực hiện khác hoặc hồ sơ không còn được trao đổi.
           </Typography>
         </Box>
       )}
 
-      {agreement && <Box component="section" aria-label="Thỏa thuận được ghim" sx={{
-        flexShrink: 0, px: { xs: 2, sm: 2.5 }, py: 1.5, bgcolor: "#fff0e9",
-        borderBottom: "1px solid", borderColor: "divider", display: "flex", alignItems: "center",
-        justifyContent: "space-between", gap: 1.5,
-      }}>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography sx={{ display: "flex", alignItems: "center", gap: 0.75, fontSize: 14, fontWeight: 700 }}>
-            <Pin size={15} aria-hidden="true" />Thỏa thuận được ghim
-          </Typography>
-          <Typography sx={{ mt: 0.5, fontSize: 13, color: "text.secondary", overflowWrap: "anywhere" }}>
-            Phiên bản {agreement.version} · {agreement.budget}
-          </Typography>
-          <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-            {agreement.isEffective ? "Đang có hiệu lực" : agreement.status === "rejected" ? "Đã từ chối" : agreement.status === "confirmed" ? "Đã xác nhận" : agreement.status === "superseded" ? "Đã được thay thế" : agreement.status === "expired" || Date.parse(agreement.expiresAt) <= Date.now() ? "Đã hết hạn" : `Phản hồi trước ${new Date(agreement.expiresAt).toLocaleString("vi-VN")}`}
-          </Typography>
+      {/* Pinned Agreement Banner */}
+      {agreement && (
+        <Box
+          component="section"
+          aria-label="Thỏa thuận được ghim"
+          sx={{
+            flexShrink: 0,
+            px: { xs: 2, sm: 2.5 },
+            py: 1.25,
+            bgcolor: "#fff7f2",
+            borderBottom: "1.5px solid #fdba74",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+            <Box
+              sx={{
+                width: 34,
+                height: 34,
+                borderRadius: "10px",
+                bgcolor: "#ffedd5",
+                color: "#ea580c",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Pin size={16} aria-hidden="true" />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#9a3412" }}>
+                  Thỏa thuận hợp tác được ghim
+                </Typography>
+                {renderAgreementStatus()}
+              </Box>
+              <Typography sx={{ mt: 0.25, fontSize: 12, color: "#7c2d12", overflowWrap: "anywhere" }}>
+                Phiên bản {agreement.version} · Ngân sách thỏa thuận: <strong>{agreement.budget}</strong>
+              </Typography>
+            </Box>
+          </Box>
+
+          <Button
+            component={Link}
+            to={`${isBusiness ? "/business/projects" : "/projects"}/${encodeURIComponent(
+              project.id
+            )}/agreement?${new URLSearchParams({ talent: talent.id })}`}
+            variant="outlined"
+            size="small"
+            sx={{
+              flexShrink: 0,
+              borderRadius: 999,
+              bgcolor: "#ffffff",
+              borderColor: "#fdba74",
+              color: "#c2410c",
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "none",
+              px: 2,
+              py: 0.5,
+              boxShadow: "0 1px 2px rgba(194, 65, 12, 0.05)",
+              "&:hover": {
+                bgcolor: "#fff0e9",
+                borderColor: "#f97316",
+                color: "#9a3412",
+              },
+            }}
+          >
+            Xem thỏa thuận
+          </Button>
         </Box>
-        <Button component={Link} to={`${isBusiness ? "/business/projects" : "/projects"}/${encodeURIComponent(project.id)}/agreement?${new URLSearchParams({ talent: talent.id })}`} variant="outlined" sx={{ flexShrink: 0, minHeight: 44, whiteSpace: "nowrap", borderColor: "primary.dark", color: "primary.dark", fontSize: 13 }}>Xem thỏa thuận</Button>
-      </Box>}
+      )}
 
       {/* Conversation Stream */}
       <Box
@@ -273,35 +401,85 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
         sx={{
           flex: 1,
           overflowY: "auto",
-          p: inboxMode ? { xs: 2, sm: 3 } : { xs: 2, sm: 2.5 },
+          p: { xs: 2, sm: 2.5, md: 3 },
           display: "flex",
           flexDirection: "column",
-          gap: inboxMode ? 0 : 2,
-          bgcolor: inboxMode ? "#f8f9f7" : "#f7f8f6",
+          bgcolor: !isBusiness ? "#f7f8f6" : "#f8fafc",
         }}
       >
-        <Box
-          sx={{
-            textAlign: "center",
-            py: inboxMode ? 0 : 1,
-            borderBottom: inboxMode ? "none" : "1px solid #a8b0a2",
-            mb: inboxMode ? 2.5 : 1,
-          }}
-        >
-          {inboxMode ? (
-            <Box sx={{ display: "inline-flex", maxWidth: "100%", alignItems: "center", gap: 0.75, px: 1.5, py: 0.75, border: "1px solid #a8b0a2", borderRadius: 99, bgcolor: "#fff", color: "#747773" }}>
-              <LockKeyhole size={13} style={{ flexShrink: 0 }} aria-hidden="true" />
-              <Typography variant="caption" sx={{ fontSize: 11, lineHeight: 1.35 }}>Chỉ bạn và người được duyệt trong dự án này mới xem được cuộc trao đổi.</Typography>
-            </Box>
-          ) : <Typography variant="caption" sx={{ color: "#747773", fontSize: 10 }}>Chỉ bạn và người được duyệt trong dự án này mới xem được cuộc trao đổi.</Typography>}
+        {/* Security & Privacy Notice */}
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              maxWidth: "100%",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 0.75,
+              border: "1.5px solid #cbd5e1",
+              borderRadius: 999,
+              bgcolor: "#ffffff",
+              color: "#64748b",
+              boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
+            }}
+          >
+            <LockKeyhole size={13} style={{ flexShrink: 0, color: "#f4490b" }} aria-hidden="true" />
+            <Typography variant="caption" sx={{ fontSize: 11.5, lineHeight: 1.4, color: "#64748b" }}>
+              Chỉ bạn và người được duyệt trong dự án này mới xem được cuộc trao đổi.
+            </Typography>
+          </Box>
         </Box>
 
-
         {messages.length === 0 ? (
-          <Box sx={{ textAlign: "center", my: "auto", color: "#747773" }}>
-            <Briefcase size={36} style={{ margin: "0 auto 8px" }} />
-            <Typography variant="body2">
-              Chưa có tin nhắn nào. Hãy bắt đầu trao đổi về phạm vi công việc, thời gian và yêu cầu sản phẩm.
+          <Box
+            sx={{
+              textAlign: "center",
+              my: "auto",
+              py: 6,
+              px: 3,
+            }}
+          >
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: "16px",
+                bgcolor: "#fff0e9",
+                color: "#f4490b",
+                display: "grid",
+                placeItems: "center",
+                mx: "auto",
+                mb: 2,
+                border: "1px solid rgba(244, 73, 11, 0.2)",
+                boxShadow: "0 2px 8px rgba(244, 73, 11, 0.12)",
+              }}
+            >
+              <MessageSquare size={26} />
+            </Box>
+            <Typography
+              component="h3"
+              sx={{
+                fontFamily: headingFont,
+                fontWeight: 800,
+                fontSize: 16,
+                color: "#0f172a",
+                mb: 0.75,
+              }}
+            >
+              Bắt đầu cuộc trao đổi
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                maxWidth: 420,
+                mx: "auto",
+                color: "#64748b",
+                fontSize: 13,
+                lineHeight: 1.6,
+              }}
+            >
+              Chưa có tin nhắn nào. Hãy gửi lời chào và trao đổi về phạm vi công việc, tiến độ giao nộp sản phẩm và các yêu cầu cụ thể.
             </Typography>
           </Box>
         ) : (
@@ -310,117 +488,192 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               (isBusiness && msg.sender === "business") ||
               (!isBusiness && msg.sender === "talent");
 
-            if (inboxMode) {
-              const sentDate = new Date(msg.sentAt);
-              const showDate = index === 0 || sentDate.toDateString() !== new Date(messages[index - 1].sentAt).toDateString();
-              const timeLabel = sentDate.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-
-              return (
-                <React.Fragment key={msg.id}>
-                  {showDate && (
-                    <Box sx={{ display: "flex", justifyContent: "center", my: 1.5 }}>
-                      <Typography component="time" dateTime={msg.sentAt} sx={{ px: 1.5, py: 0.4, borderRadius: 99, bgcolor: "#e9ebe7", color: "#747773", fontSize: 11, fontWeight: 600 }}>
-                        {sentDate.toLocaleDateString("vi-VN", { day: "numeric", month: "long", year: "numeric" })}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Box sx={{ display: "flex", alignSelf: isMine ? "flex-end" : "flex-start", alignItems: "flex-start", gap: 1.25, maxWidth: { xs: "94%", sm: "78%" }, minWidth: 0, mb: 2.25 }}>
-                    {!isMine && <Avatar sx={{ width: 30, height: 30, mt: 0.25, flexShrink: 0, bgcolor: talent.color || "#f1e0d1", color: "#20201f", fontFamily: chatFont, fontSize: 11, fontWeight: 700 }}>{isBusiness ? talent.initials : project.company.slice(0, 2).toUpperCase()}</Avatar>}
-                    <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column", alignItems: isMine ? "flex-end" : "flex-start" }}>
-                      <Box sx={{ display: "flex", flexDirection: isMine ? "row-reverse" : "row", alignItems: "baseline", gap: 1, mb: 0.5, px: 0.5 }}>
-                        <Typography variant="caption" sx={{ color: isMine ? "#bd3d14" : "#20201f", fontSize: 11, fontWeight: 700 }}>{msg.senderName}</Typography>
-                        <Typography component="time" dateTime={msg.sentAt} variant="caption" sx={{ color: "#92958e", fontSize: 10 }}>{timeLabel}</Typography>
-                      </Box>
-                      <Paper elevation={0} sx={{ px: 1.75, py: 1.35, maxWidth: "100%", borderRadius: isMine ? "15px 15px 4px 15px" : "15px 15px 15px 4px", bgcolor: isMine ? "#f4490b" : "#fff", color: isMine ? "#fff" : "#20201f", border: isMine ? "1px solid #f4490b" : "1px solid #a8b0a2", boxShadow: "0 1px 2px rgba(32,32,31,.04)" }}>
-                        {msg.body && <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 13, lineHeight: 1.6 }}>{msg.body}</Typography>}
-                        {msg.attachmentUrl && (
-                          <Box component="a" href={msg.attachmentUrl} download={msg.attachmentName || "tep-dinh-kem"}
-                            sx={{ display: "flex", alignItems: "center", gap: 1, mt: msg.body ? 1.25 : 0, px: 1.25, py: 1, borderRadius: 1.5, bgcolor: isMine ? "rgba(255,255,255,.16)" : "#f7f8f6", color: "inherit", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
-                            <File size={16} aria-hidden="true" />
-                            <Typography variant="caption" sx={{ fontSize: 11, fontWeight: 600, overflowWrap: "anywhere" }}>{msg.attachmentName || "Tệp đính kèm"}</Typography>
-                          </Box>
-                        )}
-                      </Paper>
-                    </Box>
-                  </Box>
-                </React.Fragment>
-              );
-            }
+            const sentDate = new Date(msg.sentAt);
+            const showDate =
+              index === 0 ||
+              sentDate.toDateString() !== new Date(messages[index - 1].sentAt).toDateString();
+            const timeLabel = sentDate.toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
             return (
-              <Box
-                key={msg.id}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: isMine ? "flex-end" : "flex-start",
-                  maxWidth: { xs: "92%", sm: "78%" },
-                  alignSelf: isMine ? "flex-end" : "flex-start",
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#747773", mb: 0.5, px: 1, fontSize: inboxMode ? 11 : 10 }}
-                >
-                  {msg.senderName} ·{" "}
-                  {new Date(msg.sentAt).toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </Typography>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    px: 1.75,
-                    py: 1.25,
-                    borderRadius: isMine
-                      ? "16px 16px 4px 16px"
-                      : "16px 16px 16px 4px",
-                    bgcolor: isMine ? "#f4490b" : "#ffffff",
-                    color: isMine ? "#ffffff" : "#20201f",
-                    border: isMine ? "none" : "1px solid #a8b0a2",
-                    boxShadow: "none",
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      lineHeight: 1.5,
-                      whiteSpace: "pre-wrap",
-                      fontSize: inboxMode ? "13px" : "12px",
-                    }}
-                  >
-                    {msg.body}
-                  </Typography>
-
-                  {msg.attachmentUrl && (
-                    <Box
+              <React.Fragment key={msg.id}>
+                {showDate && (
+                  <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+                    <Typography
+                      component="time"
+                      dateTime={msg.sentAt}
                       sx={{
-                        mt: 1.5,
-                        pt: 1,
-                        borderTop: isMine
-                          ? "1px solid rgba(255,255,255,0.2)"
-                          : "1px solid #a8b0a2",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 999,
+                        bgcolor: "#ffffff",
+                        border: "1.5px solid #cbd5e1",
+                        color: "#64748b",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
                       }}
                     >
-                      <File size={16} />
+                      {sentDate.toLocaleDateString("vi-VN", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </Typography>
+                  </Box>
+                )}
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignSelf: isMine ? "flex-end" : "flex-start",
+                    alignItems: "flex-start",
+                    gap: 1.25,
+                    maxWidth: { xs: "92%", sm: "80%", md: "72%" },
+                    minWidth: 0,
+                    mb: 2,
+                  }}
+                >
+                  {!isMine && (
+                    <Avatar
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        mt: 0.25,
+                        flexShrink: 0,
+                        bgcolor: talent.color || "#fff0e9",
+                        color: "#f4490b",
+                        fontFamily: chatFont,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        border: "1.5px solid #cbd5e1",
+                        boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
+                      }}
+                    >
+                      {isBusiness ? talent.initials : project.company.slice(0, 2).toUpperCase()}
+                    </Avatar>
+                  )}
+
+                  <Box
+                    sx={{
+                      minWidth: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: isMine ? "flex-end" : "flex-start",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: isMine ? "row-reverse" : "row",
+                        alignItems: "baseline",
+                        gap: 1,
+                        mb: 0.5,
+                        px: 0.5,
+                      }}
+                    >
                       <Typography
                         variant="caption"
                         sx={{
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          fontWeight: 500,
+                          color: isMine ? "#bd3d14" : "#0f172a",
+                          fontSize: 11.5,
+                          fontWeight: 700,
                         }}
                       >
-                        {msg.attachmentName || "Tệp đính kèm"}
+                        {isMine ? "Bạn" : msg.senderName}
+                      </Typography>
+                      <Typography
+                        component="time"
+                        dateTime={msg.sentAt}
+                        variant="caption"
+                        sx={{ color: "#94a3b8", fontSize: 10.5 }}
+                      >
+                        {timeLabel}
                       </Typography>
                     </Box>
-                  )}
-                </Paper>
-              </Box>
+
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        px: 2,
+                        py: 1.35,
+                        maxWidth: "100%",
+                        borderRadius: isMine
+                          ? "18px 18px 4px 18px"
+                          : "18px 18px 18px 4px",
+                        background: isMine
+                          ? "linear-gradient(135deg, #f4490b 0%, #e03a00 100%)"
+                          : "#ffffff",
+                        color: isMine ? "#ffffff" : "#0f172a",
+                        border: isMine ? "none" : "1.5px solid #cbd5e1",
+                        boxShadow: isMine
+                          ? "0 2px 8px rgba(244, 73, 11, 0.22)"
+                          : "0 2px 8px rgba(16, 24, 40, 0.08), 0 1px 3px rgba(16, 24, 40, 0.04)",
+                      }}
+                    >
+                      {msg.body && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "anywhere",
+                            fontSize: 13.5,
+                            lineHeight: 1.6,
+                            color: "inherit",
+                          }}
+                        >
+                          {msg.body}
+                        </Typography>
+                      )}
+
+                      {msg.attachmentUrl && (
+                        <Box
+                          component="a"
+                          href={msg.attachmentUrl}
+                          download={msg.attachmentName || "tep-dinh-kem"}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.25,
+                            mt: msg.body ? 1.25 : 0,
+                            px: 1.5,
+                            py: 1,
+                            borderRadius: "10px",
+                            bgcolor: isMine
+                              ? "rgba(255, 255, 255, 0.2)"
+                              : "#f8fafc",
+                            border: isMine
+                              ? "1px solid rgba(255, 255, 255, 0.3)"
+                              : "1.5px solid #cbd5e1",
+                            color: "inherit",
+                            textDecoration: "none",
+                            transition: "all 0.15s ease",
+                            "&:hover": {
+                              bgcolor: isMine
+                                ? "rgba(255, 255, 255, 0.28)"
+                                : "#f1f5f9",
+                            },
+                          }}
+                        >
+                          <File size={16} aria-hidden="true" className="shrink-0" />
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              overflowWrap: "anywhere",
+                            }}
+                          >
+                            {msg.attachmentName || "Tệp đính kèm"}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Paper>
+                  </Box>
+                </Box>
+              </React.Fragment>
             );
           })
         )}
@@ -432,12 +685,12 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
           component="form"
           onSubmit={handleSend}
           sx={{
-            p: inboxMode ? { xs: 1.5, sm: 2 } : 2,
-            borderTop: "1px solid #a8b0a2",
+            p: { xs: 1.5, sm: 2 },
+            borderTop: "1.5px solid #cbd5e1",
             bgcolor: "#ffffff",
             display: "flex",
             flexDirection: "column",
-            gap: inboxMode ? 0.75 : 1,
+            gap: 1,
           }}
         >
           {selectedFile && (
@@ -446,21 +699,28 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 1,
-                bgcolor: "#f2f3f0",
+                bgcolor: "#fff0e9",
+                border: "1px solid rgba(244, 73, 11, 0.2)",
                 px: 1.5,
                 py: 0.5,
-                borderRadius: "6px",
+                borderRadius: "8px",
                 width: "fit-content",
+                color: "#c2410c",
               }}
             >
               <File size={14} color="#f4490b" />
-              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 12 }}>
                 {selectedFile.name}
               </Typography>
               <IconButton
                 size="small"
                 onClick={() => setSelectedFile(null)}
-                sx={{ p: 0.25 }}
+                sx={{
+                  p: 0.25,
+                  color: "#ea580c",
+                  "&:hover": { bgcolor: "#fed7aa" },
+                }}
+                aria-label="Xóa tệp đính kèm"
               >
                 ×
               </IconButton>
@@ -477,17 +737,26 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
             <Tooltip title="Đính kèm tệp tài liệu / hình ảnh">
               <IconButton
                 onClick={() => fileInputRef.current?.click()}
-                sx={{ color: "#747773", "&:hover": { bgcolor: "#fff0e9", color: "#bd3d14" } }}
+                sx={{
+                  color: "#64748b",
+                  p: 1.25,
+                  borderRadius: "50%",
+                  transition: "all 0.15s ease",
+                  "&:hover": { bgcolor: "#fff0e9", color: "#f4490b" },
+                }}
               >
                 <Paperclip size={20} />
               </IconButton>
             </Tooltip>
 
             <TextField
+              id="chat-message-input"
               fullWidth
               size="small"
               slotProps={{ htmlInput: { "aria-label": "Soạn tin nhắn" } }}
-              placeholder={`Nhập tin nhắn trao đổi với ${isBusiness ? talent.name : project.company}...`}
+              placeholder={`Nhập tin nhắn trao đổi với ${
+                isBusiness ? talent.name : project.company
+              }...`}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
@@ -499,42 +768,72 @@ export const ProjectChatRoom: React.FC<ProjectChatRoomProps> = ({
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "24px",
-                  bgcolor: "#f7f8f6",
-                  height: inboxMode ? 42 : undefined,
+                  bgcolor: "#ffffff",
+                  height: 44,
+                  fontSize: 13.5,
+                  "& fieldset": { borderColor: "#cbd5e1", borderWidth: 1.5 },
+                  "&:hover fieldset": { borderColor: "#94a3b8" },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#f4490b",
+                    borderWidth: 2,
+                  },
                 },
-                "& .MuiInputBase-input": inboxMode ? { fontFamily: '"Space Grotesk", Arial, sans-serif', fontSize: 13 } : {},
+                "& .MuiInputBase-input": {
+                  fontFamily: chatFont,
+                  px: 2,
+                  "&::placeholder": { color: "#94a3b8", opacity: 1 },
+                },
               }}
             />
 
             <Button
+              id="chat-send-button"
               type="submit"
               variant="contained"
+              aria-label="Gửi tin nhắn"
               disabled={!draft.trim() && !selectedFile}
               sx={{
                 borderRadius: "50%",
-                minWidth: inboxMode ? "42px" : "44px",
-                height: inboxMode ? "42px" : "40px",
+                minWidth: "44px",
+                width: "44px",
+                height: "44px",
                 p: 0,
-                bgcolor: "#f4490b",
-                "&:hover": { bgcolor: "#bd3d14" },
+                background: "linear-gradient(135deg, #f4490b 0%, #e03a00 100%)",
+                boxShadow: "0 2px 8px rgba(244, 73, 11, 0.28)",
+                "&:hover": { background: "#bd3d14" },
+                "&.Mui-disabled": {
+                  bgcolor: "#f1f5f9",
+                  color: "#cbd5e1",
+                  boxShadow: "none",
+                },
               }}
             >
               <Send size={18} />
             </Button>
           </Box>
-          {inboxMode && <Typography variant="caption" sx={{ pl: 6.5, color: "#92958e", fontSize: 11, fontFamily: chatFont }}>Nhấn Enter để gửi tin nhắn · Shift + Enter để xuống dòng</Typography>}
+          <Typography
+            variant="caption"
+            sx={{
+              pl: 6.5,
+              color: "#94a3b8",
+              fontSize: 11,
+              fontFamily: chatFont,
+            }}
+          >
+            Nhấn Enter để gửi tin nhắn · Shift + Enter để xuống dòng
+          </Typography>
         </Box>
       ) : (
         <Box
           sx={{
             p: 2,
             borderTop: "1px solid #e2e8f0",
-            bgcolor: "#f8fafc",
+            bgcolor: !isBusiness ? "#f7f8f6" : "#f8fafc",
             textAlign: "center",
           }}
         >
-          <Typography variant="caption" sx={{ color: "#94a3b8" }}>
-            <Lock size={12} style={{ display: "inline", marginRight: 4 }} />
+          <Typography variant="caption" sx={{ color: "#64748b", fontSize: 12 }}>
+            <Lock size={13} style={{ display: "inline", marginRight: 6 }} />
             Hội thoại đã kết thúc và được lưu trữ cho mục đích đối soát.
           </Typography>
         </Box>
