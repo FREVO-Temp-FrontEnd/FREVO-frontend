@@ -61,6 +61,16 @@ export function ProjectDetailContent({
         gridTemplateColumns: { xs: "1fr", md: "minmax(0, 2fr) minmax(280px, 1fr)" },
         gap: { xs: "18px", sm: "24px" },
         alignItems: "start",
+        position: { md: "sticky" },
+        top: { md: 100 },
+        height: { md: "calc(100dvh - 124px)" },
+        "& > :first-of-type, & > aside": {
+          maxHeight: { md: "100%" },
+          minHeight: 0,
+          overflowY: { md: "auto" },
+          overscrollBehaviorY: { md: "contain" },
+          scrollbarGutter: { md: "stable" },
+        },
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: "18px", sm: "24px" }, minWidth: 0 }}>
