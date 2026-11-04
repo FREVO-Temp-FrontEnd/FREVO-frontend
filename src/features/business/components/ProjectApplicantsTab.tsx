@@ -2,7 +2,7 @@ import { CandidateComparison } from "./CandidateComparison";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Alert, Avatar, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, Snackbar, TextField, Typography } from "@mui/material";
-import { CheckCircle2, Clock3, MailCheck, MessageCircle, MoreHorizontal, Search, Send, Users } from "lucide-react";
+import { CheckCircle2, Clock3, FileUser, MailCheck, MessageCircle, MoreHorizontal, Search, Users } from "lucide-react";
 import type { Candidate, CandidateStatus, ProjectBrief, TalentProfile } from "@/lib/types/marketplace.types";
 import { matchesCandidateFilter, useProjectApplicants, type CandidateDecision, type CandidateFilter } from "../hooks/useProjectApplicants";
 import { TalentPortfolioPreview } from "./TalentPortfolioPreview";
@@ -22,8 +22,8 @@ function CandidateCard({ candidate, talent, project, priority, onReview, onDecis
   const canChat = candidate.chatUnlocked && candidate.status !== "not_selected";
   return <Box
     component="article"
-    className="grid min-w-0 gap-5 rounded-2xl border border-[#e4e6e2] bg-white p-4 sm:px-5 xl:grid-cols-[minmax(210px,1fr)_minmax(180px,0.8fr)_auto] xl:items-center xl:gap-6"
-    sx={{ transition: "border-color 150ms ease", "&:hover": { borderColor: "#d4d8d0" } }}
+    className="grid min-w-0 gap-5 rounded-xl border border-[#e2e8f0] bg-[#f8fafc] p-4 sm:px-5 xl:grid-cols-[minmax(210px,1fr)_minmax(180px,0.8fr)_auto] xl:items-center xl:gap-6"
+    sx={{ transition: "all 150ms ease", "&:hover": { bgcolor: "#ffffff", borderColor: "#b8c0cc", boxShadow: "0 4px 12px rgba(16, 24, 40, 0.06)", transform: "translateY(-1px)" } }}
   >
     <div className="flex min-w-0 items-start gap-3.5">
       <Avatar src={talent.avatar} alt={talent.name} sx={{ bgcolor: talent.color, color: "text.primary", width: 48, height: 48, fontSize: 16, fontWeight: 700 }}>{talent.initials}</Avatar>
@@ -75,12 +75,12 @@ export function ProjectApplicantsTab({ project }: { project: ProjectBrief }) {
         <TextField select size="small" value={["offer", "selected", "not_selected"].includes(vm.statusFilter) ? vm.statusFilter : "other"} onChange={event => vm.setStatusFilter(event.target.value as CandidateFilter)} slotProps={{ select: { inputProps: { "aria-label": "Lọc trạng thái khác" } } }} sx={{ minWidth: 90, "& .MuiOutlinedInput-root": { borderRadius: 999, fontSize: 13 }, "& fieldset": { border: 0 }, "& .MuiSelect-select": { py: 1 } }}><MenuItem value="other" disabled>Khác</MenuItem><MenuItem value="offer">Chờ thỏa thuận</MenuItem><MenuItem value="selected">Đã chọn</MenuItem><MenuItem value="not_selected">Không được chọn</MenuItem></TextField>
       </div>
     </div>
-    {[{ priority: true, id: "invited-candidates", title: "Đã nhận lời mời", count: vm.priorityCount, items: vm.priority, icon: MailCheck }, { priority: false, id: "direct-applicants", title: "Tự ứng tuyển", count: vm.projectCandidates.length - vm.priorityCount, items: vm.applications, icon: Send }].map(zone => <section key={zone.id} id={zone.id} aria-labelledby={`${zone.id}-heading`} className={`scroll-mt-6 rounded-3xl border p-4 sm:p-6 ${zone.priority ? "border-[#e0e5dc] bg-[#f1f3ef]" : "border-[#e4e6e2] bg-white"}`}>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div><div className="flex items-center gap-2"><zone.icon size={22} className={zone.priority ? "text-[#bd3d14]" : "text-[#20201f]"} aria-hidden="true" /><Typography id={`${zone.id}-heading`} component="h2" sx={{ fontSize: { xs: 19, sm: 22 }, fontWeight: 700 }}>{zone.title}</Typography><Chip label={zone.count} size="small" sx={{ height: 23, bgcolor: zone.priority ? "#fff0e9" : "#f2f3f0", fontWeight: 700 }} /></div>{zone.priority && <p className="mt-1 text-sm text-[#747773]">Từ gợi ý hệ thống · Đã xác nhận tham gia</p>}</div>
-        {!zone.priority && <span className="text-xs text-[#747773]">Chờ duyệt trước · Mới nhất</span>}
+    {[{ priority: true, id: "invited-candidates", title: "Đã nhận lời mời", count: vm.priorityCount, items: vm.priority, icon: MailCheck, subtitle: "Từ gợi ý hệ thống · Đã xác nhận tham gia" }, { priority: false, id: "direct-applicants", title: "Tự ứng tuyển", count: vm.projectCandidates.length - vm.priorityCount, items: vm.applications, icon: FileUser, subtitle: "Hồ sơ ứng viên nộp trực tiếp vào bài đăng" }].map(zone => <section key={zone.id} id={zone.id} aria-labelledby={`${zone.id}-heading`} className="scroll-mt-6 rounded-2xl border border-[#b8c0cc] bg-white p-5 sm:p-6 shadow-[0_2px_8px_rgba(16,24,40,0.05),0_1px_2px_rgba(16,24,40,0.03)]">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef1f5] pb-4">
+        <div className="flex items-center gap-3"><div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#fff0e9] text-[#bd3d14]"><zone.icon size={20} strokeWidth={2.2} aria-hidden="true" /></div><div><div className="flex items-center gap-2"><Typography id={`${zone.id}-heading`} component="h2" sx={{ fontSize: { xs: 18, sm: 20 }, fontWeight: 700, color: "#20201f" }}>{zone.title}</Typography><Chip label={zone.count} size="small" sx={{ height: 23, px: 0.5, bgcolor: "#fff0e9", color: "#bd3d14", fontWeight: 700, fontSize: "12px", border: "1px solid #ffd4c3" }} /></div><p className="mt-0.5 text-xs text-[#667085]">{zone.subtitle}</p></div></div>
+        {!zone.priority && <span className="rounded-full bg-[#f2f3f0] px-3 py-1 text-xs font-semibold text-[#62625e]">Chờ duyệt trước · Mới nhất</span>}
       </div>
-      {zone.items.length ? <div className={"space-y-3"}>{zone.items.map(candidate => renderCandidate(candidate, zone.priority))}</div> : <div className="rounded-2xl border border-dashed border-[#e4e0da] px-5 py-8 text-center"><Users size={26} className="mx-auto text-[#747773]" aria-hidden="true" /><p className="mt-3 text-sm font-semibold">{filtered ? "Không có hồ sơ khớp bộ lọc" : zone.priority ? "Chưa có người nhận lời mời" : "Chưa có ứng viên tự ứng tuyển"}</p><p className="mt-1 text-sm text-[#747773]">{filtered ? "Thử đổi trạng thái hoặc từ khóa tìm kiếm." : zone.priority ? "Ứng viên xuất hiện tại đây sau khi chấp nhận lời mời." : "Hồ sơ mới từ bài đăng sẽ xuất hiện tại đây."}</p></div>}
+      {zone.items.length ? <div className="space-y-3">{zone.items.map(candidate => renderCandidate(candidate, zone.priority))}</div> : <div className="rounded-xl border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-5 py-8 text-center"><Users size={26} className="mx-auto text-[#667085]" aria-hidden="true" /><p className="mt-3 text-sm font-semibold text-[#20201f]">{filtered ? "Không có hồ sơ khớp bộ lọc" : zone.priority ? "Chưa có người nhận lời mời" : "Chưa có ứng viên tự ứng tuyển"}</p><p className="mt-1 text-sm text-[#667085]">{filtered ? "Thử đổi trạng thái hoặc từ khóa tìm kiếm." : zone.priority ? "Ứng viên xuất hiện tại đây sau khi chấp nhận lời mời." : "Hồ sơ mới từ bài đăng sẽ xuất hiện tại đây."}</p></div>}
     </section>)}
     <CandidateComparison project={project} ids={compareIds} onRemove={id => setCompareIds(ids => id ? ids.filter(value => value !== id) : [])} />
     {filtered && <Button onClick={resetFilters} sx={pillSx}>Xóa bộ lọc</Button>}
