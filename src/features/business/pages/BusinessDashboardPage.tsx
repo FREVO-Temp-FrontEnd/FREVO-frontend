@@ -873,11 +873,6 @@ export function BusinessDashboardPage() {
                   Lịch bàn giao
                 </Typography>
               </Box>
-              <Chip
-                label="Mô phỏng"
-                size="small"
-                sx={{ height: 22, fontSize: 10, fontWeight: 700, bgcolor: "#f0f2f5", color: "text.secondary" }}
-              />
             </Box>
 
             {dashboard.upcomingMilestones.length ? (
