@@ -50,7 +50,7 @@ export default function ProjectDetailPage() {
           maxWidth: 1440,
           mx: "auto",
           minWidth: 0,
-          p: { xs: "24px 16px 40px", md: "24px 32px 64px" },
+          p: { xs: "24px 16px 16px", md: "24px 32px 24px" },
           color: "#1b1c1c",
           fontSize: 14,
           lineHeight: 1.6,

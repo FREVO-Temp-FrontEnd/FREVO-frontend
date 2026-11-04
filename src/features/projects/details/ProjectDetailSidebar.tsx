@@ -29,8 +29,7 @@ export function ProjectDetailSidebar({
         flexDirection: "column",
         gap: "20px",
         minWidth: 0,
-        position: { xs: "static", md: "sticky" },
-        top: { md: "100px" },
+        position: "static",
       }}
     >
       {/* 1. Doanh nghiệp tuyển dụng */}

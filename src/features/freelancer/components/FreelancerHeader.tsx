@@ -114,6 +114,7 @@ export function FreelancerHeader({ navigation, mobileNavOpen, onToggleMobileNav 
                 }}
                 onClick={(event) => {
                   cancelAccountClose();
+                  if (accountAnchor) return;
                   setAccountHover(false);
                   setAccountAnchor(event.currentTarget);
                 }}
