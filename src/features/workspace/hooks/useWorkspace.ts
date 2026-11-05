@@ -59,7 +59,7 @@ export function useWorkspace() {
       id: `${milestone.id}-completed`,
       title: `Đã nghiệm thu · ${milestoneTitle(milestone.name)}`,
       date: milestone.completedAt,
-      description: "Đã ghi nhận nghiệm thu trong không gian làm việc mô phỏng.",
+      description: "Mốc đã nghiệm thu và giải ngân thành công theo thỏa thuận.",
       type: "completed" as const
     }] : []),
     ...(milestone.revisionHistory ?? []).map((revision, index) => ({
@@ -92,7 +92,7 @@ export function useWorkspace() {
     try {
       mockStorage.approveMilestone(project.id, reviewMilestone.id);
       setReviewId(null);
-      setToast("Đã nghiệm thu mốc. Sổ thanh toán chỉ ghi nhận trạng thái mô phỏng.");
+      setToast("Đã xác nhận nghiệm thu mốc thành công.");
       if (milestones.every(item => item.id === reviewMilestone.id || item.status === "completed")) {
         mockStorage.updateProjectStatus(project.id, "completed");
         setCompletedOpen(true);

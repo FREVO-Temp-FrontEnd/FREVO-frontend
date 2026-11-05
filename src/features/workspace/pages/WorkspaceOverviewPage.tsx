@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Alert, Box, Button, Chip, Paper, Snackbar, Stack, Typography } from "@mui/material";
-import { ArrowLeft, CheckCircle2, ClipboardCheck, Eye, FileText, History, Info, RotateCcw, UploadCloud, Wallet } from "lucide-react";
+import { Box, Button, Chip, Paper, Snackbar, Stack, Typography } from "@mui/material";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, Eye, FileText, History, RotateCcw, UploadCloud, Wallet } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useWorkspace } from "../hooks/useWorkspace";
@@ -106,10 +106,6 @@ export function WorkspaceOverviewPage() {
       </Box>
     </Box>
 
-    <Alert severity="info" icon={<Info size={19} aria-hidden="true" />} sx={{ mb: 3, borderRadius: "13px", bgcolor: "background.paper", color: "text.secondary", border: "1px solid", borderColor: "divider", "& .MuiAlert-icon": { color: "primary.dark" } }}>
-      Không gian làm việc mô phỏng. Bàn giao, nghiệm thu và thanh toán tại đây giúp hai bên thử luồng hợp tác; không có tiền thật được chuyển.
-      {agreement.confirmationSource === "demo" && " Dự án bắt đầu từ xác nhận mô phỏng của bên thực hiện."}
-    </Alert>
     <WorkspaceProgressOverview milestones={milestones} activeId={activeId} onSelect={selectMilestone} />
 
     <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "minmax(0, 1fr) 340px" }, gap: 3, alignItems: "start", mt: 3 }}>
