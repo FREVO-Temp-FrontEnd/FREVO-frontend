@@ -466,6 +466,11 @@ export const initialActiveUserSeed: UserSession = {
   email: "thuan@nangstudio.vn",
   role: "client",
   companyName: "Nắng Studio",
+  industry: "Thiết kế & Thủ công mỹ nghệ",
+  companyBio: "Nắng Studio là thương hiệu sản phẩm thủ công và quà tặng phong cách sống tại TP.HCM. Chúng tôi tập trung vào trải nghiệm thương hiệu ấm áp, bền vững và tôn vinh chất liệu bản địa Việt Nam.",
+  contactEmail: "contact@nangstudio.vn",
+  phone: "0908 123 456",
+  address: "Quận 1, TP. Hồ Chí Minh",
   verified: true,
   actingIdentity: { type: "individual" },
 };
@@ -1110,7 +1115,13 @@ class MockStorageAdapter {
     const candidateRecord = this.memoryState.candidates.find(item => item.projectId === proposal.projectId && item.talentId === proposal.talentId);
     const owner = this.getActiveUser();
     if (!projectRecord || !(owner.role === "admin" || (owner.role === "client" && owner.companyName === projectRecord.company))) throw new Error("Chỉ chủ dự án được gửi thỏa thuận.");
-    if (!candidateRecord?.chatUnlocked || !["discussing", "offer", "selected"].includes(candidateRecord.status)) throw new Error("Cần duyệt ứng viên trước khi gửi thỏa thuận.");
+    if (!candidateRecord) throw new Error("Không tìm thấy thông tin ứng viên cho dự án.");
+    if (!candidateRecord.chatUnlocked || !["discussing", "offer", "selected"].includes(candidateRecord.status)) {
+      candidateRecord.chatUnlocked = true;
+      if (candidateRecord.status === "new" || candidateRecord.status === "under_review") {
+        candidateRecord.status = "discussing";
+      }
+    }
     if (projectRecord.status !== "published" && !(projectRecord.status === "ongoing" && projectRecord.selectedTalentId === proposal.talentId)) throw new Error("Dự án đã đóng tuyển với Provider khác.");
     const existing = this.memoryState.agreements.filter(
       (a) => a.projectId === proposal.projectId && a.talentId === proposal.talentId

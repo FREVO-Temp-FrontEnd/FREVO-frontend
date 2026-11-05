@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
-import { Box, Button, Paper, Typography } from "@mui/material";
-import { Building2, Settings2 } from "lucide-react";
+import { Box, Paper, Typography } from "@mui/material";
 import { accountPanelSx } from "./businessAccountStyles";
 
 export function BusinessAccountLayout({ page, children }: { page: "profile" | "settings"; children: ReactNode }) {
@@ -43,75 +41,16 @@ export function BusinessAccountLayout({ page, children }: { page: "profile" | "s
         },
       })}
     >
-      {/* Page Header */}
-      <Box component="header" sx={{ mb: 3 }}>
-        <Typography
-          component="h1"
-          sx={{
-            fontSize: { xs: 28, sm: 34 },
-            fontWeight: 800,
-            lineHeight: 1.2,
-            color: "text.primary",
-          }}
-        >
-          {page === "profile" ? "Hồ sơ doanh nghiệp" : "Cài đặt tài khoản"}
-          <Box component="span" sx={{ color: "primary.main" }}>
-            .
-          </Box>
-        </Typography>
-        <Typography sx={{ mt: 0.75, fontSize: 15, lineHeight: 1.6, color: "text.secondary", maxWidth: 680 }}>
-          {page === "profile"
-            ? "Thông tin nhận diện, hồ sơ năng lực và cách thức liên hệ của bạn trong hệ sinh thái FREVO."
-            : "Cập nhật thông tin đơn vị tuyển dụng, phương thức liên lạc và tùy chọn thông báo."}
-        </Typography>
-      </Box>
-
-      {/* Navigation Sub-Tabs */}
-      <Box
-        component="nav"
-        aria-label="Hồ sơ và cài đặt doanh nghiệp"
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 1.25,
-          mb: 3.5,
-        }}
-      >
-        {([
-          { value: "profile", label: "Hồ sơ doanh nghiệp", icon: Building2 },
-          { value: "settings", label: "Cài đặt tài khoản", icon: Settings2 },
-        ] as const).map(({ value, label, icon: Icon }) => {
-          const isActive = page === value;
-          return (
-            <Button
-              key={value}
-              component={Link}
-              to={`/business/${value}`}
-              aria-current={isActive ? "page" : undefined}
-              startIcon={<Icon size={16} />}
-              sx={{
-                px: 2.5,
-                border: "1px solid",
-                borderColor: isActive ? "primary.dark" : "divider",
-                bgcolor: isActive ? "primary.dark" : "background.paper",
-                color: isActive ? "#ffffff !important" : "text.primary",
-                boxShadow: isActive ? "0 1px 3px rgba(189, 61, 20, 0.25)" : "0 1px 2px rgba(16, 24, 40, 0.04)",
-                transition: "all 0.15s ease",
-                "& *": {
-                  color: isActive ? "#ffffff !important" : "inherit",
-                },
-                "&:hover": {
-                  bgcolor: isActive ? "primary.main" : "#f8fafc",
-                  borderColor: isActive ? "primary.main" : "#b0b8c4",
-                },
-              }}
-            >
-              {label}
-            </Button>
-          );
-        })}
-      </Box>
-
+      {page === "settings" && (
+        <Box component="header" sx={{ mb: 3 }}>
+          <Typography component="h1" sx={{ fontSize: { xs: 28, sm: 34 }, fontWeight: 800 }}>
+            Cài đặt tài khoản
+          </Typography>
+          <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+            Quản lý đăng nhập, bảo mật và tùy chọn thông báo.
+          </Typography>
+        </Box>
+      )}
       {children}
     </Box>
   );

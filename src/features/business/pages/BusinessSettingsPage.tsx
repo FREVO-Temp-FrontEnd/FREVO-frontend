@@ -5,71 +5,50 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControlLabel,
-  MenuItem,
   Paper,
   Snackbar,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { ArrowUpRight, KeyRound, Save, ShieldCheck } from "lucide-react";
-import { BusinessAccountDetail, BusinessAccountLayout, BusinessAccountSection } from "../components/BusinessAccountLayout";
-import { accountPanelSx } from "../components/businessAccountStyles";
+import {
+  ArrowRight,
+  Bell,
+  Building2,
+  Globe,
+  KeyRound,
+  Laptop,
+  Save,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { useBusinessAccount } from "../hooks/useBusinessAccount";
-import type { BusinessAccountFields } from "@/lib/utils/businessAccount";
-
-const industries = [
-  "Thiết kế & Sáng tạo thương hiệu",
-  "Truyền thông & Marketing số",
-  "Nhiếp ảnh & Sản xuất Video",
-  "Công nghệ & Phần mềm",
-  "Thương mại điện tử & Bán lẻ",
-  "F&B & Khách sạn - Dịch vụ",
-  "Khác",
-];
 
 const NOTIF_STORAGE_KEY = "frevo-business-notif-prefs-v1";
-const EXTRA_PROFILE_KEY = "frevo-business-extra-profile-v1";
 
 export function BusinessSettingsPage() {
   const account = useBusinessAccount();
 
-  // Local companion states for extra settings
-  const [industry, setIndustry] = useState(() => {
-    try {
-      const saved = localStorage.getItem(EXTRA_PROFILE_KEY);
-      if (saved) return JSON.parse(saved).industry || industries[0];
-    } catch { /* ignore */ }
-    return industries[0];
-  });
-
-  const [bio, setBio] = useState(() => {
-    try {
-      const saved = localStorage.getItem(EXTRA_PROFILE_KEY);
-      if (saved) return JSON.parse(saved).bio || "";
-    } catch { /* ignore */ }
-    return "Nắng Studio là đơn vị sáng tạo chuyên sản xuất nội dung số, định vị hình ảnh thương hiệu và thiết kế bao bì cho các thương hiệu vừa và nhỏ (SME) tại Việt Nam.";
-  });
-
-  // Notification preferences
-  const [notifs, setNotifs] = useState({
-    onNewApplicant: true,
-    onMessage: true,
-    onDeliverable: true,
-    weeklyDigest: false,
-  });
-
-  useEffect(() => {
+  const [savedNotifs, setSavedNotifs] = useState(() => {
+    const defaults = { onNewApplicant: true, onMessage: true, onDeliverable: true, weeklyDigest: false };
     try {
       const saved = localStorage.getItem(NOTIF_STORAGE_KEY);
-      if (saved) setNotifs(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
+      return saved ? ({ ...defaults, ...JSON.parse(saved) } as typeof defaults) : defaults;
+    } catch {
+      return defaults;
+    }
+  });
+  const [notifs, setNotifs] = useState(savedNotifs);
+  const [preferenceError, setPreferenceError] = useState("");
+  const preferencesDirty = JSON.stringify(notifs) !== JSON.stringify(savedNotifs);
+  const dirty = account.dirty || preferencesDirty;
 
   // Password change dialog state
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -83,11 +62,16 @@ export function BusinessSettingsPage() {
 
   const handleSaveAll = (event: React.FormEvent) => {
     event.preventDefault();
-    account.save();
+    setPreferenceError("");
+    if (account.dirty && !account.save()) return;
+    if (!preferencesDirty) return;
     try {
-      localStorage.setItem(EXTRA_PROFILE_KEY, JSON.stringify({ industry, bio }));
       localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(notifs));
-    } catch { /* ignore */ }
+      setSavedNotifs(notifs);
+      account.setFeedback("Đã lưu cài đặt tài khoản.");
+    } catch {
+      setPreferenceError("Không lưu được tùy chọn thông báo. Vui lòng thử lại.");
+    }
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -107,231 +91,140 @@ export function BusinessSettingsPage() {
     setPasswordError("");
     setPasswordDialogOpen(false);
     setPasswordFields({ current: "", newPass: "", confirm: "" });
-    setPasswordFeedback("Đã cập nhật mật khẩu mới thành công (Mô phỏng demo).");
+    setPasswordFeedback("Đã cập nhật mật khẩu mới thành công.");
   };
 
-  const input = (
-    field: keyof BusinessAccountFields,
-    label: string,
-    options: {
-      required?: boolean;
-      type?: string;
-      maxLength?: number;
-      autoComplete?: string;
-      helperText?: string;
-      multiline?: boolean;
-      readOnly?: boolean;
-    } = {}
-  ) => (
-    <TextField
-      id={`business-account-${field}`}
-      fullWidth
-      label={label}
-      value={account.fields[field]}
-      onChange={(event) => account.setField(field, event.target.value)}
-      required={options.required}
-      type={options.type}
-      autoComplete={options.autoComplete}
-      multiline={options.multiline}
-      minRows={options.multiline ? 3 : undefined}
-      error={Boolean(account.errors[field])}
-      helperText={account.errors[field] || options.helperText}
-      disabled={options.readOnly}
-      slotProps={{
-        htmlInput: { maxLength: options.maxLength },
-        formHelperText: { sx: { mx: 0, lineHeight: 1.5, fontSize: 12 } },
-      }}
-    />
-  );
-
   return (
-    <BusinessAccountLayout page="settings">
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "minmax(0, 1.85fr) minmax(310px, 1fr)" },
-          alignItems: "start",
-          gap: 3.5,
-        }}
-      >
-        {/* Main Form Column */}
-        <Box component="form" noValidate onSubmit={handleSaveAll} sx={{ display: "grid", gap: 3.5, minWidth: 0 }}>
-          {account.failure && (
-            <Alert severity="error" action={<Button color="inherit" size="small" onClick={account.save}>Thử lại</Button>}>
-              {account.failure}
-            </Alert>
-          )}
+    <Box
+      component="main"
+      id="business-settings-container"
+      sx={{
+        maxWidth: 960,
+        mx: "auto",
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3 },
+        minWidth: 0,
+        "& .MuiButton-root": { textTransform: "none", fontWeight: 700, borderRadius: 999 },
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ mb: 3.5 }}>
+        <Typography
+          component="h1"
+          sx={{
+            fontSize: { xs: 26, sm: 32 },
+            fontWeight: 800,
+            lineHeight: 1.2,
+            color: "#20201f",
+            fontFamily: "Archivo, sans-serif",
+          }}
+        >
+          Cài đặt tài khoản
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 14.5, color: "#747773" }}>
+          Quản lý thông tin đăng nhập, bảo mật và tùy chọn nhận thông báo của doanh nghiệp.
+        </Typography>
+      </Box>
 
-          {/* Section 1: Thông tin doanh nghiệp */}
-          <BusinessAccountSection
-            id="business-account-identity"
-            title="Thông tin doanh nghiệp"
-            description="Tên đơn vị, lĩnh vực và thông tin người đại diện xuất hiện trong không gian làm việc."
-          >
-            <Box sx={{ display: "grid", gap: 2.5 }}>
-              {input("companyName", "Tên doanh nghiệp / Đơn vị tuyển dụng", {
-                required: true,
-                maxLength: 80,
-                autoComplete: "organization",
-                helperText: "Tên thương hiệu hoặc pháp nhân tuyển dụng trên FREVO.",
-              })}
+      {/* Form Content */}
+      <Box component="form" noValidate onSubmit={handleSaveAll} sx={{ display: "grid", gap: 3 }}>
+        {(account.failure || preferenceError) && <Alert severity="error">{account.failure || preferenceError}</Alert>}
 
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
-                {input("name", "Họ và tên người đại diện", {
-                  required: true,
-                  maxLength: 100,
-                  autoComplete: "name",
-                })}
-
-                <TextField
-                  select
-                  fullWidth
-                  label="Lĩnh vực hoạt động chính"
-                  value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
-                >
-                  {industries.map((item) => (
-                    <MenuItem key={item} value={item}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Box>
-
-
-              <TextField
-                fullWidth
-                multiline
-                minRows={3}
-                label="Giới thiệu ngắn về doanh nghiệp (Bio)"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Giới thiệu về phong cách làm việc, văn hóa và tiêu chuẩn dự án..."
-                helperText="Giúp cộng sự và freelancer hiểu rõ hơn về văn hóa và tiêu chuẩn của bạn."
-              />
+        {/* 1. Account Identity & Credentials */}
+        <Paper
+          variant="outlined"
+          sx={{
+            borderRadius: "16px",
+            borderColor: "#d0d5dd",
+            bgcolor: "background.paper",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2, bgcolor: "#fafaf8", borderBottom: "1px solid #eef0eb" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#fff4ee] text-[#bd3d14] border border-[#ffdecb]">
+                <UserCheck size={16} strokeWidth={2.2} />
+              </div>
+              <div>
+                <Typography component="h2" sx={{ fontSize: 17, fontWeight: 800, color: "#20201f" }}>
+                  Thông tin đăng nhập &amp; Người quản trị
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: "#747773" }}>
+                  Tài khoản định danh chính dùng để quản trị và nhận các thông báo pháp lý.
+                </Typography>
+              </div>
             </Box>
-          </BusinessAccountSection>
+          </Box>
 
-          {/* Section 2: Thông tin liên hệ */}
-          <BusinessAccountSection
-            id="business-account-contact"
-            title="Thông tin liên hệ &amp; Nhận thông báo"
-            description="Thông tin dùng để gửi thông báo thỏa thuận và liên hệ trực tiếp khi cần."
-          >
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
-                gap: 2.5,
-              }}
-            >
-              <Box sx={{ gridColumn: "1 / -1" }}>
-                {input("email", "Email đăng nhập tài khoản", {
-                  required: true,
-                  type: "email",
-                  autoComplete: "email",
-                  helperText: "Email tài khoản chính trong phiên làm việc prototype.",
-                })}
-              </Box>
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: "grid", gap: 2.5, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" } }}>
+            <TextField
+              id="business-account-email"
+              fullWidth
+              required
+              type="email"
+              label="Email đăng nhập (Chính)"
+              value={account.fields.email}
+              onChange={(event) => account.setField("email", event.target.value)}
+              error={Boolean(account.errors.email)}
+              helperText={account.errors.email || "Email đăng nhập chính thức vào hệ thống FREVO"}
+              sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1" } }}
+            />
+            <TextField
+              id="business-account-name"
+              fullWidth
+              required
+              label="Họ và tên người đại diện"
+              value={account.fields.name}
+              onChange={(event) => account.setField("name", event.target.value)}
+              error={Boolean(account.errors.name)}
+              helperText={account.errors.name}
+            />
+            <TextField
+              id="business-account-phone"
+              fullWidth
+              label="Số điện thoại bảo mật"
+              value={account.fields.phone}
+              onChange={(event) => account.setField("phone", event.target.value)}
+              error={Boolean(account.errors.phone)}
+              helperText={account.errors.phone || "Dùng để nhận mã xác thực và liên hệ khẩn cấp"}
+            />
+          </Box>
+        </Paper>
 
-              {input("contactEmail", "Email liên hệ nhận hồ sơ", {
-                type: "email",
-                helperText: "Có thể khác email đăng nhập (ví dụ: hr@nangstudio.vn).",
-              })}
-
-              {input("phone", "Số điện thoại liên hệ", {
-                type: "tel",
-                autoComplete: "tel",
-                helperText: "Dùng để liên hệ trao đổi công việc nhanh.",
-              })}
-
-              <Box sx={{ gridColumn: "1 / -1" }}>
-                {input("address", "Địa chỉ văn phòng / Trụ sở", {
-                  autoComplete: "street-address",
-                  multiline: true,
-                  helperText: "Địa chỉ hiển thị trên thỏa thuận hợp tác dự án.",
-                })}
-              </Box>
+        {/* 2. Security & Password */}
+        <Paper
+          variant="outlined"
+          sx={{
+            borderRadius: "16px",
+            borderColor: "#d0d5dd",
+            bgcolor: "background.paper",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2, bgcolor: "#fafaf8", borderBottom: "1px solid #eef0eb" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#fff4ee] text-[#bd3d14] border border-[#ffdecb]">
+                <ShieldCheck size={16} strokeWidth={2.2} />
+              </div>
+              <div>
+                <Typography component="h2" sx={{ fontSize: 17, fontWeight: 800, color: "#20201f" }}>
+                  Bảo mật &amp; Phiên đăng nhập
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: "#747773" }}>
+                  Quản lý mật khẩu và các thiết bị đang đăng nhập tài khoản.
+                </Typography>
+              </div>
             </Box>
-          </BusinessAccountSection>
+          </Box>
 
-          {/* Section 3: Tùy chọn thông báo */}
-          <BusinessAccountSection
-            id="business-account-notifications"
-            title="Cài đặt thông báo (Email &amp; In-app)"
-            description="Chọn những sự kiện bạn muốn nhận thông báo khi làm việc cùng cộng sự."
-          >
-            <Box sx={{ display: "grid", gap: 1.5 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={notifs.onNewApplicant}
-                    onChange={(e) => setNotifs({ ...notifs, onNewApplicant: e.target.checked })}
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Thông báo hồ sơ ứng tuyển mới</Typography>
-                    <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Nhận thông báo ngay khi có freelancer hoặc nhóm nộp hồ sơ vào brief của bạn.</Typography>
-                  </Box>
-                }
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={notifs.onMessage}
-                    onChange={(e) => setNotifs({ ...notifs, onMessage: e.target.checked })}
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Thông báo tin nhắn trao đổi</Typography>
-                    <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Gửi cảnh báo khi đối tác gửi tin nhắn trong phòng chat dự án.</Typography>
-                  </Box>
-                }
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={notifs.onDeliverable}
-                    onChange={(e) => setNotifs({ ...notifs, onDeliverable: e.target.checked })}
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Thông báo nộp sản phẩm bàn giao mốc</Typography>
-                    <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Nhắc nhở bạn vào duyệt và nghiệm thu sản phẩm của mốc tiến độ.</Typography>
-                  </Box>
-                }
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={notifs.weeklyDigest}
-                    onChange={(e) => setNotifs({ ...notifs, weeklyDigest: e.target.checked })}
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography sx={{ fontSize: 14, fontWeight: 600 }}>Bản tin tóm tắt dự án hàng tuần</Typography>
-                    <Typography sx={{ fontSize: 12, color: "text.secondary" }}>Nhận email tổng hợp tiến độ và các hạn nộp sắp tới vào sáng thứ Hai.</Typography>
-                  </Box>
-                }
-              />
-            </Box>
-          </BusinessAccountSection>
-
-          {/* Section 4: Bảo mật & Mật khẩu */}
-          <BusinessAccountSection
-            id="business-account-security"
-            title="Bảo mật tài khoản"
-            description="Quản lý mật khẩu và các tùy chọn bảo mật phiên đăng nhập của doanh nghiệp."
-          >
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: "grid", gap: 2.5 }}>
             <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
               <Box>
-                <Typography sx={{ fontSize: 14, fontWeight: 700 }}>Mật khẩu đăng nhập</Typography>
-                <Typography sx={{ mt: 0.5, fontSize: 13, color: "text.secondary" }}>
-                  Mật khẩu được bảo vệ và mã hóa. Lần đổi gần nhất: 17/10/2026.
+                <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: "#20201f" }}>
+                  Mật khẩu tài khoản
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: "#747773", mt: 0.25 }}>
+                  Mật khẩu được mã hóa an toàn. Lần đổi gần nhất: 17/10/2026.
                 </Typography>
               </Box>
               <Button
@@ -343,138 +236,255 @@ export function BusinessSettingsPage() {
                   minHeight: 38,
                   px: 2.5,
                   fontSize: 13,
-                  fontWeight: 700,
                   borderColor: "#d0d5dd",
-                  color: "text.primary",
-                  "&:hover": { borderColor: "primary.main", bgcolor: "#fff0e9" },
+                  color: "#20201f",
+                  "&:hover": { borderColor: "primary.main", bgcolor: "#fff5f0" },
                 }}
               >
                 Đổi mật khẩu
               </Button>
             </Box>
-          </BusinessAccountSection>
 
-          {/* Action Bar */}
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              p: 2.5,
-              borderRadius: "16px",
-              bgcolor: "background.paper",
-              border: "1px solid",
-              borderColor: "divider",
-              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
-            }}
-          >
-            <Typography role="status" sx={{ fontSize: 14, fontWeight: 600, color: account.dirty ? "#bd3d14" : "text.secondary" }}>
-              {account.dirty ? "● Bạn có thay đổi chưa lưu trên form." : "✓ Thông tin tài khoản đã đồng bộ."}
-            </Typography>
+            <Divider />
 
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-              <Button
-                variant="outlined"
-                onClick={account.reset}
-                sx={{
-                  borderRadius: "999px",
-                  minHeight: 40,
-                  px: 2.5,
-                  fontSize: 13.5,
-                  fontWeight: 700,
-                  borderColor: "#d0d5dd",
-                  color: "text.primary",
-                  "&:hover": { bgcolor: "#f8fafc" },
-                }}
-              >
-                Hủy thay đổi
-              </Button>
-
-              <Tooltip title={account.dirty ? "" : "Chưa có thay đổi để lưu"}>
-                <span>
-                  <Button
-                    type="submit"
-                    disabled={!account.dirty}
-                    variant="contained"
-                    startIcon={<Save size={16} />}
-                    sx={{
-                      borderRadius: "999px",
-                      minHeight: 40,
-                      px: 3,
-                      fontSize: 13.5,
-                      fontWeight: 700,
-                      bgcolor: "primary.dark",
-                      color: "#ffffff !important",
-                      "& *": { color: "#ffffff !important" },
-                      boxShadow: "0 1px 3px rgba(189, 61, 20, 0.25)",
-                      "&:hover": { bgcolor: "primary.main" },
-                    }}
-                  >
-                    Lưu thay đổi
-                  </Button>
-                </span>
-              </Tooltip>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Laptop size={18} className="text-[#62665f]" />
+                <div>
+                  <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#20201f" }}>
+                    Phiên làm việc hiện tại
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "#747773" }}>
+                    Windows · Chrome · TP. Hồ Chí Minh · Đang hoạt động
+                  </Typography>
+                </div>
+              </Box>
+              <Chip label="Thiết bị này" size="small" sx={{ bgcolor: "#e8f7ef", color: "#16805b", fontWeight: 700, fontSize: 11 }} />
             </Box>
           </Box>
-        </Box>
+        </Paper>
 
-        {/* Aside Sidebar Column */}
-        <Box
-          component="aside"
-          aria-label="Tóm tắt thông tin tài khoản"
+        {/* 3. Notification Preferences */}
+        <Paper
+          variant="outlined"
           sx={{
-            position: { lg: "sticky" },
-            top: 90,
-            display: "grid",
-            gap: 3,
+            borderRadius: "16px",
+            borderColor: "#d0d5dd",
+            bgcolor: "background.paper",
+            overflow: "hidden",
           }}
         >
-          {/* Summary Card */}
-          <BusinessAccountSection
-            id="business-account-summary"
-            title="Xem trước hồ sơ"
-            description="Thông tin hiển thị khi bạn lưu các thay đổi."
-          >
-            <Box component="dl" sx={{ display: "grid", gap: 2.25, m: 0 }}>
-              <BusinessAccountDetail label="Tên doanh nghiệp" value={account.fields.companyName || account.user.companyName} />
-              <BusinessAccountDetail label="Người đại diện" value={account.fields.name || account.user.name} />
-              <BusinessAccountDetail label="Lĩnh vực" value={industry} />
-              <BusinessAccountDetail label="Email liên hệ" value={account.fields.contactEmail || account.fields.email} />
+          <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2, bgcolor: "#fafaf8", borderBottom: "1px solid #eef0eb" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#fff4ee] text-[#bd3d14] border border-[#ffdecb]">
+                <Bell size={16} strokeWidth={2.2} />
+              </div>
+              <div>
+                <Typography component="h2" sx={{ fontSize: 17, fontWeight: 800, color: "#20201f" }}>
+                  Cài đặt thông báo (Email &amp; In-app)
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: "#747773" }}>
+                  Chọn những sự kiện bạn muốn nhận cảnh báo tức thời khi vận hành dự án.
+                </Typography>
+              </div>
             </Box>
+          </Box>
 
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: "grid", gap: 2 }}>
+            {[
+              {
+                key: "onNewApplicant" as const,
+                title: "Thông báo hồ sơ ứng tuyển mới",
+                desc: "Nhận thông báo ngay khi có freelancer hoặc nhóm gửi hồ sơ vào brief dự án của bạn.",
+              },
+              {
+                key: "onMessage" as const,
+                title: "Thông báo tin nhắn trao đổi",
+                desc: "Gửi thông báo khi đối tác sáng tạo nhắn tin trong phòng chat tuyển dụng.",
+              },
+              {
+                key: "onDeliverable" as const,
+                title: "Thông báo nộp sản phẩm bàn giao mốc",
+                desc: "Nhắc nhở bạn kiểm tra và nghiệm thu tệp kết quả mốc tiến độ trên workspace.",
+              },
+              {
+                key: "weeklyDigest" as const,
+                title: "Bản tin tổng hợp tiến độ hàng tuần",
+                desc: "Nhận email tóm tắt các công việc cần duyệt và mốc hạn sắp tới vào sáng thứ Hai.",
+              },
+            ].map(({ key, title, desc }) => (
+              <FormControlLabel
+                key={key}
+                control={
+                  <Checkbox
+                    checked={notifs[key]}
+                    onChange={(e) => setNotifs({ ...notifs, [key]: e.target.checked })}
+                    sx={{ color: "#d0d5dd", "&.Mui-checked": { color: "#f4490b" } }}
+                  />
+                }
+                label={
+                  <Box>
+                    <Typography sx={{ fontSize: 14, fontWeight: 600, color: "#20201f" }}>{title}</Typography>
+                    <Typography sx={{ fontSize: 12.5, color: "#747773" }}>{desc}</Typography>
+                  </Box>
+                }
+                sx={{ alignItems: "flex-start", ml: -0.5 }}
+              />
+            ))}
+          </Box>
+        </Paper>
+
+        {/* 4. System & Region Preferences */}
+        <Paper
+          variant="outlined"
+          sx={{
+            borderRadius: "16px",
+            borderColor: "#d0d5dd",
+            bgcolor: "background.paper",
+            overflow: "hidden",
+          }}
+        >
+          <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2, bgcolor: "#fafaf8", borderBottom: "1px solid #eef0eb" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#fff4ee] text-[#bd3d14] border border-[#ffdecb]">
+                <Globe size={16} strokeWidth={2.2} />
+              </div>
+              <div>
+                <Typography component="h2" sx={{ fontSize: 17, fontWeight: 800, color: "#20201f" }}>
+                  Tùy chọn vùng &amp; Hiển thị
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: "#747773" }}>
+                  Định dạng múi giờ và ngôn ngữ làm việc mặc định trên FREVO.
+                </Typography>
+              </div>
+            </Box>
+          </Box>
+
+          <Box sx={{ p: { xs: 2.5, sm: 3.5 }, display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" } }}>
+            <Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#747773", textTransform: "uppercase" }}>
+                Ngôn ngữ giao diện
+              </Typography>
+              <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: "#20201f", mt: 0.5 }}>
+                Tiếng Việt (Mặc định)
+              </Typography>
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#747773", textTransform: "uppercase" }}>
+                Múi giờ hệ thống
+              </Typography>
+              <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: "#20201f", mt: 0.5 }}>
+                (GMT+07:00) Bangkok, Hanoi, Jakarta
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* 5. Direct Link to Public Business Profile */}
+        <Paper
+          variant="outlined"
+          sx={{
+            p: 2.5,
+            borderRadius: "16px",
+            borderColor: "#d0d5dd",
+            bgcolor: "#fafaf8",
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Building2 size={22} className="text-[#bd3d14] shrink-0" />
+            <Box>
+              <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: "#20201f" }}>
+                Cập nhật thông tin công khai doanh nghiệp?
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: "#747773" }}>
+                Tên công ty, logo, giới thiệu thương hiệu và thông tin liên hệ tuyển dụng được quản lý tại trang Hồ sơ.
+              </Typography>
+            </Box>
+          </Box>
+          <Button
+            component={Link}
+            to="/business/profile"
+            variant="outlined"
+            endIcon={<ArrowRight size={15} />}
+            sx={{
+              borderColor: "#d0d5dd",
+              color: "#20201f",
+              whiteSpace: "nowrap",
+              "&:hover": { borderColor: "primary.main", bgcolor: "#ffffff" },
+            }}
+          >
+            Đến trang Hồ sơ
+          </Button>
+        </Paper>
+
+        {/* 6. Sticky/Bottom Save Bar */}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            p: 2.5,
+            borderRadius: "16px",
+            bgcolor: "background.paper",
+            border: "1px solid #d0d5dd",
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
+          }}
+        >
+          <Typography role="status" sx={{ fontSize: 14, fontWeight: 600, color: dirty ? "#bd3d14" : "text.secondary" }}>
+            {dirty ? "● Bạn có thay đổi chưa lưu trên form." : "✓ Thông tin cài đặt tài khoản đã đồng bộ."}
+          </Typography>
+
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
             <Button
-              component={Link}
-              to="/business/profile"
               variant="outlined"
-              fullWidth
-              endIcon={<ArrowUpRight size={16} />}
+              onClick={() => {
+                account.reset();
+                setNotifs(savedNotifs);
+                setPreferenceError("");
+              }}
               sx={{
-                mt: 3,
                 borderRadius: "999px",
                 minHeight: 40,
-                fontSize: 13,
-                fontWeight: 700,
-                color: "text.primary",
+                px: 2.5,
+                fontSize: 13.5,
                 borderColor: "#d0d5dd",
-                "&:hover": { borderColor: "primary.main", bgcolor: "#fff0e9" },
+                color: "#20201f",
+                "&:hover": { bgcolor: "#f8fafc" },
               }}
             >
-              Xem trang hồ sơ công khai
+              Hủy thay đổi
             </Button>
-          </BusinessAccountSection>
 
-          {/* Tips Card */}
-          <Paper elevation={0} sx={{ ...accountPanelSx, p: 2.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <ShieldCheck size={18} className="text-[#15803d]" aria-hidden="true" />
-              <Typography sx={{ fontSize: 14, fontWeight: 700 }}>Mẹo cho doanh nghiệp</Typography>
-            </Box>
-            <Typography sx={{ fontSize: 13, lineHeight: 1.6, color: "text.secondary" }}>
-              Cung cấp đầy đủ email liên hệ và số điện thoại giúp tăng 35% tốc độ phản hồi từ các nhóm sáng tạo và freelancer chất lượng cao.
-            </Typography>
-          </Paper>
+            <Tooltip title={dirty ? "" : "Chưa có thay đổi để lưu"}>
+              <span>
+                <Button
+                  type="submit"
+                  disabled={!dirty}
+                  variant="contained"
+                  startIcon={<Save size={16} />}
+                  sx={{
+                    borderRadius: "999px",
+                    minHeight: 40,
+                    px: 3,
+                    fontSize: 13.5,
+                    bgcolor: "#f4490b !important",
+                    color: "#ffffff !important",
+                    boxShadow: "0 2px 8px rgba(244,73,11,0.25)",
+                    "&:hover": { bgcolor: "#bd3d14 !important" },
+                  }}
+                >
+                  Lưu cài đặt
+                </Button>
+              </span>
+            </Tooltip>
+          </Box>
         </Box>
       </Box>
 
@@ -524,10 +534,10 @@ export function BusinessSettingsPage() {
               variant="contained"
               sx={{
                 borderRadius: "999px",
-                bgcolor: "primary.dark",
+                bgcolor: "#f4490b !important",
                 color: "#fff !important",
                 fontWeight: 700,
-                "&:hover": { bgcolor: "primary.main" },
+                "&:hover": { bgcolor: "#bd3d14 !important" },
               }}
             >
               Cập nhật mật khẩu
@@ -536,10 +546,10 @@ export function BusinessSettingsPage() {
         </Box>
       </Dialog>
 
-      {/* Feedback Snackbars */}
+      {/* Snackbars */}
       <Snackbar
         open={Boolean(account.feedback)}
-        autoHideDuration={4500}
+        autoHideDuration={4000}
         onClose={() => account.setFeedback("")}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -550,7 +560,7 @@ export function BusinessSettingsPage() {
 
       <Snackbar
         open={Boolean(passwordFeedback)}
-        autoHideDuration={4500}
+        autoHideDuration={4000}
         onClose={() => setPasswordFeedback("")}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -558,6 +568,8 @@ export function BusinessSettingsPage() {
           {passwordFeedback}
         </Alert>
       </Snackbar>
-    </BusinessAccountLayout>
+    </Box>
   );
 }
+
+export default BusinessSettingsPage;
