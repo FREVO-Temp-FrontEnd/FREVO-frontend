@@ -34,6 +34,7 @@ import AdminDashboardPage from "@/features/admin/pages/AdminDashboardPage";
 
 import FreelancerLayout from "@/features/freelancer/layout/FreelancerLayout";
 import { PaymentRoute } from "./PaymentRoute";
+import { NavigateToOngoingProgress } from "./NavigateToOngoingProgress";
 
 export const router = createBrowserRouter([
   {
@@ -157,6 +158,10 @@ export const router = createBrowserRouter([
       {
         path: "business/ongoing/:projectId/progress",
         element: <RoleGuard allowedRoles={["client", "admin"]}><BusinessLayout><WorkspaceOverviewPage /></BusinessLayout></RoleGuard>,
+      },
+      {
+        path: "business/projects/:projectId/progress",
+        element: <NavigateToOngoingProgress />,
       },
       {
         path: "business/talent/:talentId/portfolio/:workId",

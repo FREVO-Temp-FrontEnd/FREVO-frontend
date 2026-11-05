@@ -32,14 +32,14 @@ export function usePaymentLedger() {
   const heldTotal = sumFor("held_simulated");
   const releasedTotal = sumFor("released_simulated");
   const projectPath = isBusiness ? `/business/projects/${projectId}` : `/projects/${projectId}/details`;
-  const progressPath = isBusiness ? `/business/projects/${projectId}/progress` : `/workspace/${projectId}`;
+  const progressPath = isBusiness ? `/business/ongoing/${projectId}/progress` : `/workspace/${projectId}`;
   const agreementPath = isBusiness ? `/business/projects/${projectId}/agreement` : `/projects/${projectId}/agreement`;
   function openFund(milestone: Milestone) { if (milestoneRecords.find(item => item.milestone.id === milestone.id)?.canFund) { setFundId(milestone.id); setError(""); } }
   function confirmFund() {
     if (!project || !selectedMilestone || !canAccess || !isBusiness) return;
-    if (mockStorage.getPayments(project.id).some(item => item.milestoneId === selectedMilestone.id)) { setFundId(null); setNotice("Mốc đã có giao dịch mô phỏng, không tạo thêm giao dịch trùng."); return; }
-    try { mockStorage.fundMilestone(project.id, selectedMilestone.id); setFundId(null); setNotice("Đã ghi nhận tạm giữ mô phỏng. Không có tiền thật được chuyển."); }
-    catch { setError("Không ghi nhận được thao tác mô phỏng. Vui lòng thử lại."); }
+    if (mockStorage.getPayments(project.id).some(item => item.milestoneId === selectedMilestone.id)) { setFundId(null); setNotice("Mốc đã được nạp ký quỹ an toàn, không tạo giao dịch trùng."); return; }
+    try { mockStorage.fundMilestone(project.id, selectedMilestone.id); setFundId(null); setNotice(`Đã nạp ký quỹ thành công cho mốc "${selectedMilestone.name}". Ngân sách hiện được bảo vệ trong ký quỹ an toàn.`); }
+    catch { setError("Không thể hoàn tất thao tác ký quỹ. Vui lòng thử lại."); }
   }
   return { project, agreement, talent, milestones, payments, milestoneRecords, selectedMilestone, openFund, confirmFund, closeFund: () => setFundId(null), heldTotal, releasedTotal, showRetryDemo, setShowRetryDemo, notice, setNotice, error, isBusiness, canAccess, projectPath, progressPath, agreementPath };
 }

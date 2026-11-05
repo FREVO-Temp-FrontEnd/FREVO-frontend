@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Chip, Paper, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Button, Paper, Stack, Typography } from "@mui/material";
 import { FilePenLine, FileText, MessageCircle, Wallet } from "lucide-react";
 import { Link } from "react-router";
 import type { AgreementProposal, PaymentSimulation, TalentProfile } from "@/lib/types/marketplace.types";
@@ -47,11 +47,11 @@ export function WorkspaceContextSidebar({ agreement, talent, company, isBusiness
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, lineHeight: 1.7 }}>Thay đổi ngoài phạm vi cần hai bên xác nhận đề xuất điều chỉnh trước khi áp dụng.</Typography>
       <Button onClick={onScopeChange} startIcon={<FilePenLine size={17} aria-hidden="true" />} sx={{ mt: 2, color: "primary.dark" }}>Điều chỉnh phạm vi</Button>
     </Paper>
-    <Paper variant="outlined" sx={panelSx}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}><Typography component="h2" sx={headingSx}>Thanh toán</Typography><Chip size="small" label="Mô phỏng" /></Box>
+    {!isBusiness && <Paper variant="outlined" sx={panelSx}>
+      <Typography component="h2" sx={headingSx}>Thanh toán</Typography>
       <Typography variant="body2" sx={{ mt: 2, fontWeight: 600 }}>{paymentLabel}</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.7 }}>Nghiệm thu và giải ngân được theo dõi riêng. Không có tiền thật được chuyển trong prototype.</Typography>
       <Button component={Link} to={paymentPath} startIcon={<Wallet size={17} aria-hidden="true" />} sx={{ mt: 2, color: "primary.dark" }}>Sổ thanh toán</Button>
-    </Paper>
+    </Paper>}
   </Stack>;
 }
