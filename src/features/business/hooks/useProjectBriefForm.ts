@@ -1,4 +1,4 @@
-import type { GuidedBrief } from "@/lib/types/guidedBrief.types";
+import { customDeliverablePrefix, type GuidedBrief } from "@/lib/types/guidedBrief.types";
 import { briefDuration } from "@/lib/utils/briefDuration";
 import { creativeServices, creativeTemplateVersion } from "../data/creativeBriefTemplates";
 import { useState } from "react";
@@ -78,6 +78,9 @@ function validate(fields: BriefFields, original?: ProjectBrief): BriefErrors {
   if (guided) {
     const service = creativeServices.find(item => item.id === guided.serviceId);
     const invalidItem = guided.items.some(item => {
+      if (item.typeId.startsWith(customDeliverablePrefix)) {
+        return !item.name.trim() || !item.acceptanceCriteria.trim();
+      }
       const template = service?.deliverables.find(option => option.id === item.typeId);
       return !template || !item.acceptanceCriteria.trim() || template.fields.some(field => !item.specifications[field.id]?.trim());
     });
