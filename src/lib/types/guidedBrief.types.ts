@@ -7,3 +7,4 @@ export interface GuidedBrief {
   outOfScope: string;
   items: { typeId: string; name: string; specifications: Record<string, string>; acceptanceCriteria: string }[];
 }
+export const customDeliverablePrefix = "custom:";

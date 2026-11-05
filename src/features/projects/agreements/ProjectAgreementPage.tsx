@@ -107,7 +107,77 @@ export function ProjectAgreementPage() {
             {effective && <Button component={Link} to={page.progressPath} variant="outlined" startIcon={<Layers3 size={16} aria-hidden="true" />}>Vào không gian làm việc</Button>}
           </Stack>
         </Paper>}
-        {!current && <Button component={Link} to={page.chatPath} variant="outlined" startIcon={<MessageCircle size={16} aria-hidden="true" />}>Trao đổi thêm</Button>}
+        {!current && (
+          <Paper variant="outlined" sx={{ ...panelSx, bgcolor: "background.paper", borderColor: "#d0d5dd" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 2 }}>
+              <Typography component="h2" sx={{ fontWeight: 700, fontSize: 17, color: "#20201f" }}>
+                Thông tin tham chiếu
+              </Typography>
+              <Chip
+                size="small"
+                label="Từ brief dự án"
+                sx={{ bgcolor: "#f2f3f0", color: "#62665f", fontSize: 11, fontWeight: 600, height: 22 }}
+              />
+            </Box>
+
+            {/* Candidate summary */}
+            <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fafaf9", border: "1px solid #eef0eb", mb: 2.5 }}>
+              <Typography variant="caption" sx={{ color: "#747773", textTransform: "uppercase", fontWeight: 700, letterSpacing: 0.5 }}>
+                Bên thực hiện đề xuất
+              </Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: 16, color: "#20201f", mt: 0.5 }}>
+                {talent.name}
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#747773" }}>
+                {talent.role} · {talent.kind}
+              </Typography>
+              {talent.rate && (
+                <Typography variant="caption" sx={{ display: "block", color: "primary.dark", fontWeight: 600, mt: 0.5 }}>
+                  Mức phí dự kiến: {talent.rate}
+                </Typography>
+              )}
+            </Box>
+
+            {/* Reference metrics */}
+            <Box component="dl" sx={{ m: 0, mb: 2.5, display: "grid", gap: 1.5, "& dt": { fontSize: 12, color: "#747773" }, "& dd": { m: 0, fontWeight: 700, fontSize: 14, color: "#20201f" } }}>
+              <Box>
+                <Typography component="dt">Ngân sách dự kiến (từ brief)</Typography>
+                <Typography component="dd">{project.budget || "Chưa cập nhật"}</Typography>
+              </Box>
+              <Box>
+                <Typography component="dt">Hạn hoàn thành mong muốn</Typography>
+                <Typography component="dd">{project.deadline || "Chưa cập nhật"}</Typography>
+              </Box>
+              <Box>
+                <Typography component="dt">Sản phẩm bàn giao dự kiến</Typography>
+                <Typography component="dd">{project.deliverables?.length || 0} hạng mục chính</Typography>
+              </Box>
+            </Box>
+
+            {/* Next steps explanation */}
+            <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fff8f5", border: "1px solid #ffd4c3", mb: 2.5 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#bd3d14", mb: 1 }}>
+                Các bước tiếp theo:
+              </Typography>
+              <Stack spacing={0.75} sx={{ fontSize: 12, color: "#62665f" }}>
+                <div>1. Doanh nghiệp soạn và gửi đề xuất hợp tác ở cột bên trái.</div>
+                <div>2. Ứng viên có 3 ngày để xem xét và phản hồi điều chỉnh.</div>
+                <div>3. Khi cả hai bên xác nhận, dự án chính thức đóng tuyển và bắt đầu thực hiện.</div>
+              </Stack>
+            </Box>
+
+            {/* Crucial Disclaimer Requirement */}
+            <Typography variant="caption" sx={{ display: "block", color: "#8c9188", fontSize: 11, lineHeight: 1.45, mb: 2.5, fontStyle: "italic" }}>
+              * Lưu ý: Các thông tin trên được tổng hợp từ bản brief và hồ sơ ứng viên để tiện đối chiếu, chưa phải là điều khoản đã thỏa thuận giữa hai bên.
+            </Typography>
+
+            <Stack spacing={1.5}>
+              <Button component={Link} to={page.chatPath} variant="outlined" color="secondary" startIcon={<MessageCircle size={16} aria-hidden="true" />}>
+                Trao đổi trong tin nhắn
+              </Button>
+            </Stack>
+          </Paper>
+        )}
         {page.versions.length > 0 && <AgreementVersionHistory agreements={page.versions} selectedVersion={current?.version ?? 1} onSelectVersion={page.select} />}
       </Stack>
     </Box>

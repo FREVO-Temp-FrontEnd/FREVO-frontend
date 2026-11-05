@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, Box, Button, Chip, Paper, Snackbar, Stack, Typography } from "@mui/material";
-import { ArrowLeft, CheckCircle2, ClipboardCheck, Eye, History, Info, RotateCcw, UploadCloud } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, Eye, FileText, History, Info, RotateCcw, UploadCloud, Wallet } from "lucide-react";
 import { Link, Navigate } from "react-router";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
 import { useWorkspace } from "../hooks/useWorkspace";
@@ -13,6 +13,24 @@ import { AcceptanceReviewDialog } from "../components/AcceptanceReviewDialog";
 import { ProjectCompletedModal } from "../components/ProjectCompletedModal";
 import { ScopeChangeRequestModal } from "../components/ScopeChangeRequestModal";
 import { OverdueWarningBanner } from "../components/OverdueWarningBanner";
+
+const headerActionBtnSx = {
+  minHeight: 40,
+  borderRadius: 999,
+  bgcolor: "background.paper",
+  border: "1px solid #e4e6e2",
+  color: "text.primary",
+  px: 2.25,
+  fontSize: 13,
+  fontWeight: 600,
+  textTransform: "none",
+  boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+  "&:hover": {
+    bgcolor: "#fffaf7",
+    borderColor: "primary.main",
+    color: "primary.dark",
+  },
+};
 
 export function WorkspaceOverviewPage() {
   const workspace = useWorkspace();
@@ -58,7 +76,34 @@ export function WorkspaceOverviewPage() {
         </Box>
         <Typography color="text.secondary" sx={{ mt: 1, overflowWrap: "anywhere" }}>{project.title}</Typography>
       </Box>
-      <Button component={Link} to={listPath} variant="outlined" color="secondary" startIcon={<ArrowLeft size={17} aria-hidden="true" />}>Về công việc</Button>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, alignItems: "center" }}>
+        <Button
+          component={Link}
+          to={listPath}
+          startIcon={<ArrowLeft size={16} aria-hidden="true" />}
+          sx={headerActionBtnSx}
+        >
+          {isBusiness ? "Về danh sách đang tiến hành" : "Về danh sách công việc"}
+        </Button>
+        {isBusiness && (
+          <Button
+            component={Link}
+            to={paymentPath}
+            startIcon={<Wallet size={16} aria-hidden="true" />}
+            sx={headerActionBtnSx}
+          >
+            Sổ thanh toán & Ký quỹ
+          </Button>
+        )}
+        <Button
+          component={Link}
+          to={workspace.agreementPath}
+          startIcon={<FileText size={16} aria-hidden="true" />}
+          sx={headerActionBtnSx}
+        >
+          Thỏa thuận hợp tác
+        </Button>
+      </Box>
     </Box>
 
     <Alert severity="info" icon={<Info size={19} aria-hidden="true" />} sx={{ mb: 3, borderRadius: "13px", bgcolor: "background.paper", color: "text.secondary", border: "1px solid", borderColor: "divider", "& .MuiAlert-icon": { color: "primary.dark" } }}>

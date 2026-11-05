@@ -59,7 +59,7 @@ function ProjectCard({ project, candidateCount, pendingCount, executorName }: Pr
   const status = statuses[project.status];
   const Icon = status.icon;
   const detailPath = `/business/projects/${project.id}`;
-  const target = isDraft ? `${detailPath}/edit` : inProgress ? `${detailPath}/progress` : detailPath;
+  const target = isDraft ? `${detailPath}/edit` : inProgress ? `/business/ongoing/${project.id}/progress` : detailPath;
   const deadline = recruiting ? project.applicationDeadline || project.deadline : project.deadline;
 
   return (

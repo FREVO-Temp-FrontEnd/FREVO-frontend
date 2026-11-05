@@ -8,8 +8,10 @@ import {
   CheckCheck,
   ChevronDown,
   Clock3,
-  FileCheck2,
+  ClipboardCheck,
+  MessagesSquare,
   FileText,
+  FileUser,
   FolderOpen,
   Layers3,
   MessageCircle,
@@ -18,15 +20,15 @@ import {
 } from "lucide-react";
 import { useBusinessDashboard } from "../hooks/useBusinessDashboard";
 
-const taskIcons = { candidate: Users, milestone: FileCheck2, message: MessageCircle };
+const taskIcons = { candidate: FileUser, milestone: ClipboardCheck, message: MessagesSquare };
 
 export function BusinessDashboardPage() {
   const dashboard = useBusinessDashboard();
   const metrics = [
     { label: "Dự án đang tuyển", value: dashboard.published, icon: BriefcaseBusiness, href: "/business/projects", action: "Xem danh sách dự án", attention: false },
     { label: "Đang thực hiện", value: dashboard.ongoing, icon: Layers3, href: "/business/ongoing", action: "Theo dõi tiến độ", attention: false },
-    { label: "Hồ sơ chờ duyệt", value: dashboard.fresh, icon: Users, href: "#dashboard-tasks-title", action: "Xem việc cần xử lý", attention: dashboard.fresh > 0 },
-    { label: "Bàn giao chờ duyệt", value: dashboard.submittedCount, icon: FileCheck2, href: "#dashboard-tasks-title", action: "Xem việc cần xử lý", attention: dashboard.submittedCount > 0 },
+    { label: "Hồ sơ chờ duyệt", value: dashboard.fresh, icon: FileUser, href: "#dashboard-tasks-title", action: "Xem việc cần xử lý", attention: dashboard.fresh > 0, note: dashboard.fresh > 0 ? "Cần duyệt" : undefined },
+    { label: "Bàn giao chờ duyệt", value: dashboard.submittedCount, icon: ClipboardCheck, href: "#dashboard-tasks-title", action: "Xem việc cần xử lý", attention: dashboard.submittedCount > 0, note: dashboard.submittedCount > 0 ? "Chờ xác nhận" : undefined },
   ];
 
   return (
@@ -109,7 +111,6 @@ export function BusinessDashboardPage() {
         </Button>
       </Box>
 
-      {/* Overview Stat Cards */}
       <Box
         component="section"
         aria-label="Số liệu tổng quan"
@@ -120,101 +121,57 @@ export function BusinessDashboardPage() {
           mb: 4,
         }}
       >
-        {metrics.map(({ label, value, icon: Icon, href, action, attention }) => (
+        {metrics.map(({ label, value, icon: Icon, href, action, attention, note }) => (
           <Paper
             component={Link}
             key={label}
             to={href}
+            variant="outlined"
             onClick={href.startsWith("#") ? () => document.getElementById(href.slice(1))?.focus() : undefined}
-            elevation={0}
             aria-label={`${label}: ${value}. ${action}`}
             sx={{
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
               p: { xs: 2.25, sm: 2.5 },
-              minHeight: 124,
-              borderRadius: "16px",
-              border: "1px solid",
-              borderColor: attention ? "#ffd4c3" : "divider",
+              minHeight: 116,
+              borderRadius: "14px",
               bgcolor: "background.paper",
-              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.03)",
+              borderColor: attention ? "#fcd5c5" : "#e4e6e2",
               textDecoration: "none",
-              color: "inherit",
-              transition: "border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease",
+              color: "text.primary",
+              transition: "border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease",
               "&:hover": {
                 borderColor: attention ? "primary.main" : "#b0b8c4",
-                boxShadow: "0 8px 24px -4px rgba(16, 24, 40, 0.08), 0 3px 8px -2px rgba(16, 24, 40, 0.04)",
-                transform: "translateY(-2px)",
-                "& .metric-arrow": {
-                  color: "primary.dark",
-                  transform: "translate(2px, -2px)",
-                },
+                boxShadow: "0 4px 12px rgba(16, 24, 40, 0.05)",
+                transform: "translateY(-1px)",
               },
-              "@media (prefers-reduced-motion: reduce)": { transition: "none", transform: "none" },
+              "&:focus-visible": { outline: "2px solid", outlineColor: "primary.dark", outlineOffset: 2 },
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-              <Box
-                sx={{
-                  display: "grid",
-                  placeItems: "center",
-                  width: 38,
-                  height: 38,
-                  borderRadius: "10px",
-                  bgcolor: attention ? "#fff0e9" : "#f0f2f5",
-                  color: attention ? "primary.dark" : "#475467",
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <Icon size={19} aria-hidden="true" />
-              </Box>
-              <Box
-                className="metric-arrow"
-                sx={{
-                  display: "grid",
-                  placeItems: "center",
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  color: attention ? "primary.dark" : "#98a2b3",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <ArrowUpRight size={17} aria-hidden="true" />
-              </Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "text.secondary" }}>{label}</Typography>
+              <Icon size={17} strokeWidth={1.8} className={attention ? "text-[#bd3d14]" : "text-[#747773]"} aria-hidden="true" />
             </Box>
-
-            <Box sx={{ mt: 1.5 }}>
-              <Typography
-                sx={{
-                  fontSize: { xs: 28, sm: 32 },
-                  fontWeight: 800,
-                  fontFamily: "Archivo, Arial, sans-serif",
-                  lineHeight: 1.1,
-                  color: attention ? "primary.dark" : "text.primary",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
+            <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1, mt: 1.5 }}>
+              <Typography sx={{ fontSize: { xs: 26, sm: 30 }, fontWeight: 800, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: attention ? "primary.dark" : "text.primary" }}>
                 {value}
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "text.secondary", lineHeight: 1.4 }}>
-                  {label}
-                </Typography>
-                {attention && (
-                  <Box
-                    component="span"
-                    sx={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      bgcolor: "primary.main",
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-              </Box>
+              {note && (
+                <Chip
+                  label={note}
+                  size="small"
+                  sx={{
+                    height: 20,
+                    px: 0.5,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    bgcolor: "#fff0e9",
+                    color: "primary.dark",
+                    border: "1px solid #ffd4c3",
+                  }}
+                />
+              )}
             </Box>
           </Paper>
         ))}
@@ -231,68 +188,12 @@ export function BusinessDashboardPage() {
       >
         {/* Left Column */}
         <Box sx={{ display: "grid", gap: 4, minWidth: 0 }}>
-          {/* Section: Cần bạn xử lý */}
-          <Paper
-            component="section"
-            aria-labelledby="dashboard-tasks-title"
-            elevation={0}
-            sx={{
-              borderRadius: "16px",
-              border: "1px solid",
-              borderColor: dashboard.tasks.length > 0 ? "#ffd4c3" : "divider",
-              bgcolor: "background.paper",
-              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04)",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 1.5,
-                px: { xs: 2.25, sm: 3 },
-                py: 2,
-                bgcolor: dashboard.tasks.length > 0 ? "#fffaf7" : "background.paper",
-                borderBottom: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                <Typography
-                  id="dashboard-tasks-title"
-                  component="h2"
-                  tabIndex={-1}
-                  sx={{
-                    fontSize: { xs: 17, sm: 19 },
-                    fontWeight: 800,
-                    fontFamily: "Archivo, Arial, sans-serif",
-                    lineHeight: 1.3,
-                    scrollMarginTop: "100px",
-                  }}
-                >
-                  Cần bạn xử lý
-                </Typography>
-                <Chip
-                  label={dashboard.tasks.length}
-                  size="small"
-                  sx={{
-                    height: 24,
-                    px: 0.5,
-                    bgcolor: dashboard.tasks.length > 0 ? "#fff0e9" : "#e8f7ef",
-                    color: dashboard.tasks.length > 0 ? "primary.dark" : "#16805b",
-                    border: "1px solid",
-                    borderColor: dashboard.tasks.length > 0 ? "#fcd5c5" : "#c8ecd7",
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}
-                />
-              </Box>
-              {dashboard.tasks.length > 0 && (
-                <Typography sx={{ fontSize: 12, color: "text.secondary", fontWeight: 500, display: { xs: "none", sm: "block" } }}>
-                  Ưu tiên xử lý để tiến độ không gián đoạn
-                </Typography>
-              )}
+          <Paper component="section" aria-labelledby="dashboard-tasks-title" variant="outlined">
+            <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "4px 12px", px: { xs: 2, sm: 2.5 }, py: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+              <Typography id="dashboard-tasks-title" component="h2" tabIndex={-1} sx={{ fontSize: 18, fontWeight: 750, scrollMarginTop: "100px" }}>
+                Cần bạn xử lý
+              </Typography>
+              {dashboard.tasks.length > 0 && <Typography variant="body2" color="text.secondary">{dashboard.tasks.length} việc</Typography>}
             </Box>
 
             <Box id="dashboard-task-list">
@@ -315,52 +216,46 @@ export function BusinessDashboardPage() {
                         "&:last-child": { borderBottom: 0 },
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: "grid",
-                          placeItems: "center",
-                          width: 42,
-                          height: 42,
-                          flexShrink: 0,
-                          borderRadius: "12px",
-                          border: "1px solid",
-                          bgcolor: task.kind === "candidate" ? "#fff0e9" : task.kind === "milestone" ? "#eaf4fb" : "#e8f7ef",
-                          borderColor: task.kind === "candidate" ? "#fcd5c5" : task.kind === "milestone" ? "#c9e3f5" : "#c8ecd7",
-                          color: task.kind === "candidate" ? "primary.dark" : task.kind === "milestone" ? "#176c9a" : "#16805b",
-                        }}
-                      >
-                        <Icon size={20} aria-hidden="true" />
+                      <Box sx={{
+                        display: "grid",
+                        placeItems: "center",
+                        width: 36,
+                        height: 36,
+                        borderRadius: "10px",
+                        bgcolor: task.kind === "candidate" ? "#fff0e9" : task.kind === "milestone" ? "#f0fdf4" : "#f0f9ff",
+                        color: task.kind === "candidate" ? "#bd3d14" : task.kind === "milestone" ? "#16a34a" : "#0284c7",
+                        flexShrink: 0,
+                      }}>
+                        <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
                       </Box>
-                      <Box sx={{ flex: 1, minWidth: 0, flexBasis: { xs: "calc(100% - 60px)", sm: "auto" } }}>
+                      <Box sx={{ flex: 1, minWidth: 0, flexBasis: { xs: "calc(100% - 50px)", sm: "auto" } }}>
                         <Typography sx={{ fontSize: 15, fontWeight: 700, lineHeight: 1.4, color: "text.primary" }}>
                           {task.title}
                         </Typography>
                         <Typography sx={{ mt: 0.25, fontSize: 13, color: "text.secondary", lineHeight: 1.5, overflowWrap: "anywhere" }}>
-                          {task.detail}
+                          <Box component="span" sx={{ fontWeight: 600, color: "text.primary" }}>Dự án:</Box> {task.detail}
                         </Typography>
                       </Box>
                       <Button
                         component={Link}
                         to={task.href}
-                        endIcon={<ArrowUpRight size={15} />}
+                        variant="outlined"
+                        endIcon={<ArrowRight size={14} aria-hidden="true" />}
                         sx={{
+                          minHeight: 36,
                           borderRadius: "999px",
-                          minHeight: 38,
-                          px: 2.25,
-                          fontSize: 13,
+                          px: 2,
+                          fontSize: 12.5,
                           fontWeight: 700,
+                          bgcolor: "background.paper",
+                          borderColor: "#d0d5dd",
+                          color: "text.primary",
+                          ml: { xs: "50px", sm: 0 },
                           whiteSpace: "nowrap",
-                          bgcolor: "#fff0e9",
-                          color: "primary.dark",
-                          border: "1px solid #fcd5c5",
-                          ml: { xs: "58px", sm: 0 },
-                          transition: "all 0.15s ease",
                           "&:hover": {
-                            bgcolor: "primary.dark",
-                            borderColor: "primary.dark",
-                            color: "#ffffff !important",
-                            "& *": { color: "#ffffff !important" },
-                            boxShadow: "0 2px 6px rgba(189, 61, 20, 0.25)",
+                            bgcolor: "#fff0e9",
+                            borderColor: "#f4490b",
+                            color: "primary.dark",
                           },
                         }}
                       >

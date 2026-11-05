@@ -51,7 +51,7 @@ export default function FreelancerLayout() {
   const legacyWorkspaceMatch = currentPath.match(/^\/workspace\/([^/]+)$/);
   if ((role === "client" || role === "admin") && legacyWorkspaceMatch) {
     const projectId = legacyWorkspaceMatch[1];
-    return <Navigate to={`/business/projects/${projectId}/progress${location.search}`} replace />;
+    return <Navigate to={`/business/ongoing/${projectId}/progress${location.search}`} replace />;
   }
 
   return (

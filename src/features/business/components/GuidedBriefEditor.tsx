@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField, Typography } from "@mui/material";
-import type { GuidedBrief } from "@/lib/types/guidedBrief.types";
+import { customDeliverablePrefix, type GuidedBrief } from "@/lib/types/guidedBrief.types";
 import { creativeServices, creativeTemplateVersion } from "../data/creativeBriefTemplates";
 import type { BriefFields } from "../hooks/useProjectBriefForm";
 
@@ -14,6 +14,7 @@ interface Props {
 
 export function GuidedBriefEditor({ fields, error, onChange }: Props) {
   const [pending, setPending] = useState<string | null>(null);
+  const [newItemId, setNewItemId] = useState<string | null>(null);
   const value = fields.guidedBrief;
   const service = creativeServices.find((item) => item.id === value?.serviceId);
 
@@ -144,8 +145,11 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
           </Typography>
 
           <div className="mb-2">
-            <Typography sx={{ mb: 1.5, fontSize: 13, fontWeight: 700 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
               Chọn sản phẩm bàn giao *
+            </Typography>
+            <Typography sx={{ mt: 0.5, mb: 1.5, fontSize: 13, color: "text.secondary" }}>
+              Chọn những sản phẩm freelancer cần giao. Nếu chưa có trong danh sách, thêm hạng mục riêng và đặt tên cho sản phẩm.
             </Typography>
             <div className="mb-5 flex flex-wrap gap-2">
               {service.deliverables.map((template) => {
@@ -192,6 +196,33 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
                   />
                 );
               })}
+              <Chip
+                label="+ Thêm hạng mục riêng"
+                variant="outlined"
+                sx={{
+                  minHeight: 38,
+                  px: 1.5,
+                  bgcolor: "#ffffff",
+                  color: "primary.dark",
+                  border: "1.5px dashed #f4490b",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  "&:hover": {
+                    bgcolor: "#fff0e9",
+                    borderColor: "#bd3d14",
+                  },
+                }}
+                onClick={() => {
+                  const typeId = customDeliverablePrefix + crypto.randomUUID();
+                  setNewItemId(typeId);
+                  update({
+                    ...value,
+                    items: [...value.items, { typeId, name: "", specifications: {}, acceptanceCriteria: "" }],
+                  });
+                }}
+              />
             </div>
           </div>
 
@@ -201,51 +232,10 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
             </Alert>
           )}
 
-          <Box
-            sx={{
-              display: "grid",
-              gap: 2.5,
-              mb: 3,
-              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-            }}
-          >
-            <TextField
-              label="Trong phạm vi"
-              required
-              error={!!error && !value.inScope.trim()}
-              helperText={
-                error && !value.inScope.trim()
-                  ? "Mô tả các công việc bao gồm trong dự án."
-                  : undefined
-              }
-              multiline
-              minRows={3}
-              value={value.inScope}
-              onChange={(event) => update({ ...value, inScope: event.target.value })}
-              placeholder="Những công việc bên thực hiện cần làm"
-              sx={inputSx}
-            />
-            <TextField
-              label="Ngoài phạm vi"
-              required
-              error={!!error && !value.outOfScope.trim()}
-              helperText={
-                error && !value.outOfScope.trim()
-                  ? "Ghi các công việc không bao gồm, hoặc Không có."
-                  : undefined
-              }
-              multiline
-              minRows={3}
-              value={value.outOfScope}
-              onChange={(event) => update({ ...value, outOfScope: event.target.value })}
-              placeholder="Những công việc không bao gồm; ghi Không có nếu phù hợp"
-              sx={inputSx}
-            />
-          </Box>
-
           <div className="space-y-4">
             {value.items.map((item, index) => {
               const template = service.deliverables.find((option) => option.id === item.typeId);
+              const custom = item.typeId.startsWith(customDeliverablePrefix);
               return (
                 <Box
                   key={item.typeId}
@@ -267,6 +257,7 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
                       color: "text.primary",
                       display: "flex",
                       alignItems: "center",
+                      flexWrap: "wrap",
                       gap: 1,
                     }}
                   >
@@ -286,9 +277,37 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
                     >
                       {index + 1}
                     </Box>
-                    {item.name}
+                    {item.name || "Hạng mục riêng tự tạo"}
+                    <Button
+                      type="button"
+                      size="small"
+                      color="error"
+                      sx={{ ml: "auto", fontSize: 12, fontWeight: 600, textTransform: "none" }}
+                      onClick={() => setPending(`remove:${item.typeId}`)}
+                    >
+                      Bỏ hạng mục
+                    </Button>
                   </Typography>
                   <div className="grid gap-4">
+                    {custom && (
+                      <TextField
+                        label="Tên hạng mục bàn giao"
+                        autoFocus={item.typeId === newItemId}
+                        required
+                        error={!!error && !item.name.trim()}
+                        helperText={error && !item.name.trim() ? "Nhập tên hạng mục riêng." : undefined}
+                        value={item.name}
+                        placeholder="Ví dụ: Bộ icon cho ứng dụng"
+                        slotProps={{ htmlInput: { maxLength: 120 } }}
+                        onChange={(event) => update({
+                          ...value,
+                          items: value.items.map((current) => current.typeId === item.typeId
+                            ? { ...current, name: event.target.value }
+                            : current),
+                        })}
+                        sx={inputSx}
+                      />
+                    )}
                     {template?.fields.map((field) => (
                       <TextField
                         key={field.id}
@@ -342,14 +361,14 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
                       error={!!error && !item.acceptanceCriteria.trim()}
                       helperText={
                         error && !item.acceptanceCriteria.trim()
-                          ? "Nêu điều kiện cụ thể để chấp nhận sản phẩm."
-                          : undefined
+                          ? "Nhập điều kiện để duyệt sản phẩm này."
+                          : "Ghi cách kiểm tra sản phẩm đã đạt yêu cầu."
                       }
                       fullWidth
                       multiline
                       minRows={2}
                       value={item.acceptanceCriteria}
-                      placeholder="Điều kiện cụ thể để xác nhận hạng mục đạt yêu cầu"
+                      placeholder="Ví dụ: Giao đủ 12 icon dạng SVG theo bộ màu thương hiệu"
                       onChange={(event) =>
                         update({
                           ...value,
@@ -379,6 +398,37 @@ export function GuidedBriefEditor({ fields, error, onChange }: Props) {
               );
             })}
           </div>
+          <Box component="section" aria-labelledby="brief-scope-title" sx={{ mt: 3, pt: 2.5, borderTop: "1px solid", borderColor: "divider" }}>
+            <Typography id="brief-scope-title" component="h3" sx={{ mb: 2, fontSize: 14, fontWeight: 700 }}>
+              Phạm vi công việc
+            </Typography>
+            <Box sx={{ display: "grid", gap: 2.5, gridTemplateColumns: { xs: "1fr", md: "repeat(2, minmax(0, 1fr))" } }}>
+              <TextField
+                label="Trong phạm vi"
+                required
+                error={!!error && !value.inScope.trim()}
+                helperText={error && !value.inScope.trim() ? "Nhập công việc thuộc phạm vi dự án." : "Việc đã bao gồm trong brief."}
+                multiline
+                minRows={3}
+                value={value.inScope}
+                onChange={(event) => update({ ...value, inScope: event.target.value })}
+                placeholder="Ví dụ: Thiết kế dựa trên bộ nhận diện có sẵn"
+                sx={inputSx}
+              />
+              <TextField
+                label="Ngoài phạm vi"
+                required
+                error={!!error && !value.outOfScope.trim()}
+                helperText="Việc làm thêm ngoài phạm vi dự án."
+                multiline
+                minRows={3}
+                value={value.outOfScope}
+                onChange={(event) => update({ ...value, outOfScope: event.target.value })}
+                placeholder="Ví dụ: In thử hoặc thiết kế thêm phiên bản"
+                sx={inputSx}
+              />
+            </Box>
+          </Box>
         </>
       )}
 

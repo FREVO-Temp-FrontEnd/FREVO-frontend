@@ -36,10 +36,10 @@ export function useProjectAgreement() {
   const talent = talents.find(item => item.id === talentId);
   const isBusiness = role === "client" || role === "admin";
   const canAccess = !!project && (role === "admin" || (role === "client" && user?.companyName === project.company) || (role === "freelancer" && !!user && candidates.some(item => item.projectId === projectId && item.talentId === talentId && canManageApplication(item, user))));
-  const providerCandidate = candidates.find(item => item.projectId === projectId && item.talentId === talentId);
-  const canPropose = isBusiness && canAccess && !!providerCandidate?.chatUnlocked && ["discussing", "offer", "selected"].includes(providerCandidate.status) && (project?.status === "published" || (project?.status === "ongoing" && project.selectedTalentId === talentId));
+
+  const canPropose = isBusiness && canAccess && (project?.status === "published" || (project?.status === "ongoing" && project.selectedTalentId === talentId));
   const projectPath = isBusiness ? `/business/projects/${projectId}` : `/projects/${projectId}/details`;
-  const progressPath = isBusiness ? `/business/projects/${projectId}/progress` : `/workspace/${projectId}`;
+  const progressPath = isBusiness ? `/business/ongoing/${projectId}/progress` : `/workspace/${projectId}`;
   const chatPath = `${isBusiness ? "/business/messages" : "/freelancer/messages"}?${new URLSearchParams({ project: projectId ?? "", talent: talentId ?? "" })}`;
   const canDemoAccept = isDemoMode && canPropose && !!current?.id && current.id === versions[0]?.id && current.status === "pending" && Date.parse(current.expiresAt) > Date.now();
   function demoAccept() {

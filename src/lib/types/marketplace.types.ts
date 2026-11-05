@@ -26,6 +26,8 @@ export interface UserSession {
   role: UserRole;
   avatar?: string;
   companyName?: string;
+  industry?: string;
+  companyBio?: string;
   phone?: string;
   contactEmail?: string;
   address?: string;

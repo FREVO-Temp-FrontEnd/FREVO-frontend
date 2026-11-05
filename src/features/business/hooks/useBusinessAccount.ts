@@ -31,12 +31,13 @@ export function useBusinessAccount() {
     const nextErrors = validateBusinessAccount(fields);
     setErrors(nextErrors); setFeedback(""); setFailure("");
     const invalid = Object.keys(nextErrors)[0];
-    if (invalid) { document.getElementById(`business-account-${invalid}`)?.focus(); return; }
+    if (invalid) { document.getElementById(`business-account-${invalid}`)?.focus(); return false; }
     try {
       mockStorage.saveBusinessAccount(fields, baseline);
       const saved = mockStorage.getActiveUser();
       setBaseline(saved); setFields(businessAccountFields(saved));
-      setFeedback("Đã lưu thông tin tài khoản.");
+      setFeedback("Đã lưu thông tin.");
+      return true;
     } catch (error: unknown) {
       setFailure(error instanceof Error ? error.message : "Không lưu được thông tin. Vui lòng thử lại.");
     }

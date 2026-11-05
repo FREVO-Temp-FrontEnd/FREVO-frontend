@@ -12,10 +12,11 @@ const navItems = [
 
 function isCurrentNavItem(href: string, pathname: string) {
   if (href === "/business") return pathname === href;
-  if (href === "/business/ongoing") return pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/business/ongoing") {
+    return pathname === href || pathname.startsWith(`${href}/`) || pathname.startsWith("/payments/");
+  }
   if (href === "/business/projects") {
-    return (pathname === href || pathname.startsWith(`${href}/`) || pathname.startsWith("/payments/"))
-      && pathname !== "/business/projects/new";
+    return (pathname === href || pathname.startsWith(`${href}/`)) && pathname !== "/business/projects/new";
   }
   return pathname === href;
 }

@@ -43,7 +43,7 @@ export function BusinessQuotaSummary() {
           </Typography>
           <Chip
             size="small"
-            label="Free · Mô phỏng"
+            label="Free"
             sx={{
               height: 24,
               bgcolor: "#fff0e9",

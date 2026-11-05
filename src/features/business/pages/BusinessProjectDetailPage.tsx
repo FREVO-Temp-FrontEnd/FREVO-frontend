@@ -151,7 +151,7 @@ export function BusinessProjectDetailPage() {
       <ProjectBreadcrumbs items={[{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title }]} />
 
       {/* Project Header Banner */}
-      <header className="rounded-[24px] border border-[#f3dccf] bg-[#fff4ee] px-5 py-5 sm:px-7 sm:py-6">
+      <header className="rounded-[13px] border border-[#e4e6e2] bg-white px-5 py-5 sm:px-7 sm:py-6">
         <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
           <div className="min-w-0">
             <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -167,16 +167,11 @@ export function BusinessProjectDetailPage() {
             </Typography>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#747773]">
               <span className="inline-flex items-center gap-1.5">
-                <Wallet size={16} className="text-[#bd3d14]" aria-hidden="true" /> Ngân sách: <strong className="font-semibold text-[#20201f]">{project.budget || "Chưa đặt"}</strong>
+                <Wallet size={16} aria-hidden="true" /> Ngân sách: <strong className="font-semibold text-[#20201f]">{project.budget || "Chưa đặt"}</strong>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays size={16} aria-hidden="true" /> {project.status === "published" ? "Hạn ứng tuyển:" : "Hạn hoàn thành:"} <strong className="font-semibold text-[#20201f]">{project.status === "published" ? (project.applicationDeadline || "Chưa đặt") : (project.deadline || "Chưa đặt")}</strong>
               </span>
-              {selectedTalent && (
-                <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 size={16} className="text-[#16805b]" aria-hidden="true" /> Đối tác: <strong className="font-semibold text-[#20201f]">{selectedTalent.name} ({selectedTalent.kind})</strong>
-                </span>
-              )}
             </div>
           </div>
 
@@ -187,7 +182,7 @@ export function BusinessProjectDetailPage() {
                 <>
                   <Button
                     component={Link}
-                    to={`/business/projects/${project.id}/progress`}
+                    to={`/business/ongoing/${project.id}/progress`}
                     variant="contained"
                     startIcon={<Layers3 size={16} />}
                     sx={{
@@ -222,7 +217,7 @@ export function BusinessProjectDetailPage() {
                       "&:hover": { bgcolor: "#fffaf7", borderColor: "primary.main", color: "primary.dark" },
                     }}
                   >
-                    Hợp đồng
+                    Thỏa thuận hợp tác
                   </Button>
                 </>
               )}
@@ -591,7 +586,7 @@ export function BusinessProjectDetailPage() {
                         {isSubmitted ? (
                           <Button
                             component={Link}
-                            to={`/business/projects/${project.id}/progress`}
+                            to={`/business/ongoing/${project.id}/progress`}
                             variant="contained"
                             fullWidth
                             startIcon={<Sparkles size={15} />}
@@ -612,7 +607,7 @@ export function BusinessProjectDetailPage() {
                         ) : (
                           <Button
                             component={Link}
-                            to={`/business/projects/${project.id}/progress`}
+                            to={`/business/ongoing/${project.id}/progress`}
                             variant="outlined"
                             fullWidth
                             sx={{
