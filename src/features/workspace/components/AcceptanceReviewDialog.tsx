@@ -60,7 +60,7 @@ export function AcceptanceReviewDialog({ open, milestone, performerName = "Bên 
           <ClipboardCheck size={22} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ color: "primary.dark", fontSize: 10, fontWeight: 600 }}>{agreementReference ?? "Thỏa thuận hợp tác"} · Không gian làm việc mô phỏng</Typography>
+          <Typography sx={{ color: "primary.dark", fontSize: 10, fontWeight: 600 }}>{agreementReference ?? "Thỏa thuận hợp tác"} · Không gian làm việc dự án</Typography>
           <Typography
             component="h2"
             id="milestone-review-title"
@@ -208,7 +208,7 @@ export function AcceptanceReviewDialog({ open, milestone, performerName = "Bên 
             <Typography className="flex items-center gap-2" sx={{ fontSize: 13, fontWeight: 700, color: "primary.dark" }}>
               <Info size={17} />{readOnly ? "Thông tin nghiệm thu" : "Sau khi xác nhận nghiệm thu"}
             </Typography>
-            <Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.85, mt: 1 }}>Mốc được ghi nhận hoàn thành. Các trạng thái thanh toán được theo dõi riêng trong sổ mô phỏng; không có giao dịch tiền thật.</Typography>
+            <Typography sx={{ fontSize: 12, color: "text.secondary", lineHeight: 1.85, mt: 1 }}>Mốc sẽ được ghi nhận hoàn thành. Ngân sách ký quỹ tương ứng sẽ được giải ngân cho đối tác sáng tạo theo thỏa thuận hợp tác.</Typography>
             <Box className="mt-4 flex items-center justify-between gap-2">
               <Typography sx={{ fontSize: 10, color: "text.secondary" }}>Ngân sách của mốc</Typography>
               <Typography sx={{ fontSize: 19, color: "primary.dark", fontWeight: 800 }}>{milestoneMoney(milestone)}</Typography>

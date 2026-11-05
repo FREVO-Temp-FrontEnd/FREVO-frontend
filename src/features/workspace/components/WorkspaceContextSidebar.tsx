@@ -21,7 +21,7 @@ const headingSx = { fontFamily: "h2.fontFamily", fontSize: 18, fontWeight: 700 }
 export function WorkspaceContextSidebar({ agreement, talent, company, isBusiness, payments, agreementPath, paymentPath, chatPath, onScopeChange }: WorkspaceContextSidebarProps) {
   const allowances = [...new Set(agreement.milestones.map(item => item.revisionAllowance?.allowed))];
   const partner = isBusiness ? talent?.name ?? "Bên thực hiện" : company;
-  const paymentLabel = !payments.length ? "Chưa có giao dịch mô phỏng" : payments.some(item => item.status === "released_simulated") ? "Có mốc đã giải ngân mô phỏng" : "Có giao dịch mô phỏng";
+  const paymentLabel = !payments.length ? "Chưa có giao dịch" : payments.some(item => item.status === "released_simulated") ? "Có mốc đã giải ngân" : "Đã nạp ký quỹ";
   return <Stack component="aside" aria-label="Thông tin hợp tác" spacing={3} sx={{ minWidth: 0 }}>
     <Paper variant="outlined" sx={panelSx}>
       <Typography component="h2" sx={headingSx}>Thông tin hợp tác</Typography>
@@ -50,7 +50,7 @@ export function WorkspaceContextSidebar({ agreement, talent, company, isBusiness
     {!isBusiness && <Paper variant="outlined" sx={panelSx}>
       <Typography component="h2" sx={headingSx}>Thanh toán</Typography>
       <Typography variant="body2" sx={{ mt: 2, fontWeight: 600 }}>{paymentLabel}</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.7 }}>Nghiệm thu và giải ngân được theo dõi riêng. Không có tiền thật được chuyển trong prototype.</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.7 }}>Nghiệm thu và giải ngân được bảo vệ qua tài khoản FREVO Escrow theo từng mốc hợp tác.</Typography>
       <Button component={Link} to={paymentPath} startIcon={<Wallet size={17} aria-hidden="true" />} sx={{ mt: 2, color: "primary.dark" }}>Sổ thanh toán</Button>
     </Paper>}
   </Stack>;

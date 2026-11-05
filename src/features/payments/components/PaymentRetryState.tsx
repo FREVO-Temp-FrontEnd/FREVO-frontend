@@ -17,9 +17,9 @@ export function PaymentRetryState({ onRetry }: PaymentRetryStateProps) {
       }
     >
       <Stack spacing={0.5}>
-        <Typography sx={{ fontSize: 12, fontWeight: 700 }}>Giao dịch mô phỏng chưa được ghi nhận</Typography>
+        <Typography sx={{ fontSize: 12, fontWeight: 700 }}>Giao dịch chưa được ghi nhận</Typography>
         <Typography sx={{ fontSize: 11, color: "text.secondary", lineHeight: 1.6 }}>
-          Đây là tình huống kiểm tra giao diện. Chọn thử lại để đóng thông báo; không có tiền thật được xử lý.
+          Hệ thống chưa ghi nhận được kết quả xử lý. Vui lòng bấm thử lại để tiếp tục.
         </Typography>
       </Stack>
     </Alert>
