@@ -2,10 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation } from "react-router";
 import {
   ArrowRight,
-  Bell,
   BriefcaseBusiness,
   Check,
-  CheckCheck,
   Clock3,
   FolderOpen,
   MessageCircle,
@@ -19,7 +17,7 @@ import { MyProjectsPage } from "./pages/MyProjectsPage";
 import { CreateBriefPage } from "./pages/CreateBriefPage";
 import { BusinessProjectDetailPage } from "./pages/BusinessProjectDetailPage";
 import { BusinessInboxPage } from "./pages/BusinessInboxPage";
-import { useBusinessNotifications } from "./hooks/useBusinessNotifications";
+import { NotificationCenterPage } from "@/features/notifications/pages/NotificationCenterPage";
 import { ProjectAgreementPage } from "@/features/projects/agreements/ProjectAgreementPage";
 import { WorkspaceOverviewPage } from "@/features/workspace/pages/WorkspaceOverviewPage";
 import { ProjectBreadcrumbs } from "@/app/shared/components/ProjectBreadcrumbs";
@@ -49,9 +47,6 @@ function Empty({ icon: Icon = FolderOpen, title, text, action }: { icon?: typeof
   return <div className="fb-empty"><Icon size={28} strokeWidth={1.6} aria-hidden="true" /><h3>{title}</h3><p>{text}</p>{action}</div>;
 }
 
-function PageHeading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: ReactNode }) {
-  return <div className="fb-page-heading"><div>{eyebrow && <span className="fb-eyebrow">{eyebrow}</span>}<h1>{title}<span className="fb-dot">.</span></h1>{description && <p>{description}</p>}</div>{action && <div className="fb-heading-action">{action}</div>}</div>;
-}
 
 function TalentAvatar({ talent, size = "md" }: { talent: Talent; size?: "sm" | "md" | "lg" }) {
   return <span className={`fb-avatar fb-avatar-${size}`} style={{ background: talent.color }} aria-hidden="true">{talent.initials}</span>;
@@ -108,7 +103,7 @@ export default function BusinessPrototype() {
   else if (parts[1] === "talent" && parts[2]) content = <TalentProfile state={state} talentId={parts[2]} projectId={new URLSearchParams(location.search).get("project") ?? state.projects[0]?.id ?? ""} onInvite={sendInvitation} />;
   else if (parts[1] === "messages") content = <BusinessInboxPage />;
   else if (parts[1] === "agreements") content = <Navigate to="/business/projects" replace />;
-  else if (parts[1] === "notifications") content = <NotificationsPage />;
+  else if (parts[1] === "notifications" || parts[1] === "notification") content = <NotificationCenterPage />;
   else if (parts[1] === "profile") content = <BusinessProfilePage />;
   else if (parts[1] === "settings") content = <BusinessSettingsPage />;
   else content = <Empty title="Không tìm thấy trang" text="Trang này chưa có trong prototype Business." action={<Link className="fb-button fb-button-primary" to="/business">Về tổng quan</Link>} />;
@@ -126,8 +121,4 @@ function TalentProfile({ state, talentId, projectId, onInvite }: { state: Busine
   return <><ProjectBreadcrumbs items={project ? [{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title, to: projectPath(project.id, project.status === "ongoing" ? "executor" : candidate ? "applicants" : "suggestions") }, { label: talent.name }] : [{ label: "Dự án của tôi", to: "/business/projects" }, { label: talent.name }]} /><div className="fb-profile-hero"><div className="fb-profile-identity"><TalentAvatar talent={talent} size="lg" /><div><Badge>{talent.kind}</Badge><h1>{talent.name}</h1><p>{talent.role} · {talent.location}</p></div></div><div>{candidate && project?.status === "ongoing" && candidate.status !== "selected" ? <Badge>Không được chọn</Badge> : candidate ? <Link className="fb-button fb-button-primary" to={`/business/messages?view=project&scope=${projectId}&project=${projectId}&talent=${talent.id}`}><MessageCircle size={18} /> Mở chat</Link> : <button className="fb-button fb-button-primary" type="button" disabled={!!invitation || project?.status !== "published"} onClick={() => onInvite(projectId, talent.id)}>{invitation ? "Đã gửi lời mời" : "Mời tham gia dự án"} <ArrowRight size={17} /></button>}</div></div><div className="fb-profile-grid"><div><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">GIỚI THIỆU</span><h2>Về {talent.kind === "Team" ? "team" : "freelancer"}</h2><p>{talent.about}</p><div className="fb-profile-facts"><span><Clock3 size={17} /> {talent.availability}</span><span><BriefcaseBusiness size={17} /> {talent.rate}</span></div></section><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">PORTFOLIO</span><h2>Dự án tiêu biểu</h2><div className="fb-portfolio-grid">{talent.portfolio.map(work => <article key={work.title}><div className="fb-portfolio-cover" style={{ background: work.color }}><span>{work.title.slice(0, 1)}</span></div><h3>{work.title}</h3><p>{work.category}</p></article>)}</div></section></div><aside><section className="fb-panel fb-profile-section"><span className="fb-eyebrow">ĐỐI CHIẾU BRIEF</span><h2>Vì sao được gợi ý</h2><div className="fb-fit fb-profile-fit">{talent.fit.map(item => <div key={item}><Check size={16} /> {item}</div>)}</div><h3>Kỹ năng</h3><div className="fb-chips">{talent.skills.map(skill => <span key={skill}>{skill}</span>)}</div></section>{candidate && <section className="fb-panel fb-profile-section"><span className="fb-eyebrow">ĐỀ XUẤT ỨNG TUYỂN</span><h2>Lời giới thiệu</h2><p>{candidate.proposal}</p><Badge tone={candidate.status === "selected" ? "green" : "neutral"}>{candidate.status === "selected" ? "Đã được chọn" : candidate.status === "not_selected" ? "Không được chọn" : "Có thể trao đổi ngay"}</Badge></section>}</aside></div></>;
 }
 
-function NotificationsPage() {
-  const { notifications, markRead, markAllRead } = useBusinessNotifications();
-  return <><PageHeading eyebrow="CẬP NHẬT" title="Thông báo" description="Những thay đổi mới trong các dự án và cuộc trao đổi của bạn." action={<button type="button" className="fb-button fb-button-secondary" onClick={markAllRead}><CheckCheck size={18} /> Đánh dấu đã đọc</button>} /><section className="fb-panel fb-notices">{notifications.length ? notifications.map(notice => <Link key={notice.id} className={notice.read ? "" : "unread"} to={notice.href} onClick={() => markRead(notice.id)}><span className="fb-notice-icon"><Bell size={18} /></span><span><strong>{notice.title}</strong><small>{notice.detail}</small></span><time>{notice.time}</time></Link>) : <p className="py-10 text-center text-sm text-[#747773]">Chưa có thông báo nào.</p>}</section></>;
-}
 

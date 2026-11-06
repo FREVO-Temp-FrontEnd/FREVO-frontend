@@ -416,9 +416,9 @@ function BriefEditor({
                 </div>
                 {fields.applicationDeadline && (
                   <Typography
-                    sx={{ mt: 2, color: "text.secondary", fontFamily: font, fontSize: 12 }}
+                    sx={{ mt: 2, color: "text.secondary", fontFamily: font, fontSize: 12.5 }}
                   >
-                    Hạn nhận hồ sơ: {fields.applicationDeadline.split("-").reverse().join("/")}
+                    Hạn nhận hồ sơ: <strong className="text-[#20201f]">{fields.applicationDeadline.split("-").reverse().join("/")}</strong>
                   </Typography>
                 )}
               </SectionCard>
@@ -594,6 +594,32 @@ function BriefEditor({
                       error={!!errors.description}
                       helperText={errors.description}
                       sx={formFieldsSx}
+                    />
+                  </div>
+                  <div className="pt-2">
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="Hạn nhận hồ sơ (tùy chọn)"
+                      value={fields.applicationDeadline}
+                      onChange={(event) => setField("applicationDeadline", event.target.value)}
+                      error={!!errors.applicationDeadline}
+                      helperText={
+                        errors.applicationDeadline ||
+                        "Sau ngày này, dự án sẽ ngừng nhận thêm hồ sơ mới từ các ứng viên trên FREVO."
+                      }
+                      slotProps={{
+                        inputLabel: { shrink: true },
+                        formHelperText: {
+                          sx: {
+                            fontFamily: font,
+                            fontSize: 12.5,
+                            color: errors.applicationDeadline ? "error.main" : "text.secondary",
+                            mt: 0.75,
+                          },
+                        },
+                      }}
+                      sx={{ ...formFieldsSx, maxWidth: { xs: "100%", sm: 360 } }}
                     />
                   </div>
                 </div>
@@ -920,52 +946,83 @@ function BriefEditor({
               </SectionCard>
 
               <SectionCard id="brief-budget">
-                <SectionHeading number="4" title="Ngân sách và thời hạn" />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <TextField
-                    fullWidth
-                    required
-                    label="Ngân sách tối thiểu (VND)"
-                    value={formatMoneyInput(fields.budgetMin)}
-                    onChange={(event) => setField("budgetMin", moneyDigits(event.target.value))}
-                    slotProps={{ htmlInput: { inputMode: "numeric" } }}
-                    error={!!errors.budgetMin}
-                    helperText={errors.budgetMin}
-                    sx={formFieldsSx}
-                  />
-                  <TextField
-                    fullWidth
-                    required
-                    label="Ngân sách tối đa (VND)"
-                    value={formatMoneyInput(fields.budgetMax)}
-                    onChange={(event) => setField("budgetMax", moneyDigits(event.target.value))}
-                    slotProps={{ htmlInput: { inputMode: "numeric" } }}
-                    error={!!errors.budgetMin}
-                    sx={formFieldsSx}
-                  />
-                  <TextField
-                    fullWidth
-                    required
-                    type="date"
-                    label="Hạn hoàn thành"
-                    value={fields.deadline}
-                    onChange={(event) => setField("deadline", event.target.value)}
-                    error={!!errors.deadline}
-                    helperText={errors.deadline}
-                    slotProps={{ inputLabel: { shrink: true } }}
-                    sx={formFieldsSx}
-                  />
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label="Hạn nhận hồ sơ"
-                    value={fields.applicationDeadline}
-                    onChange={(event) => setField("applicationDeadline", event.target.value)}
-                    error={!!errors.applicationDeadline}
-                    helperText={errors.applicationDeadline}
-                    slotProps={{ inputLabel: { shrink: true } }}
-                    sx={formFieldsSx}
-                  />
+                <SectionHeading
+                  number="4"
+                  title="Ngân sách và thời hạn hoàn thành"
+                  description="Xác định khoảng ngân sách dự kiến và hạn chót bàn giao toàn bộ sản phẩm của dự án."
+                />
+                <div className="space-y-5">
+                  <div>
+                    <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 700, mb: 1.5, color: "text.primary" }}>
+                      Khoảng ngân sách dự kiến (VND) *
+                    </Typography>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <TextField
+                        fullWidth
+                        required
+                        label="Ngân sách tối thiểu (VND)"
+                        value={formatMoneyInput(fields.budgetMin)}
+                        onChange={(event) => setField("budgetMin", moneyDigits(event.target.value))}
+                        slotProps={{ htmlInput: { inputMode: "numeric" } }}
+                        error={!!errors.budgetMin}
+                        helperText={errors.budgetMin}
+                        sx={formFieldsSx}
+                      />
+                      <TextField
+                        fullWidth
+                        required
+                        label="Ngân sách tối đa (VND)"
+                        value={formatMoneyInput(fields.budgetMax)}
+                        onChange={(event) => setField("budgetMax", moneyDigits(event.target.value))}
+                        slotProps={{ htmlInput: { inputMode: "numeric" } }}
+                        error={!!errors.budgetMin}
+                        sx={formFieldsSx}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 700, mb: 1.5, color: "text.primary" }}>
+                      Thời hạn bàn giao toàn bộ dự án *
+                    </Typography>
+                    <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-start">
+                      <TextField
+                        fullWidth
+                        required
+                        type="date"
+                        label="Hạn hoàn thành toàn bộ sản phẩm"
+                        value={fields.deadline}
+                        onChange={(event) => setField("deadline", event.target.value)}
+                        error={!!errors.deadline}
+                        helperText={errors.deadline || "Mốc thời gian đối tác sáng tạo phải hoàn thành tất cả các hạng mục đã thỏa thuận."}
+                        slotProps={{ inputLabel: { shrink: true } }}
+                        sx={formFieldsSx}
+                      />
+                      {fields.duration && (
+                        <Box
+                          sx={{
+                            px: 2.5,
+                            py: 1.25,
+                            borderRadius: "10px",
+                            bgcolor: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            minWidth: 160,
+                            minHeight: 56,
+                          }}
+                        >
+                          <Typography sx={{ fontFamily: font, fontSize: 11, color: "text.secondary", fontWeight: 500 }}>
+                            Thời lượng thực hiện
+                          </Typography>
+                          <Typography sx={{ fontFamily: font, fontSize: 14, fontWeight: 700, color: "#20201f", mt: 0.25 }}>
+                            {fields.duration}
+                          </Typography>
+                        </Box>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </SectionCard>
 

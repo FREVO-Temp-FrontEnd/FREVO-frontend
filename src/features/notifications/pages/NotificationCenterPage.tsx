@@ -1,4 +1,3 @@
-import { canManageApplication } from "@/lib/storage/applicationAccess";
 import React, { useState } from "react";
 import {
   Container,
@@ -17,37 +16,34 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import {
-  Bell,
-  Mail,
-  MessageCircle,
-  FileText,
-  CheckCheck,
-  Briefcase,
-  AlertCircle,
-  ArrowRight,
   ArrowLeft,
+  ArrowRight,
+  Bell,
+  CheckCheck,
+  ClipboardCheck,
+  FileSignature,
+  FileUser,
+  MessageCircle,
+  SendHorizontal,
+  ShieldCheck,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import type { NotificationItem, NotificationType } from "@/lib/types/marketplace.types";
 
 const iconMap: Record<NotificationType, React.ReactNode> = {
-  invitation: <Mail size={20} color="#f4490b" />,
-  application: <Briefcase size={20} color="#0284c7" />,
-  chat: <MessageCircle size={20} color="#16a34a" />,
-  agreement: <FileText size={20} color="#d97706" />,
-  milestone: <CheckCheck size={20} color="#059669" />,
-  review: <AlertCircle size={20} color="#8b5cf6" />,
-  system: <Bell size={20} color="#64748b" />,
+  invitation: <SendHorizontal size={18} strokeWidth={2} color="#1d4ed8" />,
+  application: <FileUser size={18} strokeWidth={2} color="#bd3d14" />,
+  chat: <MessageCircle size={18} strokeWidth={2} color="#059669" />,
+  agreement: <FileSignature size={18} strokeWidth={2} color="#d97706" />,
+  milestone: <ClipboardCheck size={18} strokeWidth={2} color="#0f766e" />,
+  review: <Star size={18} strokeWidth={2} color="#7c3aed" />,
+  system: <ShieldCheck size={18} strokeWidth={2} color="#475569" />,
 };
 
 function visibleNotifications() {
-  const state = mockStorage.getState();
-  const user = state.activeUser;
-  return state.notifications.filter(item => {
-    if (item.recipientCompany) return user.role === "client" && item.recipientCompany === user.companyName;
-    return !item.userId || item.userId === user.id || (user.role === "freelancer" && state.candidates.some(candidate => candidate.talentId === item.userId && canManageApplication(candidate, user)));
-  });
+  return mockStorage.getNotifications();
 }
 
 export const NotificationCenterPage: React.FC = () => {
@@ -72,7 +68,7 @@ export const NotificationCenterPage: React.FC = () => {
   };
 
   const handleMarkAllRead = () => {
-    visibleNotifications().filter(item => !item.read).forEach(item => mockStorage.markNotificationRead(item.id));
+    mockStorage.markAllNotificationsRead();
   };
 
   const filtered = notifications.filter((n) => {
@@ -213,14 +209,15 @@ export const NotificationCenterPage: React.FC = () => {
                       sx={{
                         width: 36,
                         height: 36,
-                        borderRadius: "50%",
-                        bgcolor: "#f1f5f9",
+                        borderRadius: "10px",
+                        bgcolor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      {iconMap[n.type] || <Bell size={20} />}
+                      {iconMap[n.type] || <ShieldCheck size={18} color="#475569" />}
                     </Box>
                   </ListItemIcon>
 

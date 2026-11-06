@@ -77,7 +77,7 @@ export function useBusiness() {
     invitations: state.invitations,
     agreements: state.agreements,
     messages: state.messages,
-    notifications: state.notifications,
+    notifications: mockStorage.getNotifications(),
     reviews: state.reviews,
     payments: state.payments,
     saveProject,

@@ -13,27 +13,28 @@ import {
   Divider,
 } from "@mui/material";
 import {
-  Bell,
-  Mail,
-  MessageCircle,
-  FileText,
-  CheckCheck,
-  Briefcase,
-  AlertCircle,
   ArrowRight,
+  Bell,
+  ClipboardCheck,
+  FileSignature,
+  FileUser,
+  MessageCircle,
+  SendHorizontal,
+  ShieldCheck,
+  Star,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { mockStorage } from "@/lib/storage/mockStorage";
 import type { NotificationItem, NotificationType } from "@/lib/types/marketplace.types";
 
 const iconMap: Record<NotificationType, React.ReactNode> = {
-  invitation: <Mail size={18} color="#f4490b" />,
-  application: <Briefcase size={18} color="#0284c7" />,
-  chat: <MessageCircle size={18} color="#16a34a" />,
-  agreement: <FileText size={18} color="#d97706" />,
-  milestone: <CheckCheck size={18} color="#059669" />,
-  review: <AlertCircle size={18} color="#8b5cf6" />,
-  system: <Bell size={18} color="#64748b" />,
+  invitation: <SendHorizontal size={18} strokeWidth={2} color="#1d4ed8" />,
+  application: <FileUser size={18} strokeWidth={2} color="#bd3d14" />,
+  chat: <MessageCircle size={18} strokeWidth={2} color="#059669" />,
+  agreement: <FileSignature size={18} strokeWidth={2} color="#d97706" />,
+  milestone: <ClipboardCheck size={18} strokeWidth={2} color="#0f766e" />,
+  review: <Star size={18} strokeWidth={2} color="#7c3aed" />,
+  system: <ShieldCheck size={18} strokeWidth={2} color="#475569" />,
 };
 
 export const NotificationsBell: React.FC = () => {
