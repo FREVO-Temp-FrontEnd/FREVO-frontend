@@ -187,10 +187,10 @@ export function useProjectBriefForm(existingProject?: ProjectBrief) {
 
   const validation = validate(fields, existingProject);
   const sections = [
-    { id: "brief-basics", title: "Thông tin cơ bản", complete: !validation.title && !validation.category && !validation.description && !validation.heroImage },
+    { id: "brief-basics", title: "Thông tin cơ bản", complete: !validation.title && !validation.category && !validation.description && !validation.heroImage && !validation.applicationDeadline },
     { id: "brief-guided", title: "Dịch vụ và bàn giao", complete: !validation.guidedBrief },
     { id: "brief-scope", title: "Yêu cầu và bàn giao", complete: !validation.skills && !validation.deliverables && !validation.guidedBrief },
-    { id: "brief-budget", title: "Ngân sách và thời hạn", complete: !validation.budgetMin && !validation.deadline && !validation.applicationDeadline },
+    { id: "brief-budget", title: "Ngân sách và thời hạn", complete: !validation.budgetMin && !validation.deadline },
     { id: "brief-performer", title: "Bên thực hiện", complete: !!fields.preference },
   ];
 

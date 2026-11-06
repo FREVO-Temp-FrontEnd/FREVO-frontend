@@ -1,21 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { mockStorage } from "@/lib/storage/mockStorage";
+import type { NotificationItem } from "@/lib/types/marketplace.types";
 
 export function useBusinessNotifications() {
-  const [state, setState] = useState(() => mockStorage.getState());
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() =>
+    mockStorage.getNotifications()
+  );
 
-  useEffect(() => mockStorage.subscribe(() => setState(mockStorage.getState())), []);
-
-  const notifications = useMemo(() => state.notifications
-    .filter((notification) => notification.recipientCompany ? state.activeUser.role === "client" && notification.recipientCompany === state.activeUser.companyName : !notification.userId || notification.userId === state.activeUser.id)
-    .sort((a, b) => b.timestamp - a.timestamp), [state]);
+  useEffect(() => {
+    const unsubscribe = mockStorage.subscribe(() => {
+      setNotifications(mockStorage.getNotifications());
+    });
+    return unsubscribe;
+  }, []);
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
-  const markRead = useCallback((id: string) => mockStorage.markNotificationRead(id), []);
+  const markRead = useCallback((id: string) => {
+    mockStorage.markNotificationRead(id);
+  }, []);
   const markAllRead = useCallback(() => {
-    notifications.filter((notification) => !notification.read)
-      .forEach((notification) => mockStorage.markNotificationRead(notification.id));
-  }, [notifications]);
+    mockStorage.markAllNotificationsRead();
+  }, []);
 
   return { notifications, unreadCount, markRead, markAllRead };
 }

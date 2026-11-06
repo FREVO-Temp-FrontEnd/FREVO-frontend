@@ -429,8 +429,9 @@ export const initialMessagesSeed: ChatMessage[] = [
 export const initialNotificationsSeed: NotificationItem[] = [
   {
     id: "n1",
-    title: "Minh Anh vừa ứng tuyển",
-    detail: "Bộ nhận diện cho Nắng Studio",
+    recipientCompany: "Nắng Studio",
+    title: "Minh Anh vừa nộp hồ sơ ứng tuyển",
+    detail: "Dự án: Bộ nhận diện cho Nắng Studio",
     type: "application",
     time: "09:42 hôm nay",
     timestamp: Date.now() - 3600000 * 2,
@@ -439,8 +440,9 @@ export const initialNotificationsSeed: NotificationItem[] = [
   },
   {
     id: "n2",
-    title: "Bạn có tin nhắn mới",
-    detail: "Khánh Linh đã gửi một tin nhắn trong dự án.",
+    recipientCompany: "Nắng Studio",
+    title: "Tin nhắn mới từ Khánh Linh",
+    detail: "Khánh Linh: \"Em đã gửi bản phác thảo logo đầu tiên qua mục trao đổi ạ...\"",
     type: "chat",
     time: "10:18 hôm nay",
     timestamp: Date.now() - 3600000,
@@ -449,13 +451,47 @@ export const initialNotificationsSeed: NotificationItem[] = [
   },
   {
     id: "n3",
-    title: "Mây Creative đã ứng tuyển",
-    detail: "Bộ nhận diện cho Nắng Studio",
+    recipientCompany: "Nắng Studio",
+    title: "Mây Creative đã nộp hồ sơ ứng tuyển",
+    detail: "Dự án: Bộ nhận diện cho Nắng Studio",
     type: "application",
     time: "Hôm qua",
     timestamp: Date.now() - 86400000,
     read: true,
     href: "/business/projects/nang-brand/applicants",
+  },
+  {
+    id: "n4",
+    recipientCompany: "Nắng Studio",
+    title: "Bên thực hiện đã nộp bàn giao Mốc 1",
+    detail: "Dự án: Bao bì cho dòng trà Cỏ Mây",
+    type: "milestone",
+    time: "2 ngày trước",
+    timestamp: Date.now() - 86400000 * 2,
+    read: true,
+    href: "/business/ongoing/co-may-packaging/progress",
+  },
+  {
+    id: "n5",
+    userId: "talent-minh-anh",
+    title: "Lời mời tham gia dự án mới",
+    detail: "Nắng Studio đã gửi lời mời tham gia dự án \"Bộ nhận diện cho Nắng Studio\". Lời mời có hiệu lực trong 7 ngày.",
+    type: "invitation",
+    time: "11:00 hôm nay",
+    timestamp: Date.now() - 3600000 * 3,
+    read: false,
+    href: "/freelancer/invitations",
+  },
+  {
+    id: "n6",
+    userId: "talent-minh-anh",
+    title: "Hồ sơ của bạn đã được xem",
+    detail: "Nắng Studio vừa xem hồ sơ và portfolio của bạn.",
+    type: "system",
+    time: "Hôm qua",
+    timestamp: Date.now() - 86400000 * 1.5,
+    read: true,
+    href: "/freelancer/applications",
   },
 ];
 
@@ -559,6 +595,16 @@ class MockStorageAdapter {
           }) };
         }) };
         if (workspaceSeedUpdated) this.saveToStorage(state);
+        if (state.notifications && state.notifications.some(n => (n.id === "n1" || n.id === "n2") && !n.recipientCompany)) {
+          state = {
+            ...state,
+            notifications: state.notifications.map(n => {
+              if (n.id === "n1" || n.id === "n2" || n.id === "n3") return { ...n, recipientCompany: "Nắng Studio" };
+              return n;
+            }),
+          };
+          this.saveToStorage(state);
+        }
         const alreadyPrepared = localStorage.getItem(PENDING_CANDIDATES_DEMO_KEY) || sessionStorage.getItem(PENDING_CANDIDATES_DEMO_KEY);
         if (state.candidates.some(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId)) {
           state = { ...state, candidates: state.candidates.map(candidate => candidate.submission?.resume && !candidate.submission.resume.fileId
@@ -898,6 +944,7 @@ class MockStorageAdapter {
     const nextNotifications: NotificationItem[] = [
       {
         id: `notif-app-${Date.now()}`,
+        recipientCompany: project?.company || "Nắng Studio",
         title: `${talent?.name || "Ứng viên"} vừa ${existing ? "cập nhật" : "nộp"} hồ sơ ứng tuyển`,
         detail: `Dự án: ${project?.title || "Dự án"}`,
         type: "application",
@@ -1015,6 +1062,7 @@ class MockStorageAdapter {
     const nextNotifications: NotificationItem[] = [
       {
         id: `notif-inv-${Date.now()}`,
+        userId: talentId,
         title: "Lời mời tham gia dự án mới",
         detail: `${project?.company || "Doanh nghiệp"} đã gửi lời mời tham gia dự án "${project?.title}". Lời mời có hiệu lực trong 7 ngày.`,
         type: "invitation",
@@ -1083,10 +1131,31 @@ class MockStorageAdapter {
       }
     }
 
+    let nextNotifications = this.memoryState.notifications;
+    if (targetInv) {
+      const project = this.getProjectById(targetInv.projectId);
+      const talent = this.getTalentById(targetInv.talentId);
+      const notif: NotificationItem = {
+        id: `notif-inv-resp-${Date.now()}`,
+        recipientCompany: project?.company || "Nắng Studio",
+        title: accept
+          ? `${talent?.name || "Ứng viên"} đã đồng ý lời mời`
+          : `${talent?.name || "Ứng viên"} đã từ chối lời mời`,
+        detail: `Dự án: ${project?.title || "Dự án"}`,
+        type: "invitation",
+        time: "Vừa xong",
+        timestamp: Date.now(),
+        read: false,
+        href: `/business/projects/${targetInv.projectId}/applicants`,
+      };
+      nextNotifications = [notif, ...nextNotifications];
+    }
+
     this.saveToStorage({
       ...this.memoryState,
       invitations: nextInvitations,
       candidates: nextCandidates,
+      notifications: nextNotifications,
     });
   }
 
@@ -1236,7 +1305,25 @@ class MockStorageAdapter {
       return a;
     });
 
-    this.saveToStorage({ ...this.memoryState, agreements: nextAgreements });
+    const project = this.getProjectById(projectId);
+    const talent = effective ? this.getTalentById(effective.talentId) : null;
+    const notif: NotificationItem = {
+      id: `notif-submit-${Date.now()}`,
+      recipientCompany: project?.company || "Nắng Studio",
+      title: `${talent?.name || "Bên thực hiện"} đã nộp bàn giao`,
+      detail: `${milestone?.name || "Mốc bàn giao"} · Dự án: ${project?.title || "Dự án"}`,
+      type: "milestone",
+      time: "Vừa xong",
+      timestamp: Date.now(),
+      read: false,
+      href: `/business/ongoing/${projectId}/progress`,
+    };
+
+    this.saveToStorage({
+      ...this.memoryState,
+      agreements: nextAgreements,
+      notifications: [notif, ...this.memoryState.notifications],
+    });
   }
 
   public requestMilestoneRevision(projectId: string, milestoneId: string, reason: string): void {
@@ -1270,7 +1357,26 @@ class MockStorageAdapter {
       return a;
     });
 
-    this.saveToStorage({ ...this.memoryState, agreements: nextAgreements });
+    const effective = this.getEffectiveAgreement(projectId);
+    const project = this.getProjectById(projectId);
+    const talentId = effective?.talentId;
+    const notif: NotificationItem = {
+      id: `notif-rev-${Date.now()}`,
+      userId: talentId,
+      title: "Yêu cầu chỉnh sửa mốc bàn giao",
+      detail: `Dự án "${project?.title || "Dự án"}": ${reason.trim()}`,
+      type: "milestone",
+      time: "Vừa xong",
+      timestamp: Date.now(),
+      read: false,
+      href: `/projects/${projectId}/progress`,
+    };
+
+    this.saveToStorage({
+      ...this.memoryState,
+      agreements: nextAgreements,
+      notifications: [notif, ...this.memoryState.notifications],
+    });
   }
 
   public approveMilestone(projectId: string, milestoneId: string): void {
@@ -1311,10 +1417,30 @@ class MockStorageAdapter {
       nextPayments = [paymentSim, ...nextPayments];
     }
 
+    const effective = this.getEffectiveAgreement(projectId);
+    const project = this.getProjectById(projectId);
+    const talentId = effective?.talentId;
+    let nextNotifications = this.memoryState.notifications;
+    if (talentId && approvedMilestone) {
+      const notif: NotificationItem = {
+        id: `notif-appr-${Date.now()}`,
+        userId: talentId,
+        title: "Mốc bàn giao đã được nghiệm thu",
+        detail: `${approvedMilestone.name} · Dự án "${project?.title || "Dự án"}" đã được nghiệm thu và giải ngân.`,
+        type: "milestone",
+        time: "Vừa xong",
+        timestamp: Date.now(),
+        read: false,
+        href: `/projects/${projectId}/progress`,
+      };
+      nextNotifications = [notif, ...nextNotifications];
+    }
+
     this.saveToStorage({
       ...this.memoryState,
       agreements: nextAgreements,
       payments: nextPayments,
+      notifications: nextNotifications,
     });
   }
 
@@ -1377,17 +1503,72 @@ class MockStorageAdapter {
     };
 
     const nextMessages = [...this.memoryState.messages, newMessage];
-    this.saveToStorage({ ...this.memoryState, messages: nextMessages });
+    let nextNotifications = this.memoryState.notifications;
+    if (sender === "talent") {
+      const notif: NotificationItem = {
+        id: `notif-chat-${Date.now()}`,
+        recipientCompany: project?.company || "Nắng Studio",
+        title: `Tin nhắn mới từ ${senderName}`,
+        detail: body.length > 80 ? `${body.slice(0, 80)}...` : body,
+        type: "chat",
+        time: "Vừa xong",
+        timestamp: Date.now(),
+        read: false,
+        href: `/business/messages?view=project&scope=${projectId}&project=${projectId}&talent=${talentId}`,
+      };
+      nextNotifications = [notif, ...nextNotifications];
+    } else {
+      const notif: NotificationItem = {
+        id: `notif-chat-${Date.now()}`,
+        userId: talentId,
+        title: `Tin nhắn mới từ ${senderName}`,
+        detail: body.length > 80 ? `${body.slice(0, 80)}...` : body,
+        type: "chat",
+        time: "Vừa xong",
+        timestamp: Date.now(),
+        read: false,
+        href: `/projects/${projectId}/chat`,
+      };
+      nextNotifications = [notif, ...nextNotifications];
+    }
+
+    this.saveToStorage({
+      ...this.memoryState,
+      messages: nextMessages,
+      notifications: nextNotifications,
+    });
     return newMessage;
   }
 
   // --- Notification Operations ---
   public getNotifications(): NotificationItem[] {
     const user = this.memoryState.activeUser;
-    return this.memoryState.notifications.filter(item => {
-      if (item.recipientCompany) return user.role === "client" && item.recipientCompany === user.companyName;
-      return !item.userId || item.userId === user.id || (user.role === "freelancer" && this.memoryState.candidates.some(candidate => candidate.talentId === item.userId && canManageApplication(candidate, user)));
-    });
+    return this.memoryState.notifications
+      .filter((item) => {
+        if (item.recipientCompany) {
+          return (
+            (user.role === "client" || user.role === "admin") &&
+            item.recipientCompany.toLowerCase() === (user.companyName || "").toLowerCase()
+          );
+        }
+        if (item.userId) {
+          if (user.id === item.userId) return true;
+          if (user.role === "freelancer") {
+            return this.memoryState.candidates.some(
+              (candidate) => candidate.talentId === item.userId && canManageApplication(candidate, user)
+            );
+          }
+          return false;
+        }
+        if (item.href?.startsWith("/business/") || item.href?.startsWith("/payments/")) {
+          return user.role === "client" || user.role === "admin";
+        }
+        if (item.href?.startsWith("/freelancer/") || item.href?.startsWith("/projects/")) {
+          return user.role === "freelancer" || user.role === "admin";
+        }
+        return true;
+      })
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
   }
 
   public markNotificationRead(id: string): void {

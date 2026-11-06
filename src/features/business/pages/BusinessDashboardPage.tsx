@@ -9,7 +9,6 @@ import {
   ChevronDown,
   Clock3,
   ClipboardCheck,
-  MessagesSquare,
   FileText,
   FileUser,
   FolderOpen,
@@ -20,7 +19,7 @@ import {
 } from "lucide-react";
 import { useBusinessDashboard } from "../hooks/useBusinessDashboard";
 
-const taskIcons = { candidate: FileUser, milestone: ClipboardCheck, message: MessagesSquare };
+const taskIcons = { candidate: FileUser, milestone: ClipboardCheck, message: MessageCircle };
 
 export function BusinessDashboardPage() {
   const dashboard = useBusinessDashboard();
