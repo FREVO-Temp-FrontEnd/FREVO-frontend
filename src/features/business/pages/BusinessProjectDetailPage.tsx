@@ -150,6 +150,8 @@ export function BusinessProjectDetailPage() {
     })}>
       <ProjectBreadcrumbs items={[{ label: "Dự án của tôi", to: "/business/projects" }, { label: project.title }]} />
 
+      
+
       {/* Project Header Banner */}
       <header className="rounded-[13px] border border-[#e4e6e2] bg-white px-5 py-5 sm:px-7 sm:py-6">
         <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-center">
