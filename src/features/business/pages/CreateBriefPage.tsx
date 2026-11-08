@@ -10,10 +10,12 @@ import { Link, useNavigate, useMatch } from "react-router";
 import { ArrowLeft, ArrowRight, Check, Eye, FileText, Plus, Upload, X } from "lucide-react";
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
   Card,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -156,6 +158,8 @@ function BriefEditor({
   const { candidates } = useBusiness();
   const [pendingPublish, setPendingPublish] = useState<ProjectBrief | null>(null);
   const [saveError, setSaveError] = useState("");
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [showGuidedTemplate, setShowGuidedTemplate] = useState(
     !existingProject || !!existingProject.guidedBrief
   );
@@ -177,12 +181,16 @@ function BriefEditor({
   function saveDraft() {
     const project = buildProject("draft");
     if (!project) return;
-    try {
-      saveProject(project);
-      navigate(`/business/projects/${project.id}`);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại.");
-    }
+    setIsSavingDraft(true);
+    setTimeout(() => {
+      try {
+        saveProject(project);
+        navigate(`/business/projects/${project.id}?draft=true`);
+      } catch (error) {
+        setIsSavingDraft(false);
+        setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại.");
+      }
+    }, 600);
   }
 
   function publish() {
@@ -198,12 +206,16 @@ function BriefEditor({
       setPendingPublish(project);
       return;
     }
-    try {
-      saveProject(project);
-      navigate(`/business/projects/${project.id}`);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại.");
-    }
+    setIsPublishing(true);
+    setTimeout(() => {
+      try {
+        saveProject(project);
+        navigate(`/business/projects/${project.id}?published=true`);
+      } catch (error) {
+        setIsPublishing(false);
+        setSaveError(error instanceof Error ? error.message : "Không lưu được dự án. Vui lòng thử lại.");
+      }
+    }, 800);
   }
 
   const formFieldsSx = {
@@ -263,12 +275,17 @@ function BriefEditor({
             variant="contained"
             onClick={() => {
               if (!pendingPublish) return;
-              try {
-                saveProject(pendingPublish);
-                navigate(`/business/projects/${pendingPublish.id}/brief`);
-              } catch (issue) {
-                setSaveError(issue instanceof Error ? issue.message : "Không lưu được thay đổi.");
-              }
+              setIsPublishing(true);
+              setPendingPublish(null);
+              setTimeout(() => {
+                try {
+                  saveProject(pendingPublish);
+                  navigate(`/business/projects/${pendingPublish.id}?published=true`);
+                } catch (issue) {
+                  setIsPublishing(false);
+                  setSaveError(issue instanceof Error ? issue.message : "Không lưu được thay đổi.");
+                }
+              }, 800);
             }}
           >
             Lưu phiên bản mới
@@ -461,7 +478,7 @@ function BriefEditor({
                       ? "Cả cá nhân và team"
                       : fields.preference === "individual"
                       ? "Freelancer cá nhân"
-                      : "Team sáng tạo"}
+                      : "Team"}
                   </strong>
                 </Typography>
                 {fields.referenceFiles.length > 0 && (
@@ -1044,7 +1061,7 @@ function BriefEditor({
                     [
                       ["both", "Cả cá nhân và team", "Mở rộng lựa chọn ứng viên"],
                       ["individual", "Freelancer cá nhân", "Trao đổi trực tiếp 1-1"],
-                      ["team", "Team sáng tạo", "Nhóm có nhiều kỹ năng"],
+                      ["team", "Team", "Nhóm có nhiều kỹ năng"],
                     ] as const
                   ).map(([value, label, description]) => (
                     <FormControlLabel
@@ -1143,6 +1160,40 @@ function BriefEditor({
         </div>
         <BriefFormSummary fields={fields} sections={sections} isPreview={isPreview} />
       </div>
+
+      <Backdrop
+        open={isPublishing || isSavingDraft}
+        sx={{
+          zIndex: 1500,
+          bgcolor: "rgba(255, 255, 255, 0.88)",
+          backdropFilter: "blur(6px)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2,
+          p: 3,
+          textAlign: "center",
+        }}
+      >
+        <CircularProgress size={46} thickness={4} sx={{ color: "#f4490b" }} />
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: "Archivo, Arial, sans-serif",
+              fontSize: 18,
+              fontWeight: 800,
+              color: "#20201f",
+              mb: 0.5,
+            }}
+          >
+            {isPublishing ? "Đang công bố dự án lên thị trường..." : "Đang lưu bản nháp dự án..."}
+          </Typography>
+          <Typography sx={{ fontFamily: font, fontSize: 13, color: "text.secondary" }}>
+            Hệ thống đang lưu dữ liệu và chuyển hướng sang trang quản lý dự án...
+          </Typography>
+        </Box>
+      </Backdrop>
     </Box>
   );
 }

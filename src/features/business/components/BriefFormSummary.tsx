@@ -70,7 +70,7 @@ export function BriefFormSummary({ fields, sections, isPreview }: BriefFormSumma
               {fields.preference === "both"
                 ? "Cá nhân hoặc Team"
                 : fields.preference === "team"
-                ? "Team sáng tạo"
+                ? "Team"
                 : "Freelancer cá nhân"}
             </dd>
           </div>
